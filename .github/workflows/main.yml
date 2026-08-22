@@ -44,36 +44,10 @@ jobs:
 
 
       # ==========================================
-      # DOWNLOAD PLAYIT CLI
+      # DOWNLOAD PLAYIT
       # ==========================================
 
-      - name: Download Playit CLI
-        run: |
-          set -e
-
-          echo "======================================"
-          echo "LAC_SERVER_STATE=INSTALLING_PLAYIT_CLI"
-          echo "======================================"
-
-          wget \
-            --timeout=60 \
-            --tries=5 \
-            -O "$GITHUB_WORKSPACE/playit-cli" \
-            "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-cli-linux-amd64"
-
-          chmod +x \
-            "$GITHUB_WORKSPACE/playit-cli"
-
-          echo "Playit CLI installed."
-
-          "$GITHUB_WORKSPACE/playit-cli" --help || true
-
-
-      # ==========================================
-      # DOWNLOAD PLAYIT AGENT
-      # ==========================================
-
-      - name: Download Playit agent
+      - name: Download Playit
         run: |
           set -e
 
@@ -90,13 +64,13 @@ jobs:
           chmod +x \
             "$GITHUB_WORKSPACE/playit"
 
-          echo "Playit agent installed."
+          echo "Playit installed."
 
           "$GITHUB_WORKSPACE/playit" --help || true
 
 
       # ==========================================
-      # CHECK PLAYIT SECRET
+      # CHECK SECRET
       # ==========================================
 
       - name: Check Playit secret
@@ -126,7 +100,7 @@ jobs:
 
 
       # ==========================================
-      # FIRST PLAYIT SETUP
+      # FIRST AGENT SETUP
       # ==========================================
 
       - name: First Playit agent setup
@@ -146,46 +120,19 @@ jobs:
           echo "############################################################"
 
           echo
-          echo "Generating Playit claim code..."
+          echo "Generating Playit claim..."
 
           CLAIM_OUTPUT=$(
-            "$GITHUB_WORKSPACE/playit-cli" \
-              claim generate 2>&1
+            "$GITHUB_WORKSPACE/playit" \
+              2>&1 \
+              || true
           )
 
           echo "$CLAIM_OUTPUT"
 
-          CLAIM_CODE=$(
-            echo "$CLAIM_OUTPUT" |
-            grep -Eo '[0-9]{6,}' |
-            tail -1
-          )
-
-          if [ -z "$CLAIM_CODE" ]; then
-
-            echo
-            echo "ERROR: Could not find Playit claim code."
-
-            exit 1
-
-          fi
-
           echo
-          echo "CLAIM CODE:"
-          echo "$CLAIM_CODE"
-
-          echo
-          echo "############################################################"
-          echo "#                                                          #"
-          echo "#              PLAYIT AGENT CLAIM REQUIRED                #"
-          echo "#                                                          #"
-          echo "############################################################"
-
-          echo
-          echo "Open the Playit claim URL shown above."
-
-          echo
-          echo "Approve LACServer2 in your Playit account."
+          echo "Use the claim URL shown above to approve"
+          echo "this Playit agent."
 
           echo
           echo "DO NOT CLOSE THIS WORKFLOW."
@@ -197,129 +144,9 @@ jobs:
           echo "LAC_SERVER_STATE=WAITING_FOR_PLAYIT_CLAIM"
           echo "PLAYIT_AGENT=WAITING"
 
-          # --------------------------------------
-          # WAIT FOR CLAIM
-          # --------------------------------------
-
           echo
-          echo "Waiting for Playit approval..."
-
-          "$GITHUB_WORKSPACE/playit-cli" \
-            claim exchange "$CLAIM_CODE" \
-            --wait 600 \
-            > "$GITHUB_WORKSPACE/playit-claim-output.txt" 2>&1
-
-          echo
-          echo "Playit claim command finished."
-
-          echo
-          echo "===== CLAIM OUTPUT ====="
-
-          cat \
-            "$GITHUB_WORKSPACE/playit-claim-output.txt"
-
-          # --------------------------------------
-          # EXTRACT SECRET
-          # --------------------------------------
-
-          SECRET=$(
-            grep -Eo '^[A-Za-z0-9_-]{20,}$' \
-              "$GITHUB_WORKSPACE/playit-claim-output.txt" |
-              tail -1
-          )
-
-          if [ -z "$SECRET" ]; then
-
-            echo
-            echo "ERROR: Could not extract Playit agent secret."
-
-            echo
-            echo "The claim completed, but the returned"
-            echo "secret format was not recognized."
-
-            exit 1
-
-          fi
-
-          printf '%s' "$SECRET" \
-            > "$GITHUB_WORKSPACE/PLAYIT_SECRET.txt"
-
-          chmod 600 \
-            "$GITHUB_WORKSPACE/PLAYIT_SECRET.txt"
-
-          echo
-          echo "======================================"
-          echo "LAC_SERVER_STATE=PLAYIT_CLAIMED"
-          echo "======================================"
-
-          echo
-          echo "LACServer2 was successfully claimed."
-
-          echo
-          echo "The secret was extracted and will be"
-          echo "uploaded as a temporary artifact."
-
-          echo
-          echo "DO NOT paste the secret into the workflow."
-
-
-      # ==========================================
-      # UPLOAD SECRET
-      # ==========================================
-
-      - name: Upload Playit secret
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'false'
-        uses: actions/upload-artifact@v4
-        with:
-          name: playit-agent-secret
-          path: PLAYIT_SECRET.txt
-          retention-days: 1
-          if-no-files-found: error
-
-
-      # ==========================================
-      # STOP FIRST RUN
-      # ==========================================
-
-      - name: Finish first-time setup
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'false'
-        run: |
-          set -e
-
-          echo
-          echo "======================================"
-          echo "FIRST PLAYIT SETUP COMPLETE"
-          echo "======================================"
-
-          echo
-          echo "Download the artifact:"
-          echo
-          echo "playit-agent-secret"
-
-          echo
-          echo "Inside it is:"
-          echo
-          echo "PLAYIT_SECRET.txt"
-
-          echo
-          echo "Create this GitHub repository secret:"
-          echo
-          echo "PLAYIT_SECRET"
-
-          echo
-          echo "Location:"
-          echo
-          echo "Repository"
-          echo "→ Settings"
-          echo "→ Secrets and variables"
-          echo "→ Actions"
-          echo "→ New repository secret"
-
-          echo
-          echo "Then run this workflow again."
-
-          echo
-          echo "======================================"
+          echo "The first-run setup must be completed"
+          echo "through the Playit claim process."
 
           exit 0
 
@@ -346,12 +173,6 @@ jobs:
             exit 1
 
           fi
-
-          printf '%s' "$PLAYIT_SECRET" \
-            > "$GITHUB_WORKSPACE/playit-secret"
-
-          chmod 600 \
-            "$GITHUB_WORKSPACE/playit-secret"
 
           echo "PLAYIT_AGENT=PERSISTENT"
           echo "LACServer2 will be reused."
@@ -414,7 +235,7 @@ jobs:
 
 
       # ==========================================
-      # CREATE SERVER CONFIG
+      # SERVER CONFIG
       # ==========================================
 
       - name: Create ServerConfig.txt
@@ -456,7 +277,7 @@ jobs:
 
 
       # ==========================================
-      # INSTALL SERVER CONFIG
+      # INSTALL CONFIG
       # ==========================================
 
       - name: Install ServerConfig.txt
@@ -543,7 +364,7 @@ jobs:
 
 
       # ==========================================
-      # START PLAYIT TUNNEL
+      # START PLAYIT
       # ==========================================
 
       - name: Start Playit tunnel
@@ -569,32 +390,19 @@ jobs:
           fi
 
           # --------------------------------------
-          # CREATE PRIVATE PLAYIT RUNTIME
+          # CLEAN OLD PLAYIT RUNTIME
           # --------------------------------------
-
-          PLAYIT_RUNTIME="$GITHUB_WORKSPACE/playit-runtime"
 
           rm -rf \
-            "$PLAYIT_RUNTIME"
+            "$HOME/.config/playit" \
+            "$HOME/.local/share/playit" \
+            "$HOME/.cache/playit"
 
           mkdir -p \
-            "$PLAYIT_RUNTIME"
+            "$HOME/.config/playit"
 
           chmod 700 \
-            "$PLAYIT_RUNTIME"
-
-          echo
-          echo "PLAYIT_RUNTIME=$PLAYIT_RUNTIME"
-
-          # --------------------------------------
-          # CREATE SOCKET DIRECTORY
-          # --------------------------------------
-
-          mkdir -p \
-            "$PLAYIT_RUNTIME/sockets"
-
-          chmod 700 \
-            "$PLAYIT_RUNTIME/sockets"
+            "$HOME/.config/playit"
 
           # --------------------------------------
           # START PLAYIT
@@ -605,7 +413,6 @@ jobs:
 
           "$GITHUB_WORKSPACE/playit" \
             --secret "$PLAYIT_SECRET" \
-            --state-dir "$PLAYIT_RUNTIME" \
             > "$GITHUB_WORKSPACE/playit.log" 2>&1 &
 
           PLAYIT_PID=$!
@@ -621,8 +428,6 @@ jobs:
 
           echo
           echo "Waiting for Playit..."
-
-          CONNECTED=false
 
           for i in $(seq 1 60); do
 
@@ -644,15 +449,6 @@ jobs:
 
             echo "Playit running... $i/60"
 
-            if grep -qi \
-              -E "connected|tunnel|online|ready" \
-              "$GITHUB_WORKSPACE/playit.log" \
-              2>/dev/null; then
-
-              CONNECTED=true
-
-            fi
-
             sleep 1
 
           done
@@ -664,7 +460,6 @@ jobs:
 
           echo "TUNNEL_PROVIDER=playit"
           echo "LOCAL_UDP=7777"
-          echo "PLAYIT_CONNECTED=$CONNECTED"
 
           echo
           echo "===== PLAYIT LOG ====="
@@ -724,10 +519,6 @@ jobs:
             LAC_PID=$(cat "$GITHUB_WORKSPACE/lac.pid")
             PLAYIT_PID=$(cat "$GITHUB_WORKSPACE/playit.pid")
 
-            # --------------------------------------
-            # CHECK GAME
-            # --------------------------------------
-
             if ! kill -0 "$LAC_PID" 2>/dev/null; then
 
               echo
@@ -746,10 +537,6 @@ jobs:
 
             fi
 
-            # --------------------------------------
-            # CHECK PLAYIT
-            # --------------------------------------
-
             if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
 
               echo
@@ -767,10 +554,6 @@ jobs:
               exit 1
 
             fi
-
-            # --------------------------------------
-            # STATUS
-            # --------------------------------------
 
             echo
             echo "[$(date '+%H:%M:%S')]"
