@@ -37,10 +37,10 @@ jobs:
             ca-certificates
 
       # ==========================================
-      # INSTALL PLAYIT
+      # DOWNLOAD PLAYIT CLI
       # ==========================================
 
-      - name: Install Playit
+      - name: Download Playit CLI
         run: |
           set -e
 
@@ -51,22 +51,42 @@ jobs:
           wget \
             --timeout=60 \
             --tries=5 \
+            -O "$GITHUB_WORKSPACE/playit-cli" \
+            "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-cli-linux-amd64"
+
+          chmod +x \
+            "$GITHUB_WORKSPACE/playit-cli"
+
+          echo
+          echo "Playit CLI version:"
+
+          "$GITHUB_WORKSPACE/playit-cli" version
+
+      # ==========================================
+      # DOWNLOAD PLAYIT AGENT
+      # ==========================================
+
+      - name: Download Playit agent
+        run: |
+          set -e
+
+          wget \
+            --timeout=60 \
+            --tries=5 \
             -O "$GITHUB_WORKSPACE/playit" \
-            "https://builds.playit.gg/1.0.10/playit-linux-amd64"
+            "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-linux-amd64"
 
           chmod +x \
             "$GITHUB_WORKSPACE/playit"
 
           echo
-          echo "Playit installed."
-
-          "$GITHUB_WORKSPACE/playit" version || true
+          echo "Playit agent downloaded."
 
       # ==========================================
-      # PLAYIT AGENT SETUP / CLAIM
+      # PLAYIT CLAIM
       # ==========================================
 
-      - name: Setup Playit agent
+      - name: Claim Playit agent
         env:
           PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
         run: |
@@ -76,15 +96,11 @@ jobs:
           echo "LAC_SERVER_STATE=PLAYIT_SETUP"
           echo "======================================"
 
-          # --------------------------------------
-          # FUTURE RUN
-          # --------------------------------------
-
           if [ -n "$PLAYIT_SECRET" ]; then
 
             echo
-            echo "Existing Playit agent secret found."
-            echo "Using existing claimed agent."
+            echo "Existing PLAYIT_SECRET found."
+            echo "Using existing Playit agent."
 
             printf '%s' "$PLAYIT_SECRET" \
               > "$GITHUB_WORKSPACE/playit-secret"
@@ -94,41 +110,35 @@ jobs:
 
             echo "PLAYIT_AGENT=EXISTING"
 
-          # --------------------------------------
-          # FIRST RUN
-          # --------------------------------------
-
           else
 
             echo
-            echo "=============================================="
-            echo "       FIRST PLAYIT AGENT SETUP"
-            echo "=============================================="
-
-            echo
-            echo "Generating Playit claim code..."
+            echo "======================================"
+            echo "       PLAYIT AGENT CLAIM REQUIRED"
+            echo "======================================"
 
             CLAIM_CODE=$(
-              "$GITHUB_WORKSPACE/playit" \
+              "$GITHUB_WORKSPACE/playit-cli" \
                 claim generate
             )
 
             if [ -z "$CLAIM_CODE" ]; then
-              echo "ERROR: Could not generate Playit claim code."
+              echo "ERROR: Failed to generate claim code."
               exit 1
             fi
 
             CLAIM_URL=$(
-              "$GITHUB_WORKSPACE/playit" \
-                claim url "$CLAIM_CODE"
+              "$GITHUB_WORKSPACE/playit-cli" \
+                claim url "$CLAIM_CODE" \
+                --name "LACServer" \
+                --type "self-managed"
             )
 
             if [ -z "$CLAIM_URL" ]; then
-              echo "ERROR: Could not generate Playit claim URL."
+              echo "ERROR: Failed to generate claim URL."
               exit 1
             fi
 
-            echo
             echo
             echo "################################################"
             echo "#                                              #"
@@ -147,7 +157,7 @@ jobs:
             echo
             echo "Approve the agent in your Playit account."
             echo
-            echo "The workflow is now waiting for approval."
+            echo "The workflow will wait for approval."
             echo
             echo "################################################"
 
@@ -155,30 +165,16 @@ jobs:
             echo "LAC_SERVER_STATE=WAITING_FOR_PLAYIT_CLAIM"
             echo "PLAYIT_AGENT=WAITING"
 
-            # --------------------------------------
-            # WAIT FOR BROWSER APPROVAL
-            # --------------------------------------
-
             echo
-            echo "Waiting for Playit approval..."
+            echo "Waiting for approval..."
 
-            "$GITHUB_WORKSPACE/playit" \
+            "$GITHUB_WORKSPACE/playit-cli" \
               claim exchange "$CLAIM_CODE" \
               --wait 600 \
               > "$GITHUB_WORKSPACE/playit-secret"
 
-            # --------------------------------------
-            # VALIDATE SECRET
-            # --------------------------------------
-
             if [ ! -s "$GITHUB_WORKSPACE/playit-secret" ]; then
-
-              echo
-              echo "ERROR: Playit did not return an agent secret."
-
-              rm -f \
-                "$GITHUB_WORKSPACE/playit-secret"
-
+              echo "ERROR: Playit did not return a secret."
               exit 1
             fi
 
@@ -195,12 +191,14 @@ jobs:
 
             echo
             echo "IMPORTANT:"
-            echo "This GitHub runner is temporary."
+            echo "Save the returned Playit secret as:"
             echo
-            echo "For future runs, save the returned agent"
-            echo "secret as the PLAYIT_SECRET repository secret."
+            echo "PLAYIT_SECRET"
             echo
-            echo "The secret itself is NOT printed for security."
+            echo "GitHub Repository → Settings →"
+            echo "Secrets and variables → Actions"
+            echo
+            echo "The secret itself is NOT printed."
 
           fi
 
@@ -222,11 +220,9 @@ jobs:
             -O "$GITHUB_WORKSPACE/LAC.zip" \
             "https://www.lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
 
-          rm -rf \
-            "$GITHUB_WORKSPACE/lac"
+          rm -rf "$GITHUB_WORKSPACE/lac"
 
-          mkdir -p \
-            "$GITHUB_WORKSPACE/lac"
+          mkdir -p "$GITHUB_WORKSPACE/lac"
 
           unzip -q \
             "$GITHUB_WORKSPACE/LAC.zip" \
@@ -238,11 +234,7 @@ jobs:
             -print -quit)
 
           if [ -z "$SERVER" ]; then
-
             echo "ERROR: L.A. Crimes executable not found."
-
-            echo
-            echo "Files found:"
 
             find "$GITHUB_WORKSPACE/lac" \
               -maxdepth 5 \
@@ -254,7 +246,6 @@ jobs:
 
           chmod +x "$SERVER"
 
-          echo
           echo "L.A. Crimes executable:"
           echo "$SERVER"
 
@@ -299,7 +290,7 @@ jobs:
           echo "LOCAL_UDP=7777"
 
       # ==========================================
-      # INSTALL SERVER CONFIG
+      # INSTALL CONFIG
       # ==========================================
 
       - name: Install ServerConfig.txt
@@ -308,8 +299,7 @@ jobs:
 
           CONFIG_DIR="/root/.config/unity3d/MA/LAC"
 
-          sudo mkdir -p \
-            "$CONFIG_DIR"
+          sudo mkdir -p "$CONFIG_DIR"
 
           sudo cp \
             "$GITHUB_WORKSPACE/ServerConfig.txt" \
@@ -356,14 +346,10 @@ jobs:
 
           echo "LAC_PID=$LAC_PID"
 
-          echo
-          echo "Waiting 10 seconds..."
-
           sleep 10
 
           if ! kill -0 "$LAC_PID" 2>/dev/null; then
 
-            echo
             echo "LAC_SERVER_STATE=GAME_FAILED"
 
             echo
@@ -393,7 +379,7 @@ jobs:
       # START PLAYIT
       # ==========================================
 
-      - name: Start Playit
+      - name: Start Playit tunnel
         run: |
           set -e
 
@@ -415,14 +401,10 @@ jobs:
 
           echo "PLAYIT_PID=$PLAYIT_PID"
 
-          echo
-          echo "Waiting for Playit..."
-
           sleep 10
 
           if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
 
-            echo
             echo "ERROR: Playit stopped."
 
             echo
@@ -482,7 +464,6 @@ jobs:
         run: |
           set -e
 
-          echo
           echo "======================================"
           echo "SERVER_READY=true"
           echo "SERVER_STATUS=ONLINE"
@@ -500,21 +481,12 @@ jobs:
             PLAYIT_PID=$(cat \
               "$GITHUB_WORKSPACE/playit.pid")
 
-            # --------------------------------------
-            # GAME CHECK
-            # --------------------------------------
-
             if ! kill -0 "$LAC_PID" 2>/dev/null; then
 
               echo
-              echo "======================================"
               echo "SERVER_READY=false"
               echo "SERVER_STATUS=OFFLINE"
               echo "LAC_SERVER_STATE=GAME_STOPPED"
-              echo "======================================"
-
-              echo
-              echo "===== L.A. CRIMES LOG ====="
 
               tail -250 \
                 "$GITHUB_WORKSPACE/lac-server.log" \
@@ -523,21 +495,12 @@ jobs:
               exit 1
             fi
 
-            # --------------------------------------
-            # PLAYIT CHECK
-            # --------------------------------------
-
             if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
 
               echo
-              echo "======================================"
               echo "SERVER_READY=false"
               echo "SERVER_STATUS=OFFLINE"
               echo "LAC_SERVER_STATE=TUNNEL_STOPPED"
-              echo "======================================"
-
-              echo
-              echo "===== PLAYIT LOG ====="
 
               cat \
                 "$GITHUB_WORKSPACE/playit.log" \
@@ -546,16 +509,12 @@ jobs:
               exit 1
             fi
 
-            # --------------------------------------
-            # HEARTBEAT
-            # --------------------------------------
-
             echo
             echo "[$(date '+%H:%M:%S')]"
 
             echo "LAC_SERVER_STATE=ONLINE"
-            echo "SERVER_STATUS=ONLINE"
             echo "SERVER_READY=true"
+            echo "SERVER_STATUS=ONLINE"
             echo "MAP=City"
             echo "LOCAL_UDP=7777"
             echo "TUNNEL_PROVIDER=playit"
