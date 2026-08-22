@@ -1,0 +1,424 @@
+name: L.A. Crimes Rustunnel Server
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+
+      # ==========================================
+      # CHECKOUT
+      # ==========================================
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ==========================================
+      # DEPENDENCIES
+      # ==========================================
+
+      - name: Install dependencies
+        run: |
+          set -e
+
+          sudo apt-get update
+
+          sudo apt-get install -y \
+            unzip \
+            wget \
+            curl \
+            jq \
+            git
+
+      # ==========================================
+      # DOWNLOAD RUSTUNNEL
+      # ==========================================
+
+      - name: Install Rustunnel
+        run: |
+          set -e
+
+          VERSION="0.8.4"
+          ARCHIVE="rustunnel-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+
+          echo "======================================"
+          echo "INSTALLING RUSTUNNEL"
+          echo "VERSION: ${VERSION}"
+          echo "======================================"
+
+          wget \
+            --timeout=60 \
+            --tries=5 \
+            -O /tmp/rustunnel.tar.gz \
+            "https://github.com/joaoh82/rustunnel/releases/download/v${VERSION}/${ARCHIVE}"
+
+          mkdir -p /tmp/rustunnel
+
+          tar -xzf \
+            /tmp/rustunnel.tar.gz \
+            -C /tmp/rustunnel
+
+          RUSTUNNEL_BIN=$(find /tmp/rustunnel \
+            -type f \
+            -name "rustunnel" \
+            -print -quit)
+
+          if [ -z "$RUSTUNNEL_BIN" ]; then
+            echo "ERROR: Rustunnel binary not found."
+
+            find /tmp/rustunnel \
+              -maxdepth 3 \
+              -type f \
+              -print
+
+            exit 1
+          fi
+
+          chmod +x "$RUSTUNNEL_BIN"
+
+          sudo install \
+            -m 755 \
+            "$RUSTUNNEL_BIN" \
+            /usr/local/bin/rustunnel
+
+          echo
+          echo "Rustunnel installed:"
+          rustunnel --version
+
+      # ==========================================
+      # DOWNLOAD L.A. CRIMES
+      # ==========================================
+
+      - name: Download L.A. Crimes
+        run: |
+          set -e
+
+          echo "======================================"
+          echo "DOWNLOADING L.A. CRIMES"
+          echo "======================================"
+
+          wget \
+            --timeout=60 \
+            --tries=5 \
+            -O "$GITHUB_WORKSPACE/LAC.zip" \
+            "https://www.lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
+
+          mkdir -p "$GITHUB_WORKSPACE/lac"
+
+          unzip -q \
+            "$GITHUB_WORKSPACE/LAC.zip" \
+            -d "$GITHUB_WORKSPACE/lac"
+
+          SERVER=$(find "$GITHUB_WORKSPACE/lac" \
+            -type f \
+            -name "LAC_Linux_v1.9.6.x86_64" \
+            -print -quit)
+
+          if [ -z "$SERVER" ]; then
+            echo "ERROR: L.A. Crimes executable not found."
+
+            find "$GITHUB_WORKSPACE/lac" \
+              -maxdepth 4 \
+              -type f \
+              -print
+
+            exit 1
+          fi
+
+          chmod +x "$SERVER"
+
+          echo "L.A. Crimes found:"
+          echo "$SERVER"
+
+      # ==========================================
+      # SERVER CONFIG
+      # ==========================================
+
+      - name: Create ServerConfig.txt
+        run: |
+          set -e
+
+          cat > "$GITHUB_WORKSPACE/ServerConfig.txt" <<'EOF'
+          #Maps (City, Garage, RagdollParty, TrainFacility)
+          #Maps (ZombieSurvival, NewTerrainRamps, Island, CarSoccer)
+          #Editor Maps (editor:myMap)
+
+          (Moderator)
+          admin code=YOUR-NUM-CODE
+          lock down=true
+
+          (Basic)
+          restart timer=never
+          max players=16
+          map name=City
+          starting port=7777
+
+          (Server List)
+          share to community=true
+          server language=English
+          server password=none
+
+          (Roleplay)
+          username=HOST
+          password=0000
+          EOF
+
+          echo "======================================"
+          echo "SERVER CONFIG"
+          echo "======================================"
+
+          cat "$GITHUB_WORKSPACE/ServerConfig.txt"
+
+      # ==========================================
+      # INSTALL CONFIG
+      # ==========================================
+
+      - name: Install ServerConfig.txt
+        run: |
+          set -e
+
+          CONFIG_DIR="/root/.config/unity3d/MA/LAC"
+
+          sudo mkdir -p "$CONFIG_DIR"
+
+          sudo cp \
+            "$GITHUB_WORKSPACE/ServerConfig.txt" \
+            "$CONFIG_DIR/ServerConfig.txt"
+
+          sudo chmod 644 \
+            "$CONFIG_DIR/ServerConfig.txt"
+
+          echo "CONFIG INSTALLED"
+
+      # ==========================================
+      # START L.A. CRIMES
+      # ==========================================
+
+      - name: Start L.A. Crimes
+        run: |
+          set -e
+
+          SERVER=$(find "$GITHUB_WORKSPACE/lac" \
+            -type f \
+            -name "LAC_Linux_v1.9.6.x86_64" \
+            -print -quit)
+
+          SERVER_DIR=$(dirname "$SERVER")
+
+          cd "$SERVER_DIR"
+
+          echo "======================================"
+          echo "STARTING L.A. CRIMES"
+          echo "======================================"
+
+          echo "MAP: City"
+          echo "LOCAL UDP: 7777"
+
+          ./LAC_Linux_v1.9.6.x86_64 \
+            -batchmode \
+            -nographics \
+            > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
+
+          echo $! > "$GITHUB_WORKSPACE/lac.pid"
+
+          sleep 10
+
+          echo
+          echo "===== PROCESS ====="
+
+          ps aux | grep '[L]AC_Linux' || true
+
+          echo
+          echo "===== UDP 7777 ====="
+
+          ss -lunp | grep ':7777' || true
+
+      # ==========================================
+      # START RUSTUNNEL
+      # ==========================================
+
+      - name: Start Rustunnel
+        env:
+          RUSTUNNEL_TOKEN: ${{ secrets.RUSTUNNEL_TOKEN }}
+        run: |
+          set -e
+
+          if [ -z "$RUSTUNNEL_TOKEN" ]; then
+            echo "ERROR: RUSTUNNEL_TOKEN is missing."
+            exit 1
+          fi
+
+          echo "======================================"
+          echo "STARTING RUSTUNNEL"
+          echo "======================================"
+
+          echo "LOCAL UDP: 7777"
+
+          rustunnel udp 7777 \
+            --token "$RUSTUNNEL_TOKEN" \
+            --json \
+            > "$GITHUB_WORKSPACE/rustunnel.log" 2>&1 &
+
+          echo $! > "$GITHUB_WORKSPACE/rustunnel.pid"
+
+          echo
+          echo "Waiting for Rustunnel..."
+
+          READY="false"
+
+          for i in $(seq 1 30); do
+
+            if grep -q '"event":"tunnel_ready"' \
+              "$GITHUB_WORKSPACE/rustunnel.log" 2>/dev/null; then
+              READY="true"
+              break
+            fi
+
+            if grep -q '"event":"error"' \
+              "$GITHUB_WORKSPACE/rustunnel.log" 2>/dev/null; then
+              echo "Rustunnel reported an error:"
+              cat "$GITHUB_WORKSPACE/rustunnel.log"
+              exit 1
+            fi
+
+            sleep 1
+
+          done
+
+          if [ "$READY" != "true" ]; then
+            echo "ERROR: Rustunnel did not become ready."
+
+            echo
+            echo "===== RUSTUNNEL LOG ====="
+
+            cat "$GITHUB_WORKSPACE/rustunnel.log" || true
+
+            exit 1
+          fi
+
+          TUNNEL_JSON=$(grep '"event":"tunnel_ready"' \
+            "$GITHUB_WORKSPACE/rustunnel.log" \
+            | tail -1)
+
+          PUBLIC_ENDPOINT=$(echo "$TUNNEL_JSON" | jq -r '.public_addr // empty')
+
+          if [ -z "$PUBLIC_ENDPOINT" ]; then
+            echo "ERROR: Rustunnel did not provide public_addr."
+
+            echo "$TUNNEL_JSON"
+
+            exit 1
+          fi
+
+          echo "$PUBLIC_ENDPOINT" \
+            > "$GITHUB_WORKSPACE/public-endpoint.txt"
+
+          echo "======================================"
+          echo "RUSTUNNEL READY"
+          echo "======================================"
+
+          echo "PUBLIC_ENDPOINT=$PUBLIC_ENDPOINT"
+
+      # ==========================================
+      # SERVER READY MARKER
+      # ==========================================
+
+      - name: Announce server ready
+        run: |
+          set -e
+
+          PUBLIC_ENDPOINT=$(cat \
+            "$GITHUB_WORKSPACE/public-endpoint.txt")
+
+          echo
+          echo "======================================"
+          echo "LAC_SERVER_READY"
+          echo "======================================"
+          echo "SERVER_STATUS=ONLINE"
+          echo "SERVER_READY=true"
+          echo "MAP=City"
+          echo "LOCAL_UDP=7777"
+          echo "PUBLIC_ENDPOINT=$PUBLIC_ENDPOINT"
+          echo "======================================"
+
+      # ==========================================
+      # KEEP ALIVE
+      # ==========================================
+
+      - name: Keep server alive
+        run: |
+          set -e
+
+          echo
+          echo "======================================"
+          echo "LAC_SERVER_READY"
+          echo "======================================"
+
+          PUBLIC_ENDPOINT=$(cat \
+            "$GITHUB_WORKSPACE/public-endpoint.txt")
+
+          echo "SERVER_STATUS=ONLINE"
+          echo "SERVER_READY=true"
+          echo "MAP=City"
+          echo "LOCAL_UDP=7777"
+          echo "PUBLIC_ENDPOINT=$PUBLIC_ENDPOINT"
+
+          echo
+          echo "======================================"
+
+          while true; do
+
+            LAC_PID=$(cat \
+              "$GITHUB_WORKSPACE/lac.pid")
+
+            RUSTUNNEL_PID=$(cat \
+              "$GITHUB_WORKSPACE/rustunnel.pid")
+
+            if ! kill -0 "$LAC_PID" 2>/dev/null; then
+              echo "SERVER_STATUS=OFFLINE"
+              echo "SERVER_READY=false"
+              echo "L.A. Crimes stopped."
+
+              echo
+              echo "===== L.A. CRIMES LOG ====="
+
+              tail -250 \
+                "$GITHUB_WORKSPACE/lac-server.log" \
+                || true
+
+              exit 1
+            fi
+
+            if ! kill -0 "$RUSTUNNEL_PID" 2>/dev/null; then
+              echo "SERVER_STATUS=OFFLINE"
+              echo "SERVER_READY=false"
+              echo "Rustunnel stopped."
+
+              echo
+              echo "===== RUSTUNNEL LOG ====="
+
+              cat \
+                "$GITHUB_WORKSPACE/rustunnel.log" \
+                || true
+
+              exit 1
+            fi
+
+            echo
+            echo "[$(date '+%H:%M:%S')]"
+            echo "SERVER_STATUS=ONLINE"
+            echo "SERVER_READY=true"
+            echo "MAP=City"
+            echo "LOCAL_UDP=7777"
+            echo "PUBLIC_ENDPOINT=$PUBLIC_ENDPOINT"
+
+            sleep 10
+
+          done
