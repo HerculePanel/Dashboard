@@ -1,124 +1,219 @@
-# 🎮 L.A. Crimes Server
+LACServer Dashboard
 
-A free L.A. Crimes dedicated-server experiment using:
+A free game-server hosting dashboard built around GitHub Pages, Cloudflare, GitHub Actions, and Playit.
 
-- GitHub Actions
-- L.A. Crimes Linux server
-- Rustunnel UDP tunneling
-- GitHub Pages dashboard
+The goal is to let friends create and manage game servers through a simple web dashboard while keeping a limited number of server slots available.
 
-## How it works
+🌐 Project
 
-```text
+GitHub: "LACServer/Dashboard"
+
+GitHub Pages: "https://lacserver.github.io/Dashboard/"
+
+✨ Features
+
+- 🎮 Create game servers
+- 🟢 Live server status
+- 📊 Server slot counter
+- 🌐 Public Playit address display
+- 📋 One-click address copying
+- ▶️ Start servers
+- ⏹️ Stop servers
+- 🔄 Restart servers
+- 👥 Player count
+- 📝 Server information
+- 📜 Server logs
+- 📱 Mobile-friendly dashboard
+- ☁️ Cloudflare backend
+- ⚡ GitHub Actions server runners
+- 🔗 Playit public tunnels
+
+📁 Project Structure
+
+Dashboard/
+│
+├── index.html
+├── style.css
+├── app.js
+│
+├── cloudflare/
+│   ├── worker.js
+│   └── schema.sql
+│
+├── .github/
+│   └── workflows/
+│       └── main.yml
+│
+└── README.md
+
+🏗️ Architecture
+
+┌──────────────────────┐
+│     GitHub Pages     │
+│                      │
+│ index.html           │
+│ style.css            │
+│ app.js               │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   Cloudflare Worker  │
+│        API           │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│    Cloudflare D1     │
+│                      │
+│ Server slots         │
+│ Status               │
+│ Ownership             │
+│ Endpoints            │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│    GitHub Actions    │
+│                      │
+│ L.A. Crimes server   │
+│ Playit agent         │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│        Playit        │
+│                      │
+│ Public UDP tunnel    │
+└──────────────────────┘
+
+🎯 Server Slots
+
+The dashboard is designed around a limited number of available hosting slots.
+
+Example:
+
+1 / 4 SERVERS USED
+
+🟢 Server 1 — ONLINE
+⚪ Server 2 — AVAILABLE
+⚪ Server 3 — AVAILABLE
+⚪ Server 4 — AVAILABLE
+
+When all slots are occupied:
+
+4 / 4 SERVERS USED
+
+No free server slots.
+
+⚙️ Components
+
 GitHub Pages
-     ↓
-GitHub API
-     ↓
+
+Hosts the frontend:
+
+- "index.html"
+- "style.css"
+- "app.js"
+
+The frontend contains no private API credentials.
+
+Cloudflare Worker
+
+Acts as the backend API.
+
+It will handle:
+
+- Server creation
+- Server deletion
+- Slot allocation
+- Server status
+- GitHub Actions requests
+- Public endpoint information
+
+Cloudflare D1
+
+Stores persistent server information.
+
+Example records include:
+
+server_id
+server_name
+status
+owner
+github_run_id
+playit_endpoint
+created_at
+updated_at
+
 GitHub Actions
-     ↓
-L.A. Crimes :7777
-     ↓
-Rustunnel UDP
-     ↓
-Players
 
-Setup
+Runs the actual game server.
 
-1. Create a Rustunnel account
-
-Create a Rustunnel account and create an API key.
-
-Do not put the key in "index.html".
-
-2. Add the GitHub secret
-
-Open:
-
-Repository
-→ Settings
-→ Secrets and variables
-→ Actions
-→ New repository secret
-
-Create:
-
-Name:
-RUSTUNNEL_TOKEN
-
-Value:
-YOUR_RUSTUNNEL_TOKEN
-
-3. Workflow
-
-The server workflow is:
+The existing workflow is:
 
 .github/workflows/main.yml
 
-It:
+It starts:
 
-1. Installs Rustunnel.
-2. Downloads L.A. Crimes.
-3. Creates the server configuration.
-4. Sets the map to City.
-5. Starts L.A. Crimes on UDP 7777.
-6. Starts a Rustunnel UDP tunnel.
-7. Detects the "tunnel_ready" event.
-8. Extracts the public address.
-9. Prints:
+- L.A. Crimes
+- Playit
+- The configured server
 
-SERVER_STATUS=ONLINE
-SERVER_READY=true
-MAP=City
-LOCAL_UDP=7777
-PUBLIC_ENDPOINT=...
+Playit
 
-10. Keeps the server alive.
+Provides the public network tunnel so players outside the GitHub runner can connect to the game server.
 
-Rustunnel
+🔐 Security
 
-The project uses the managed Rustunnel service.
-
-The free plan currently supports multiple concurrent tunnels and UDP, but it has a bandwidth limit. Check the current Rustunnel pricing before relying on it for long-running servers.
-
-Dashboard
-
-"index.html" is intended for GitHub Pages.
-
-The dashboard should communicate with a secure backend that performs the GitHub API operations.
-
-Do not put a GitHub personal access token directly inside "index.html".
-
-Important limitations
-
-GitHub-hosted runners are temporary.
-
-The server is therefore not guaranteed to stay online permanently.
-
-The workflow also has a maximum runtime.
-
-This project is intended for testing and playing with friends rather than permanent commercial hosting.
-
-Files
-
-.github/workflows/main.yml
-    GitHub Actions server workflow
+Private credentials must never be placed inside:
 
 index.html
-    Web dashboard
+style.css
+app.js
 
-README.md
-    Project documentation
+Secrets should be stored using:
 
-Map
+- GitHub Actions Secrets
+- Cloudflare Worker Secrets
 
-Current default map:
+In particular, never commit:
 
-City
+PLAYIT_SECRET
+GITHUB_TOKEN
+CLOUDFLARE_API_TOKEN
 
-Local server port
+to the repository.
 
-7777/UDP
+🚧 Project Status
 
-License
+Currently building.
 
-This repository contains configuration and automation created for the server setup. L.A. Crimes itself remains the property of its respective creators.
+Completed
+
+- [x] GitHub repository
+- [x] GitHub Pages structure
+- [x] L.A. Crimes GitHub Actions server
+- [x] Playit agent
+- [x] Playit tunnel
+- [x] Public game-server connectivity
+
+In progress
+
+- [ ] Dashboard UI
+- [ ] Cloudflare Worker
+- [ ] D1 database
+- [ ] Server slot management
+- [ ] GitHub Actions API integration
+- [ ] Automatic Playit endpoint detection
+- [ ] Start/stop controls
+- [ ] Automatic offline-server cleanup
+
+📜 License
+
+This project is intended for personal/friends-only game-server hosting.
+
+---
+
+LACServer Dashboard
+Free game-server hosting for friends.
