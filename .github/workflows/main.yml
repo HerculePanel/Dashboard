@@ -1,4 +1,4 @@
-name: L.A. Crimes Rustunnel Server
+name: L.A. Crimes Playit Server
 
 on:
   workflow_dispatch:
@@ -34,96 +34,175 @@ jobs:
             unzip \
             wget \
             curl \
-            jq \
-            tar \
-            git
+            ca-certificates
 
       # ==========================================
-      # INSTALL RUSTUNNEL
+      # INSTALL PLAYIT
       # ==========================================
 
-      - name: Install Rustunnel
+      - name: Install Playit
         run: |
           set -e
 
           echo "======================================"
-          echo "LAC_SERVER_STATE=INSTALLING_RUSTUNNEL"
+          echo "LAC_SERVER_STATE=INSTALLING_PLAYIT"
           echo "======================================"
-
-          RELEASE_API="https://api.github.com/repos/joaoh82/rustunnel/releases/latest"
-
-          echo "Finding latest Rustunnel release..."
-
-          ASSET_URL=$(curl -fsSL "$RELEASE_API" \
-            | jq -r '
-                .assets[]
-                | select(
-                    .name
-                    | test("^rustunnel-v[0-9.]+-x86_64-unknown-linux-gnu\\.tar\\.gz$")
-                  )
-                | .browser_download_url
-              ' \
-            | head -n 1)
-
-          if [ -z "$ASSET_URL" ] || [ "$ASSET_URL" = "null" ]; then
-            echo "ERROR: Linux x86_64 Rustunnel asset was not found."
-
-            echo
-            echo "Available release assets:"
-
-            curl -fsSL "$RELEASE_API" \
-              | jq -r '.assets[].name'
-
-            exit 1
-          fi
-
-          echo
-          echo "Rustunnel asset:"
-          echo "$ASSET_URL"
 
           wget \
             --timeout=60 \
             --tries=5 \
-            -O /tmp/rustunnel.tar.gz \
-            "$ASSET_URL"
+            -O "$GITHUB_WORKSPACE/playit" \
+            "https://builds.playit.gg/1.0.10/playit-linux-amd64"
 
-          rm -rf /tmp/rustunnel
-
-          mkdir -p /tmp/rustunnel
-
-          tar \
-            -xzf /tmp/rustunnel.tar.gz \
-            -C /tmp/rustunnel
-
-          RUSTUNNEL_BIN=$(find /tmp/rustunnel \
-            -type f \
-            -name "rustunnel" \
-            -print -quit)
-
-          if [ -z "$RUSTUNNEL_BIN" ]; then
-            echo "ERROR: Rustunnel executable was not found."
-
-            find /tmp/rustunnel \
-              -maxdepth 4 \
-              -type f \
-              -print
-
-            exit 1
-          fi
-
-          chmod +x "$RUSTUNNEL_BIN"
-
-          sudo install \
-            -m 755 \
-            "$RUSTUNNEL_BIN" \
-            /usr/local/bin/rustunnel
+          chmod +x \
+            "$GITHUB_WORKSPACE/playit"
 
           echo
+          echo "Playit installed."
+
+          "$GITHUB_WORKSPACE/playit" version || true
+
+      # ==========================================
+      # PLAYIT AGENT SETUP / CLAIM
+      # ==========================================
+
+      - name: Setup Playit agent
+        env:
+          PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
+        run: |
+          set -e
+
           echo "======================================"
-          echo "RUSTUNNEL INSTALLED"
+          echo "LAC_SERVER_STATE=PLAYIT_SETUP"
           echo "======================================"
 
-          rustunnel --version
+          # --------------------------------------
+          # FUTURE RUN
+          # --------------------------------------
+
+          if [ -n "$PLAYIT_SECRET" ]; then
+
+            echo
+            echo "Existing Playit agent secret found."
+            echo "Using existing claimed agent."
+
+            printf '%s' "$PLAYIT_SECRET" \
+              > "$GITHUB_WORKSPACE/playit-secret"
+
+            chmod 600 \
+              "$GITHUB_WORKSPACE/playit-secret"
+
+            echo "PLAYIT_AGENT=EXISTING"
+
+          # --------------------------------------
+          # FIRST RUN
+          # --------------------------------------
+
+          else
+
+            echo
+            echo "=============================================="
+            echo "       FIRST PLAYIT AGENT SETUP"
+            echo "=============================================="
+
+            echo
+            echo "Generating Playit claim code..."
+
+            CLAIM_CODE=$(
+              "$GITHUB_WORKSPACE/playit" \
+                claim generate
+            )
+
+            if [ -z "$CLAIM_CODE" ]; then
+              echo "ERROR: Could not generate Playit claim code."
+              exit 1
+            fi
+
+            CLAIM_URL=$(
+              "$GITHUB_WORKSPACE/playit" \
+                claim url "$CLAIM_CODE"
+            )
+
+            if [ -z "$CLAIM_URL" ]; then
+              echo "ERROR: Could not generate Playit claim URL."
+              exit 1
+            fi
+
+            echo
+            echo
+            echo "################################################"
+            echo "#                                              #"
+            echo "#       PLAYIT AGENT CLAIM REQUIRED            #"
+            echo "#                                              #"
+            echo "################################################"
+            echo
+            echo "OPEN THIS URL ON YOUR ANDROID PHONE:"
+            echo
+            echo "$CLAIM_URL"
+            echo
+            echo "################################################"
+            echo
+            echo "Claim code:"
+            echo "$CLAIM_CODE"
+            echo
+            echo "Approve the agent in your Playit account."
+            echo
+            echo "The workflow is now waiting for approval."
+            echo
+            echo "################################################"
+
+            echo
+            echo "LAC_SERVER_STATE=WAITING_FOR_PLAYIT_CLAIM"
+            echo "PLAYIT_AGENT=WAITING"
+
+            # --------------------------------------
+            # WAIT FOR BROWSER APPROVAL
+            # --------------------------------------
+
+            echo
+            echo "Waiting for Playit approval..."
+
+            "$GITHUB_WORKSPACE/playit" \
+              claim exchange "$CLAIM_CODE" \
+              --wait 600 \
+              > "$GITHUB_WORKSPACE/playit-secret"
+
+            # --------------------------------------
+            # VALIDATE SECRET
+            # --------------------------------------
+
+            if [ ! -s "$GITHUB_WORKSPACE/playit-secret" ]; then
+
+              echo
+              echo "ERROR: Playit did not return an agent secret."
+
+              rm -f \
+                "$GITHUB_WORKSPACE/playit-secret"
+
+              exit 1
+            fi
+
+            chmod 600 \
+              "$GITHUB_WORKSPACE/playit-secret"
+
+            echo
+            echo "======================================"
+            echo "PLAYIT AGENT CLAIMED"
+            echo "======================================"
+
+            echo "LAC_SERVER_STATE=PLAYIT_CLAIMED"
+            echo "PLAYIT_AGENT=CLAIMED"
+
+            echo
+            echo "IMPORTANT:"
+            echo "This GitHub runner is temporary."
+            echo
+            echo "For future runs, save the returned agent"
+            echo "secret as the PLAYIT_SECRET repository secret."
+            echo
+            echo "The secret itself is NOT printed for security."
+
+          fi
 
       # ==========================================
       # DOWNLOAD L.A. CRIMES
@@ -143,9 +222,11 @@ jobs:
             -O "$GITHUB_WORKSPACE/LAC.zip" \
             "https://www.lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
 
-          rm -rf "$GITHUB_WORKSPACE/lac"
+          rm -rf \
+            "$GITHUB_WORKSPACE/lac"
 
-          mkdir -p "$GITHUB_WORKSPACE/lac"
+          mkdir -p \
+            "$GITHUB_WORKSPACE/lac"
 
           unzip -q \
             "$GITHUB_WORKSPACE/LAC.zip" \
@@ -157,7 +238,11 @@ jobs:
             -print -quit)
 
           if [ -z "$SERVER" ]; then
+
             echo "ERROR: L.A. Crimes executable not found."
+
+            echo
+            echo "Files found:"
 
             find "$GITHUB_WORKSPACE/lac" \
               -maxdepth 5 \
@@ -174,7 +259,7 @@ jobs:
           echo "$SERVER"
 
       # ==========================================
-      # CREATE SERVER CONFIG
+      # SERVER CONFIG
       # ==========================================
 
       - name: Create ServerConfig.txt
@@ -214,7 +299,7 @@ jobs:
           echo "LOCAL_UDP=7777"
 
       # ==========================================
-      # INSTALL CONFIG
+      # INSTALL SERVER CONFIG
       # ==========================================
 
       - name: Install ServerConfig.txt
@@ -223,7 +308,8 @@ jobs:
 
           CONFIG_DIR="/root/.config/unity3d/MA/LAC"
 
-          sudo mkdir -p "$CONFIG_DIR"
+          sudo mkdir -p \
+            "$CONFIG_DIR"
 
           sudo cp \
             "$GITHUB_WORKSPACE/ServerConfig.txt" \
@@ -271,21 +357,13 @@ jobs:
           echo "LAC_PID=$LAC_PID"
 
           echo
-          echo "Waiting 10 seconds for L.A. Crimes..."
+          echo "Waiting 10 seconds..."
 
           sleep 10
 
-          echo
-          echo "===== PROCESS ====="
-
-          ps aux | grep '[L]AC_Linux' || true
-
-          echo
-          echo "===== UDP 7777 ====="
-
-          ss -lunp | grep ':7777' || true
-
           if ! kill -0 "$LAC_PID" 2>/dev/null; then
+
+            echo
             echo "LAC_SERVER_STATE=GAME_FAILED"
 
             echo
@@ -299,184 +377,119 @@ jobs:
           fi
 
           echo
+          echo "===== PROCESS ====="
+
+          ps aux | grep '[L]AC_Linux' || true
+
+          echo
+          echo "===== UDP 7777 ====="
+
+          ss -lunp | grep ':7777' || true
+
+          echo
           echo "LAC_SERVER_STATE=GAME_RUNNING"
 
       # ==========================================
-      # START RUSTUNNEL
+      # START PLAYIT
       # ==========================================
 
-      - name: Start Rustunnel UDP tunnel
-        env:
-          RUSTUNNEL_TOKEN: ${{ secrets.RUSTUNNEL_TOKEN }}
+      - name: Start Playit
         run: |
           set -e
-
-          if [ -z "$RUSTUNNEL_TOKEN" ]; then
-            echo "ERROR: RUSTUNNEL_TOKEN is missing."
-
-            echo
-            echo "Create it under:"
-            echo "Repository Settings"
-            echo "→ Secrets and variables"
-            echo "→ Actions"
-
-            exit 1
-          fi
 
           echo "======================================"
           echo "LAC_SERVER_STATE=STARTING_TUNNEL"
           echo "======================================"
 
-          echo "RUSTUNNEL_SERVER=edge.rustunnel.com:4040"
+          echo "TUNNEL_PROVIDER=playit"
           echo "LOCAL_UDP=7777"
 
-          rm -f "$GITHUB_WORKSPACE/rustunnel.log"
+          "$GITHUB_WORKSPACE/playit" \
+            --secret "$(cat "$GITHUB_WORKSPACE/playit-secret")" \
+            > "$GITHUB_WORKSPACE/playit.log" 2>&1 &
 
-          rustunnel udp 7777 \
-            --server "edge.rustunnel.com:4040" \
-            --token "$RUSTUNNEL_TOKEN" \
-            --json \
-            > "$GITHUB_WORKSPACE/rustunnel.log" 2>&1 &
+          PLAYIT_PID=$!
 
-          RUSTUNNEL_PID=$!
+          echo "$PLAYIT_PID" \
+            > "$GITHUB_WORKSPACE/playit.pid"
 
-          echo "$RUSTUNNEL_PID" \
-            > "$GITHUB_WORKSPACE/rustunnel.pid"
-
-          echo "RUSTUNNEL_PID=$RUSTUNNEL_PID"
+          echo "PLAYIT_PID=$PLAYIT_PID"
 
           echo
-          echo "Waiting for Rustunnel tunnel..."
+          echo "Waiting for Playit..."
 
-          READY="false"
+          sleep 10
 
-          for i in $(seq 1 60); do
-
-            if ! kill -0 "$RUSTUNNEL_PID" 2>/dev/null; then
-
-              echo "Rustunnel process stopped."
-
-              echo
-              echo "===== RUSTUNNEL LOG ====="
-
-              cat \
-                "$GITHUB_WORKSPACE/rustunnel.log" \
-                || true
-
-              exit 1
-            fi
-
-            if grep -q \
-              '"event":"tunnel_ready"' \
-              "$GITHUB_WORKSPACE/rustunnel.log" 2>/dev/null; then
-
-              READY="true"
-              break
-            fi
-
-            sleep 1
-
-          done
-
-          if [ "$READY" != "true" ]; then
-
-            echo "ERROR: Rustunnel did not become ready."
+          if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
 
             echo
-            echo "===== RUSTUNNEL LOG ====="
+            echo "ERROR: Playit stopped."
+
+            echo
+            echo "===== PLAYIT LOG ====="
 
             cat \
-              "$GITHUB_WORKSPACE/rustunnel.log" \
+              "$GITHUB_WORKSPACE/playit.log" \
               || true
 
             exit 1
           fi
 
-          TUNNEL_JSON=$(grep \
-            '"event":"tunnel_ready"' \
-            "$GITHUB_WORKSPACE/rustunnel.log" \
-            | tail -n 1)
-
-          echo
-          echo "===== TUNNEL EVENT ====="
-
-          echo "$TUNNEL_JSON"
-
-          PUBLIC_ENDPOINT=$(echo "$TUNNEL_JSON" \
-            | jq -r '.public_addr // empty')
-
-          if [ -z "$PUBLIC_ENDPOINT" ] || [ "$PUBLIC_ENDPOINT" = "null" ]; then
-
-            echo "ERROR: Could not extract public endpoint."
-
-            echo
-            echo "Full Rustunnel output:"
-
-            cat \
-              "$GITHUB_WORKSPACE/rustunnel.log"
-
-            exit 1
-          fi
-
-          echo "$PUBLIC_ENDPOINT" \
-            > "$GITHUB_WORKSPACE/public-endpoint.txt"
-
           echo
           echo "======================================"
-          echo "LAC_SERVER_STATE=TUNNEL_READY"
+          echo "LAC_SERVER_STATE=TUNNEL_RUNNING"
           echo "======================================"
 
-          echo "PUBLIC_ENDPOINT=$PUBLIC_ENDPOINT"
+          echo "TUNNEL_PROVIDER=playit"
+          echo "LOCAL_UDP=7777"
+
+          echo
+          echo "===== PLAYIT LOG ====="
+
+          cat \
+            "$GITHUB_WORKSPACE/playit.log" \
+            || true
 
       # ==========================================
-      # ANNOUNCE SERVER READY
+      # SERVER READY
       # ==========================================
 
-      - name: Announce server ready
+      - name: Server ready
         run: |
           set -e
 
-          PUBLIC_ENDPOINT=$(cat \
-            "$GITHUB_WORKSPACE/public-endpoint.txt")
+          echo
+          echo "======================================"
+          echo "        L.A. CRIMES SERVER READY"
+          echo "======================================"
+
+          echo "LAC_SERVER_STATE=ONLINE"
+          echo "SERVER_STATUS=ONLINE"
+          echo "SERVER_READY=true"
+
+          echo "MAP=City"
+          echo "LOCAL_UDP=7777"
+          echo "TUNNEL_PROVIDER=playit"
 
           echo
           echo "======================================"
-          echo "LAC_SERVER_READY"
-          echo "======================================"
-
-          echo "SERVER_STATUS=ONLINE"
-          echo "SERVER_READY=true"
-          echo "MAP=City"
-          echo "LOCAL_UDP=7777"
-          echo "PUBLIC_ENDPOINT=$PUBLIC_ENDPOINT"
-
-          echo "======================================"
 
       # ==========================================
-      # KEEP SERVER ALIVE
+      # KEEP ALIVE
       # ==========================================
 
       - name: Keep server alive
         run: |
           set -e
 
-          PUBLIC_ENDPOINT=$(cat \
-            "$GITHUB_WORKSPACE/public-endpoint.txt")
-
           echo
           echo "======================================"
-          echo "LAC_SERVER_READY"
-          echo "======================================"
-
-          echo "SERVER_STATUS=ONLINE"
           echo "SERVER_READY=true"
+          echo "SERVER_STATUS=ONLINE"
+          echo "LAC_SERVER_STATE=ONLINE"
           echo "MAP=City"
           echo "LOCAL_UDP=7777"
-          echo "PUBLIC_ENDPOINT=$PUBLIC_ENDPOINT"
-
-          echo
-          echo "======================================"
-          echo "L.A. CRIMES SERVER IS RUNNING"
+          echo "TUNNEL_PROVIDER=playit"
           echo "======================================"
 
           while true; do
@@ -484,18 +497,18 @@ jobs:
             LAC_PID=$(cat \
               "$GITHUB_WORKSPACE/lac.pid")
 
-            RUSTUNNEL_PID=$(cat \
-              "$GITHUB_WORKSPACE/rustunnel.pid")
+            PLAYIT_PID=$(cat \
+              "$GITHUB_WORKSPACE/playit.pid")
 
             # --------------------------------------
-            # CHECK L.A. CRIMES
+            # GAME CHECK
             # --------------------------------------
 
             if ! kill -0 "$LAC_PID" 2>/dev/null; then
 
               echo
               echo "======================================"
-              echo "LAC_SERVER_READY=false"
+              echo "SERVER_READY=false"
               echo "SERVER_STATUS=OFFLINE"
               echo "LAC_SERVER_STATE=GAME_STOPPED"
               echo "======================================"
@@ -511,23 +524,23 @@ jobs:
             fi
 
             # --------------------------------------
-            # CHECK RUSTUNNEL
+            # PLAYIT CHECK
             # --------------------------------------
 
-            if ! kill -0 "$RUSTUNNEL_PID" 2>/dev/null; then
+            if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
 
               echo
               echo "======================================"
-              echo "LAC_SERVER_READY=false"
+              echo "SERVER_READY=false"
               echo "SERVER_STATUS=OFFLINE"
               echo "LAC_SERVER_STATE=TUNNEL_STOPPED"
               echo "======================================"
 
               echo
-              echo "===== RUSTUNNEL LOG ====="
+              echo "===== PLAYIT LOG ====="
 
               cat \
-                "$GITHUB_WORKSPACE/rustunnel.log" \
+                "$GITHUB_WORKSPACE/playit.log" \
                 || true
 
               exit 1
@@ -545,7 +558,7 @@ jobs:
             echo "SERVER_READY=true"
             echo "MAP=City"
             echo "LOCAL_UDP=7777"
-            echo "PUBLIC_ENDPOINT=$PUBLIC_ENDPOINT"
+            echo "TUNNEL_PROVIDER=playit"
 
             sleep 10
 
