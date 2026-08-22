@@ -66,7 +66,6 @@ jobs:
             | head -n 1)
 
           if [ -z "$ASSET_URL" ] || [ "$ASSET_URL" = "null" ]; then
-
             echo "ERROR: Linux x86_64 Rustunnel asset was not found."
 
             echo
@@ -79,7 +78,7 @@ jobs:
           fi
 
           echo
-          echo "Rustunnel asset found:"
+          echo "Rustunnel asset:"
           echo "$ASSET_URL"
 
           wget \
@@ -102,11 +101,7 @@ jobs:
             -print -quit)
 
           if [ -z "$RUSTUNNEL_BIN" ]; then
-
             echo "ERROR: Rustunnel executable was not found."
-
-            echo
-            echo "Extracted files:"
 
             find /tmp/rustunnel \
               -maxdepth 4 \
@@ -142,8 +137,6 @@ jobs:
           echo "LAC_SERVER_STATE=DOWNLOADING"
           echo "======================================"
 
-          echo "Downloading L.A. Crimes..."
-
           wget \
             --timeout=60 \
             --tries=5 \
@@ -164,11 +157,7 @@ jobs:
             -print -quit)
 
           if [ -z "$SERVER" ]; then
-
             echo "ERROR: L.A. Crimes executable not found."
-
-            echo
-            echo "Downloaded files:"
 
             find "$GITHUB_WORKSPACE/lac" \
               -maxdepth 5 \
@@ -185,7 +174,7 @@ jobs:
           echo "$SERVER"
 
       # ==========================================
-      # SERVER CONFIG
+      # CREATE SERVER CONFIG
       # ==========================================
 
       - name: Create ServerConfig.txt
@@ -225,7 +214,7 @@ jobs:
           echo "LOCAL_UDP=7777"
 
       # ==========================================
-      # INSTALL SERVER CONFIG
+      # INSTALL CONFIG
       # ==========================================
 
       - name: Install ServerConfig.txt
@@ -243,7 +232,7 @@ jobs:
           sudo chmod 644 \
             "$CONFIG_DIR/ServerConfig.txt"
 
-          echo "Server configuration installed."
+          echo "CONFIG_INSTALLED=true"
 
       # ==========================================
       # START L.A. CRIMES
@@ -297,7 +286,6 @@ jobs:
           ss -lunp | grep ':7777' || true
 
           if ! kill -0 "$LAC_PID" 2>/dev/null; then
-
             echo "LAC_SERVER_STATE=GAME_FAILED"
 
             echo
@@ -324,11 +312,10 @@ jobs:
           set -e
 
           if [ -z "$RUSTUNNEL_TOKEN" ]; then
-
             echo "ERROR: RUSTUNNEL_TOKEN is missing."
 
             echo
-            echo "Create it at:"
+            echo "Create it under:"
             echo "Repository Settings"
             echo "→ Secrets and variables"
             echo "→ Actions"
@@ -340,12 +327,13 @@ jobs:
           echo "LAC_SERVER_STATE=STARTING_TUNNEL"
           echo "======================================"
 
+          echo "RUSTUNNEL_SERVER=edge.rustunnel.com:4040"
           echo "LOCAL_UDP=7777"
 
-          rm -f \
-            "$GITHUB_WORKSPACE/rustunnel.log"
+          rm -f "$GITHUB_WORKSPACE/rustunnel.log"
 
           rustunnel udp 7777 \
+            --server "edge.rustunnel.com:4040" \
             --token "$RUSTUNNEL_TOKEN" \
             --json \
             > "$GITHUB_WORKSPACE/rustunnel.log" 2>&1 &
@@ -415,12 +403,7 @@ jobs:
           echo "$TUNNEL_JSON"
 
           PUBLIC_ENDPOINT=$(echo "$TUNNEL_JSON" \
-            | jq -r '
-                .public_addr //
-                .public_url //
-                .url //
-                empty
-              ')
+            | jq -r '.public_addr // empty')
 
           if [ -z "$PUBLIC_ENDPOINT" ] || [ "$PUBLIC_ENDPOINT" = "null" ]; then
 
@@ -446,7 +429,7 @@ jobs:
           echo "PUBLIC_ENDPOINT=$PUBLIC_ENDPOINT"
 
       # ==========================================
-      # SERVER READY
+      # ANNOUNCE SERVER READY
       # ==========================================
 
       - name: Announce server ready
@@ -470,7 +453,7 @@ jobs:
           echo "======================================"
 
       # ==========================================
-      # KEEP ALIVE
+      # KEEP SERVER ALIVE
       # ==========================================
 
       - name: Keep server alive
@@ -505,7 +488,7 @@ jobs:
               "$GITHUB_WORKSPACE/rustunnel.pid")
 
             # --------------------------------------
-            # CHECK GAME
+            # CHECK L.A. CRIMES
             # --------------------------------------
 
             if ! kill -0 "$LAC_PID" 2>/dev/null; then
