@@ -87,12 +87,31 @@ jobs:
 
 
       # ==========================================
-      # PLAYIT SETUP
+      # DETERMINE WHETHER SECRET EXISTS
+      # ==========================================
+
+      - name: Check Playit secret
+        id: playit_secret_check
+        env:
+          PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
+        run: |
+          set -e
+
+          if [ -n "$PLAYIT_SECRET" ]; then
+            echo "HAS_SECRET=true" >> "$GITHUB_OUTPUT"
+            echo "PLAYIT_SECRET_FOUND=true"
+          else
+            echo "HAS_SECRET=false" >> "$GITHUB_OUTPUT"
+            echo "PLAYIT_SECRET_FOUND=false"
+          fi
+
+
+      # ==========================================
+      # FIRST-TIME PLAYIT SETUP
       # ==========================================
 
       - name: Setup Playit agent
-        env:
-          PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'false'
         run: |
           set -e
 
@@ -100,183 +119,163 @@ jobs:
           echo "LAC_SERVER_STATE=PLAYIT_SETUP"
           echo "======================================"
 
-          if [ -n "$PLAYIT_SECRET" ]; then
+          echo
+          echo "############################################################"
+          echo "#                                                          #"
+          echo "#              FIRST PLAYIT AGENT SETUP                   #"
+          echo "#                                                          #"
+          echo "############################################################"
 
-            echo
-            echo "Existing PLAYIT_SECRET found."
-            echo "Reusing existing Playit agent."
+          echo
+          echo "No PLAYIT_SECRET was found."
+          echo "Creating the LACServer2 agent..."
 
-            printf '%s' "$PLAYIT_SECRET" \
-              > "$GITHUB_WORKSPACE/playit-secret"
+          # --------------------------------------
+          # GENERATE CLAIM CODE
+          # --------------------------------------
 
-            chmod 600 \
-              "$GITHUB_WORKSPACE/playit-secret"
-
-            echo
-            echo "PLAYIT_AGENT=PERSISTENT"
-
-          else
-
-            echo
-            echo "############################################################"
-            echo "#                                                          #"
-            echo "#              FIRST PLAYIT AGENT SETUP                   #"
-            echo "#                                                          #"
-            echo "############################################################"
-
-            echo
-            echo "No PLAYIT_SECRET was found."
-            echo "Creating the LACServer2 agent..."
-
-            # --------------------------------------
-            # GENERATE CLAIM CODE
-            # --------------------------------------
-
-            CLAIM_CODE=$(
-              "$GITHUB_WORKSPACE/playit-cli" \
-                claim generate
-            )
-
-            if [ -z "$CLAIM_CODE" ]; then
-              echo "ERROR: Could not generate Playit claim code."
-              exit 1
-            fi
-
-            # --------------------------------------
-            # GENERATE CLAIM URL
-            # --------------------------------------
-
-            CLAIM_URL=$(
-              "$GITHUB_WORKSPACE/playit-cli" \
-                claim url "$CLAIM_CODE" \
-                --name "LACServer2" \
-                --type "self-managed"
-            )
-
-            if [ -z "$CLAIM_URL" ]; then
-              echo "ERROR: Could not generate Playit claim URL."
-              exit 1
-            fi
-
-            echo
-            echo "############################################################"
-            echo "#                                                          #"
-            echo "#              PLAYIT AGENT CLAIM REQUIRED                #"
-            echo "#                                                          #"
-            echo "############################################################"
-
-            echo
-            echo "OPEN THIS URL ON YOUR PHONE:"
-            echo
-            echo "$CLAIM_URL"
-
-            echo
-            echo "CLAIM CODE:"
-            echo "$CLAIM_CODE"
-
-            echo
-            echo "Approve LACServer2 in Playit."
-
-            echo
-            echo "DO NOT CLOSE THIS WORKFLOW."
-
-            echo
-            echo "############################################################"
-
-            echo
-            echo "LAC_SERVER_STATE=WAITING_FOR_PLAYIT_CLAIM"
-            echo "PLAYIT_AGENT=WAITING"
-
-            # --------------------------------------
-            # WAIT FOR APPROVAL
-            # --------------------------------------
-
-            echo
-            echo "Waiting for Playit approval..."
-
+          CLAIM_CODE=$(
             "$GITHUB_WORKSPACE/playit-cli" \
-              claim exchange "$CLAIM_CODE" \
-              --wait 600 \
-              > "$GITHUB_WORKSPACE/playit-secret"
+              claim generate
+          )
 
-            # --------------------------------------
-            # VALIDATE SECRET
-            # --------------------------------------
+          if [ -z "$CLAIM_CODE" ]; then
+            echo "ERROR: Could not generate Playit claim code."
+            exit 1
+          fi
 
-            if [ ! -s "$GITHUB_WORKSPACE/playit-secret" ]; then
+          # --------------------------------------
+          # GENERATE CLAIM URL
+          # --------------------------------------
 
-              echo
-              echo "ERROR: Playit did not return an agent secret."
+          CLAIM_URL=$(
+            "$GITHUB_WORKSPACE/playit-cli" \
+              claim url "$CLAIM_CODE" \
+              --name "LACServer2" \
+              --type "self-managed"
+          )
 
-              exit 1
+          if [ -z "$CLAIM_URL" ]; then
+            echo "ERROR: Could not generate Playit claim URL."
+            exit 1
+          fi
 
-            fi
+          echo
+          echo "############################################################"
+          echo "#                                                          #"
+          echo "#              PLAYIT AGENT CLAIM REQUIRED                #"
+          echo "#                                                          #"
+          echo "############################################################"
 
-            chmod 600 \
-              "$GITHUB_WORKSPACE/playit-secret"
+          echo
+          echo "OPEN THIS URL ON YOUR PHONE:"
+          echo
+          echo "$CLAIM_URL"
+
+          echo
+          echo "CLAIM CODE:"
+          echo "$CLAIM_CODE"
+
+          echo
+          echo "Approve LACServer2 in Playit."
+
+          echo
+          echo "DO NOT CLOSE THIS WORKFLOW."
+
+          echo
+          echo "############################################################"
+
+          echo
+          echo "LAC_SERVER_STATE=WAITING_FOR_PLAYIT_CLAIM"
+          echo "PLAYIT_AGENT=WAITING"
+
+          # --------------------------------------
+          # WAIT FOR APPROVAL
+          # --------------------------------------
+
+          echo
+          echo "Waiting for Playit approval..."
+
+          "$GITHUB_WORKSPACE/playit-cli" \
+            claim exchange "$CLAIM_CODE" \
+            --wait 600 \
+            > "$GITHUB_WORKSPACE/playit-secret"
+
+          # --------------------------------------
+          # VALIDATE SECRET
+          # --------------------------------------
+
+          if [ ! -s "$GITHUB_WORKSPACE/playit-secret" ]; then
 
             echo
-            echo "======================================"
-            echo "LAC_SERVER_STATE=PLAYIT_CLAIMED"
-            echo "======================================"
+            echo "ERROR: Playit did not return an agent secret."
 
-            echo
-            echo "LACServer2 was successfully claimed."
-
-            # --------------------------------------
-            # UPLOAD SECRET AS TEMPORARY ARTIFACT
-            # --------------------------------------
-
-            echo
-            echo "Preparing the agent secret artifact..."
-
-            mkdir -p "$GITHUB_WORKSPACE/playit-secret-export"
-
-            cp \
-              "$GITHUB_WORKSPACE/playit-secret" \
-              "$GITHUB_WORKSPACE/playit-secret-export/PLAYIT_SECRET.txt"
-
-            chmod 600 \
-              "$GITHUB_WORKSPACE/playit-secret-export/PLAYIT_SECRET.txt"
-
-            echo
-            echo "======================================"
-            echo "ACTION REQUIRED"
-            echo "======================================"
-
-            echo
-            echo "The agent secret has been placed in the"
-            echo "GitHub Actions artifact:"
-            echo
-            echo "playit-agent-secret"
-            echo
-            echo "Download it from this workflow run."
-            echo
-            echo "Then create this repository secret:"
-            echo
-            echo "PLAYIT_SECRET"
-            echo
-            echo "DO NOT put the claim code into PLAYIT_SECRET."
-            echo
-            echo "After saving PLAYIT_SECRET, run this"
-            echo "workflow again."
-            echo
-            echo "The next run will reuse LACServer2."
-            echo
-            echo "======================================"
-
-            echo
-            echo "LAC_SERVER_STATE=SECRET_READY"
+            exit 1
 
           fi
+
+          chmod 600 \
+            "$GITHUB_WORKSPACE/playit-secret"
+
+          echo
+          echo "======================================"
+          echo "LAC_SERVER_STATE=PLAYIT_CLAIMED"
+          echo "======================================"
+
+          echo
+          echo "LACServer2 was successfully claimed."
+
+          # --------------------------------------
+          # PREPARE SECRET ARTIFACT
+          # --------------------------------------
+
+          mkdir -p \
+            "$GITHUB_WORKSPACE/playit-secret-export"
+
+          cp \
+            "$GITHUB_WORKSPACE/playit-secret" \
+            "$GITHUB_WORKSPACE/playit-secret-export/PLAYIT_SECRET.txt"
+
+          chmod 600 \
+            "$GITHUB_WORKSPACE/playit-secret-export/PLAYIT_SECRET.txt"
+
+          echo
+          echo "======================================"
+          echo "ACTION REQUIRED"
+          echo "======================================"
+
+          echo
+          echo "The agent secret has been prepared."
+          echo
+          echo "It will be uploaded as:"
+          echo
+          echo "playit-agent-secret"
+          echo
+          echo "After this workflow finishes:"
+          echo
+          echo "1. Download the artifact."
+          echo "2. Open PLAYIT_SECRET.txt."
+          echo "3. Copy its contents."
+          echo "4. Create the GitHub repository secret:"
+          echo
+          echo "   PLAYIT_SECRET"
+          echo
+          echo "5. Run this workflow again."
+          echo
+          echo "DO NOT use the claim code as PLAYIT_SECRET."
+          echo
+          echo "======================================"
+
+          echo
+          echo "LAC_SERVER_STATE=SECRET_READY"
 
 
       # ==========================================
       # UPLOAD FIRST-RUN SECRET
       # ==========================================
 
-      - name: Export Playit secret for first-time setup
-        if: ${{ !secrets.PLAYIT_SECRET }}
+      - name: Upload Playit agent secret
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'false'
         uses: actions/upload-artifact@v4
         with:
           name: playit-agent-secret
@@ -290,21 +289,27 @@ jobs:
       # ==========================================
 
       - name: Stop after first-time setup
-        if: ${{ !secrets.PLAYIT_SECRET }}
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'false'
         run: |
+          set -e
+
           echo
           echo "======================================"
           echo "FIRST-TIME PLAYIT SETUP COMPLETE"
           echo "======================================"
 
           echo
-          echo "Download the playit-agent-secret artifact."
+          echo "Download the artifact:"
           echo
-          echo "Create:"
+          echo "playit-agent-secret"
+          echo
+          echo "Then create:"
+          echo
           echo "PLAYIT_SECRET"
           echo
-          echo "in:"
-          echo "Settings"
+          echo "at:"
+          echo
+          echo "Repository Settings"
           echo "→ Secrets and variables"
           echo "→ Actions"
           echo "→ New repository secret"
@@ -316,10 +321,36 @@ jobs:
 
 
       # ==========================================
+      # LOAD EXISTING SECRET
+      # ==========================================
+
+      - name: Load persistent Playit secret
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
+        env:
+          PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
+        run: |
+          set -e
+
+          echo "======================================"
+          echo "LAC_SERVER_STATE=PLAYIT_REUSING_AGENT"
+          echo "======================================"
+
+          printf '%s' "$PLAYIT_SECRET" \
+            > "$GITHUB_WORKSPACE/playit-secret"
+
+          chmod 600 \
+            "$GITHUB_WORKSPACE/playit-secret"
+
+          echo "PLAYIT_AGENT=PERSISTENT"
+          echo "LACServer2 will be reused."
+
+
+      # ==========================================
       # DOWNLOAD L.A. CRIMES
       # ==========================================
 
       - name: Download L.A. Crimes
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
         run: |
           set -e
 
@@ -372,6 +403,7 @@ jobs:
       # ==========================================
 
       - name: Create ServerConfig.txt
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
         run: |
           set -e
 
@@ -409,10 +441,11 @@ jobs:
 
 
       # ==========================================
-      # INSTALL SERVER CONFIG
+      # INSTALL CONFIG
       # ==========================================
 
       - name: Install ServerConfig.txt
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
         run: |
           set -e
 
@@ -435,6 +468,7 @@ jobs:
       # ==========================================
 
       - name: Start L.A. Crimes
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
         run: |
           set -e
 
@@ -497,6 +531,7 @@ jobs:
       # ==========================================
 
       - name: Start Playit tunnel
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
         env:
           PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
         run: |
@@ -515,7 +550,7 @@ jobs:
           fi
 
           echo
-          echo "Starting Playit agent with persistent secret..."
+          echo "Starting Playit agent..."
 
           "$GITHUB_WORKSPACE/playit" \
             --secret "$PLAYIT_SECRET" \
@@ -576,6 +611,7 @@ jobs:
       # ==========================================
 
       - name: Server ready
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
         run: |
           set -e
 
@@ -601,6 +637,7 @@ jobs:
       # ==========================================
 
       - name: Keep server alive
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
         run: |
           set -e
 
