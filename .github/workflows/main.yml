@@ -70,7 +70,7 @@ jobs:
 
 
       # ==========================================
-      # CHECK SECRET
+      # CHECK PLAYIT SECRET
       # ==========================================
 
       - name: Check Playit secret
@@ -85,22 +85,16 @@ jobs:
           echo "======================================"
 
           if [ -n "$PLAYIT_SECRET" ]; then
-
             echo "HAS_SECRET=true" >> "$GITHUB_OUTPUT"
-
             echo "PLAYIT_SECRET_FOUND=true"
-
           else
-
             echo "HAS_SECRET=false" >> "$GITHUB_OUTPUT"
-
             echo "PLAYIT_SECRET_FOUND=false"
-
           fi
 
 
       # ==========================================
-      # FIRST AGENT SETUP
+      # FIRST-TIME SETUP
       # ==========================================
 
       - name: First Playit agent setup
@@ -113,46 +107,26 @@ jobs:
           echo "======================================"
 
           echo
-          echo "############################################################"
-          echo "#                                                          #"
-          echo "#              FIRST PLAYIT AGENT SETUP                   #"
-          echo "#                                                          #"
-          echo "############################################################"
+          echo "No PLAYIT_SECRET was found."
+          echo
+          echo "Use the Playit claim process to create"
+          echo "and approve the agent."
+          echo
+          echo "After claiming the agent, save its secret"
+          echo "as the GitHub repository secret:"
+          echo
+          echo "PLAYIT_SECRET"
+          echo
+          echo "Then run this workflow again."
 
           echo
-          echo "Generating Playit claim..."
-
-          CLAIM_OUTPUT=$(
-            "$GITHUB_WORKSPACE/playit" \
-              2>&1 \
-              || true
-          )
-
-          echo "$CLAIM_OUTPUT"
-
-          echo
-          echo "Use the claim URL shown above to approve"
-          echo "this Playit agent."
-
-          echo
-          echo "DO NOT CLOSE THIS WORKFLOW."
-
-          echo
-          echo "############################################################"
-
-          echo
-          echo "LAC_SERVER_STATE=WAITING_FOR_PLAYIT_CLAIM"
-          echo "PLAYIT_AGENT=WAITING"
-
-          echo
-          echo "The first-run setup must be completed"
-          echo "through the Playit claim process."
+          echo "LAC_SERVER_STATE=WAITING_FOR_SECRET"
 
           exit 0
 
 
       # ==========================================
-      # LOAD EXISTING SECRET
+      # LOAD SECRET
       # ==========================================
 
       - name: Load Playit secret
@@ -167,11 +141,8 @@ jobs:
           echo "======================================"
 
           if [ -z "$PLAYIT_SECRET" ]; then
-
             echo "ERROR: PLAYIT_SECRET is empty."
-
             exit 1
-
           fi
 
           echo "PLAYIT_AGENT=PERSISTENT"
@@ -215,7 +186,6 @@ jobs:
           )
 
           if [ -z "$SERVER" ]; then
-
             echo "ERROR: L.A. Crimes executable was not found."
 
             find "$GITHUB_WORKSPACE/lac" \
@@ -224,7 +194,6 @@ jobs:
               -print
 
             exit 1
-
           fi
 
           chmod +x "$SERVER"
@@ -277,7 +246,7 @@ jobs:
 
 
       # ==========================================
-      # INSTALL CONFIG
+      # INSTALL SERVER CONFIG
       # ==========================================
 
       - name: Install ServerConfig.txt
@@ -342,16 +311,17 @@ jobs:
           sleep 10
 
           if ! kill -0 "$LAC_PID" 2>/dev/null; then
-
             echo
             echo "LAC_SERVER_STATE=GAME_FAILED"
+
+            echo
+            echo "===== L.A. CRIMES LOG ====="
 
             tail -250 \
               "$GITHUB_WORKSPACE/lac-server.log" \
               || true
 
             exit 1
-
           fi
 
           echo
@@ -364,7 +334,49 @@ jobs:
 
 
       # ==========================================
-      # START PLAYIT
+      # PREPARE PLAYIT IPC DIRECTORY
+      # ==========================================
+
+      - name: Prepare Playit runtime
+        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
+        run: |
+          set -e
+
+          echo "======================================"
+          echo "LAC_SERVER_STATE=PREPARING_PLAYIT"
+          echo "======================================"
+
+          # Playit 1.0.10 uses:
+          # /run/playit/playitd.sock
+          #
+          # GitHub-hosted runners do not necessarily
+          # have this directory available.
+
+          sudo rm -rf \
+            /run/playit
+
+          sudo mkdir -p \
+            /run/playit
+
+          sudo chown \
+            "$(id -u):$(id -g)" \
+            /run/playit
+
+          sudo chmod 700 \
+            /run/playit
+
+          echo
+          echo "PLAYIT_RUNTIME=/run/playit"
+
+          echo
+          echo "Directory permissions:"
+
+          ls -ld \
+            /run/playit
+
+
+      # ==========================================
+      # START PLAYIT TUNNEL
       # ==========================================
 
       - name: Start Playit tunnel
@@ -382,31 +394,15 @@ jobs:
           echo "LOCAL_UDP=7777"
 
           if [ -z "$PLAYIT_SECRET" ]; then
-
             echo "ERROR: PLAYIT_SECRET is missing."
-
             exit 1
-
           fi
 
-          # --------------------------------------
-          # CLEAN OLD PLAYIT RUNTIME
-          # --------------------------------------
+          echo
+          echo "Checking Playit IPC directory..."
 
-          rm -rf \
-            "$HOME/.config/playit" \
-            "$HOME/.local/share/playit" \
-            "$HOME/.cache/playit"
-
-          mkdir -p \
-            "$HOME/.config/playit"
-
-          chmod 700 \
-            "$HOME/.config/playit"
-
-          # --------------------------------------
-          # START PLAYIT
-          # --------------------------------------
+          ls -ld \
+            /run/playit
 
           echo
           echo "Starting Playit agent..."
@@ -421,10 +417,6 @@ jobs:
             > "$GITHUB_WORKSPACE/playit.pid"
 
           echo "PLAYIT_PID=$PLAYIT_PID"
-
-          # --------------------------------------
-          # WAIT FOR PLAYIT
-          # --------------------------------------
 
           echo
           echo "Waiting for Playit..."
@@ -444,7 +436,6 @@ jobs:
                 || true
 
               exit 1
-
             fi
 
             echo "Playit running... $i/60"
@@ -534,7 +525,6 @@ jobs:
                 || true
 
               exit 1
-
             fi
 
             if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
@@ -552,7 +542,6 @@ jobs:
                 || true
 
               exit 1
-
             fi
 
             echo
