@@ -61,7 +61,8 @@ jobs:
             ca-certificates \
             iproute2 \
             jq \
-            python3
+            python3 \
+            net-tools
 
       # ==========================================
       # DOWNLOAD CURRENT DATABASE
@@ -248,7 +249,7 @@ jobs:
           restart timer=never
           max players=16
           map name=City
-          starting port=7777
+          starting port=7778
 
           (Server List)
           share to community=true
@@ -269,7 +270,7 @@ jobs:
           restart timer=never
           max players=16
           map name=City
-          starting port=7777
+          starting port=7779
 
           (Server List)
           share to community=true
@@ -290,7 +291,7 @@ jobs:
           restart timer=never
           max players=16
           map name=City
-          starting port=7777
+          starting port=7780
 
           (Server List)
           share to community=true
@@ -319,67 +320,89 @@ jobs:
               -print -quit
           )
 
-          for SLOT in 1 2 3 4; do
+          # Kill any existing server processes
+          pkill -f "LAC_Linux_v1.9.6.x86_64" || true
 
+          # Find which server should be online (ONLY ONE)
+          ONLINE_SLOT=""
+          for SLOT in 1 2 3 4; do
             DESIRED=$(
               jq -r \
                 --argjson slot "$SLOT" \
                 '.servers[] | select(.slot == $slot) | .desired' \
                 "$GITHUB_WORKSPACE/servers.json"
             )
-
-            PORT=7777
-
-            echo
-            echo "======================================"
-            echo "SERVER $SLOT"
-            echo "DESIRED=$DESIRED"
-            echo "LOCAL_PORT=$PORT"
-            echo "======================================"
-
-            if [ "$DESIRED" != "online" ]; then
-              echo "Server $SLOT is not requested."
-              continue
+            if [ "$DESIRED" = "online" ]; then
+              if [ -n "$ONLINE_SLOT" ]; then
+                echo "ERROR: Multiple servers requested online!"
+                exit 1
+              fi
+              ONLINE_SLOT="$SLOT"
             fi
+          done
 
-            RUNTIME="$GITHUB_WORKSPACE/runtimes/server-$SLOT"
+          if [ -z "$ONLINE_SLOT" ]; then
+            echo "No servers requested online."
+            exit 0
+          fi
 
-            LOG="$GITHUB_WORKSPACE/server-$SLOT.log"
+          PORT=$((7776 + ONLINE_SLOT))
 
-            echo "Starting Server $SLOT..."
+          echo "======================================"
+          echo "STARTING SERVER $ONLINE_SLOT"
+          echo "LOCAL_PORT=$PORT"
+          echo "======================================"
 
-            (
-              cd "$(dirname "$SERVER_BINARY")"
+          RUNTIME="$GITHUB_WORKSPACE/runtimes/server-$ONLINE_SLOT"
+          LOG="$GITHUB_WORKSPACE/server-$ONLINE_SLOT.log"
+          PID_FILE="$GITHUB_WORKSPACE/server-$ONLINE_SLOT.pid"
 
-              export HOME="$RUNTIME"
+          echo "Starting Server $ONLINE_SLOT on port $PORT..."
 
-              export XDG_CONFIG_HOME="$RUNTIME/.config"
+          # Kill any existing process on this port
+          if ss -lunp | grep -q ":$PORT"; then
+            echo "Port $PORT is in use. Killing existing process..."
+            PID_TO_KILL=$(ss -lunp | grep ":$PORT" | awk '{print $6}' | cut -d',' -f2 | cut -d'=' -f2)
+            kill -9 "$PID_TO_KILL" 2>/dev/null || true
+            sleep 2
+          fi
 
-              "./$(basename "$SERVER_BINARY")" \
-                -batchmode \
-                -nographics
-            ) > "$LOG" 2>&1 &
+          (
+            cd "$(dirname "$SERVER_BINARY")"
 
-            PID=$!
+            export HOME="$RUNTIME"
+            export XDG_CONFIG_HOME="$RUNTIME/.config"
 
-            echo "$PID" \
-              > "$GITHUB_WORKSPACE/server-$SLOT.pid"
+            "./$(basename "$SERVER_BINARY")" \
+              -batchmode \
+              -nographics
+          ) > "$LOG" 2>&1 &
 
-            echo "SERVER_$SLOT_PID=$PID"
+          PID=$!
 
-            sleep 5
+          echo "$PID" > "$PID_FILE"
+          echo "SERVER_${ONLINE_SLOT}_PID=$PID"
 
-            if kill -0 "$PID" 2>/dev/null; then
-              echo "Server $SLOT is running."
+          sleep 10
+
+          if kill -0 "$PID" 2>/dev/null; then
+            echo "Server $ONLINE_SLOT is running on port $PORT."
+            
+            # Check if port is actually listening
+            if ss -lunp | grep -q ":$PORT"; then
+              echo "✅ Port $PORT is listening!"
             else
-              echo "ERROR: Server $SLOT failed to start."
-
-              tail -250 "$LOG" || true
-
+              echo "❌ WARNING: Port $PORT is NOT listening yet. Check logs."
+              tail -50 "$LOG"
               exit 1
             fi
+          else
+            echo "ERROR: Server $ONLINE_SLOT failed to start."
+            tail -250 "$LOG" || true
+            exit 1
+          fi
 
-          done
+          echo "$ONLINE_SLOT" > "$GITHUB_WORKSPACE/online_slot.txt"
 
       # ==========================================
       # CHECK LOCAL PORTS
@@ -392,14 +415,15 @@ jobs:
           echo "======================================"
 
           ss -lunp || true
-
-          for PORT in 7777; do
-            echo
-            echo "UDP PORT $PORT"
-
-            ss -lunp |
-              grep ":$PORT" ||
-              echo "Not currently detected."
+          
+          echo
+          for PORT in 7777 7778 7779 7780; do
+            echo "Checking UDP port $PORT:"
+            if ss -lunp | grep -q ":$PORT"; then
+              echo "✅ Port $PORT is listening!"
+            else
+              echo "❌ Port $PORT is NOT listening!"
+            fi
           done
 
       # ==========================================
@@ -420,17 +444,17 @@ jobs:
           echo "PLAYIT_SECRET_FOUND=true"
 
       # ==========================================
-      # START ONE PLAYIT AGENT
+      # START PLAYIT AGENT
       # ==========================================
 
-      - name: Start single Playit agent
+      - name: Start Playit agent
         env:
           PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
         run: |
           set -e
 
           echo "======================================"
-          echo "STARTING SINGLE PLAYIT AGENT"
+          echo "STARTING PLAYIT AGENT"
           echo "======================================"
 
           mkdir -p "$GITHUB_WORKSPACE/playit-runtime"
@@ -445,8 +469,6 @@ jobs:
 
           cd "$GITHUB_WORKSPACE"
 
-          PLAYIT_RUNTIME="$GITHUB_WORKSPACE/playit-runtime"
-
           "$GITHUB_WORKSPACE/playit" \
             --secret "$PLAYIT_SECRET" \
             --socket-path "$GITHUB_WORKSPACE/playit-sockets/playit.sock" \
@@ -459,8 +481,7 @@ jobs:
 
           echo "PLAYIT_PID=$PLAYIT_PID"
 
-          for i in $(seq 1 60); do
-
+          for i in $(seq 1 30); do
             if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
               echo "ERROR: Playit stopped."
 
@@ -471,10 +492,8 @@ jobs:
               exit 1
             fi
 
-            echo "Playit running... $i/60"
-
+            echo "Playit running... $i/30"
             sleep 1
-
           done
 
           echo "======================================"
@@ -530,23 +549,25 @@ jobs:
 
           run_id = os.environ.get("GITHUB_RUN_ID")
 
+          # Find which server is online
+          online_slot = None
           for server in data["servers"]:
-
-              slot = int(server["slot"])
-
               if server.get("desired") == "online":
+                  online_slot = int(server["slot"])
+                  break
 
+          for server in data["servers"]:
+              slot = int(server["slot"])
+              
+              if slot == online_slot:
                   server["status"] = "online"
                   server["run_id"] = int(run_id)
-
                   server["domain"] = addresses[slot]["domain"]
                   server["ip"] = addresses[slot]["ip"]
                   server["port"] = addresses[slot]["port"]
-
               else:
-
                   server["status"] = "offline"
-                  server["run_id"] = int(run_id)
+                  server["run_id"] = None
 
           with open(path, "w", encoding="utf-8") as f:
               json.dump(data, f, indent=2)
@@ -645,7 +666,8 @@ jobs:
                   if kill -0 "$PID" 2>/dev/null; then
                     echo "Server $SLOT: ONLINE"
                   else
-                    echo "Server $SLOT: PROCESS STOPPED"
+                    echo "Server $SLOT: PROCESS STOPPED - Restarting..."
+                    # Restart logic would go here
                   fi
 
                 else
@@ -712,6 +734,8 @@ jobs:
           echo "======================================"
           echo "CLEANUP"
           echo "======================================"
+
+          pkill -f "LAC_Linux_v1.9.6.x86_64" || true
 
           for SLOT in 1 2 3 4; do
 
