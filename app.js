@@ -9,7 +9,7 @@
 
 const OWNER = "LACServer";
 
-const REPO = "LosAngelesCrimesServer";
+const REPO = "Dashboard";
 
 const WORKFLOW = "main.yml";
 
