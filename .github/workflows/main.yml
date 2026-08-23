@@ -495,9 +495,7 @@ jobs:
         run: |
           set -e
 
-          python3 \
-            "$GITHUB_WORKSPACE/servers.json" <<'PY'
-
+          python3 - "$GITHUB_WORKSPACE/servers.json" <<'PY'
           import json
           import os
           import sys
