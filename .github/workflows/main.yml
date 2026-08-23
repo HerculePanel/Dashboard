@@ -449,7 +449,7 @@ jobs:
 
           "$GITHUB_WORKSPACE/playit" \
             --secret "$PLAYIT_SECRET" \
-            --socket-dir "$GITHUB_WORKSPACE/playit-sockets" \
+            --socket-path "$GITHUB_WORKSPACE/playit-sockets/playit.sock" \
             > "$GITHUB_WORKSPACE/playit.log" 2>&1 &
 
           PLAYIT_PID=$!
