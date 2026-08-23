@@ -1,8 +1,5 @@
-const GIST_ID = "a6bd68866931ce5999003aa4f59d50b5";
-
 const GIST_URL =
-"https://gist.githubusercontent.com/" +
-"LACServer/${GIST_ID}/raw/servers.json";
+"https://gist.githubusercontent.com/LACServer/a6bd68866931ce5999003aa4f59d50b5/raw/servers.json";
 
 const serverGrid =
 document.getElementById("serverGrid");
@@ -35,8 +32,9 @@ try {
 
 
     if (!response.ok) {
+
         throw new Error(
-            `Gist returned ${response.status}`
+            `Gist returned HTTP ${response.status}`
         );
     }
 
@@ -49,13 +47,16 @@ try {
         !data ||
         !Array.isArray(data.servers)
     ) {
+
         throw new Error(
             "Invalid servers.json"
         );
     }
 
 
-    renderServers(data.servers);
+    renderServers(
+        data.servers
+    );
 
 
 } catch (error) {
@@ -67,7 +68,9 @@ try {
 
 
     serverGrid.innerHTML = `
-        <div class="loading-card error-card">
+        <div
+            class="loading-card error-card"
+        >
 
             <strong>
                 Backend Error
@@ -88,12 +91,16 @@ try {
         </div>
     `;
 
-    updateUsage([]);
+
+    usageCount.textContent =
+        "0 / 4";
 }
 
 }
 
-function renderServers(servers) {
+function renderServers(
+servers
+) {
 
 const sorted =
     [...servers].sort(
@@ -111,33 +118,25 @@ const used =
     ).length;
 
 
-updateUsage(sorted);
-
-
-serverGrid.innerHTML =
-    sorted.map(
-        server =>
-            createServerCard(server)
-    ).join("");
-
-}
-
-function updateUsage(servers) {
-
-const used =
-    servers.filter(
-        server =>
-            server.status !==
-            "available"
-    ).length;
-
-
 usageCount.textContent =
     `${used} / 4`;
 
+
+serverGrid.innerHTML =
+    sorted
+        .map(
+            server =>
+                createServerCard(
+                    server
+                )
+        )
+        .join("");
+
 }
 
-function createServerCard(server) {
+function createServerCard(
+server
+) {
 
 const status =
     String(
@@ -166,56 +165,77 @@ if (status === "offline") {
 const endpoint =
     server.endpoint
         ? `
-            <span class="endpoint">
+            <span
+                class="endpoint"
+            >
                 ${escapeHTML(
                     server.endpoint
                 )}
             </span>
-          `
+        `
         : "";
 
 
-const available =
-    status === "available";
+let actions;
 
 
-const actions =
-    available
-        ? `
-            <div class="server-actions">
-                <button
-                    class="primary"
-                    type="button"
-                    onclick="showComingSoon()"
-                >
-                    Create Server
-                </button>
-            </div>
-          `
-        : `
-            <div class="server-actions">
-                ${
-                    server.endpoint
-                        ? `
-                            <button
-                                type="button"
-                                onclick="copyEndpoint('${escapeAttribute(server.endpoint)}')"
-                            >
-                                Copy Address
-                            </button>
-                          `
-                        : ""
-                }
-            </div>
-          `;
+if (
+    status === "available"
+) {
+
+    actions = `
+        <div
+            class="server-actions"
+        >
+
+            <button
+                class="primary"
+                type="button"
+                onclick="showComingSoon()"
+            >
+                Create Server
+            </button>
+
+        </div>
+    `;
+
+} else {
+
+    actions = `
+        <div
+            class="server-actions"
+        >
+
+            ${
+                server.endpoint
+                    ? `
+                        <button
+                            type="button"
+                            onclick="copyEndpoint('${escapeAttribute(server.endpoint)}')"
+                        >
+                            Copy Address
+                        </button>
+                      `
+                    : ""
+            }
+
+        </div>
+    `;
+}
 
 
 return `
-    <article class="server-card">
+    <article
+        class="server-card"
+    >
 
-        <div class="server-header">
+        <div
+            class="server-header"
+        >
 
-            <div class="server-name">
+            <div
+                class="server-name"
+            >
                 ${escapeHTML(
                     server.name ||
                     `Server ${server.slot}`
@@ -231,10 +251,12 @@ return `
         </div>
 
 
-        <div class="server-info">
+        <div
+            class="server-info"
+        >
 
             ${
-                available
+                status === "available"
                     ? "This server slot is available."
                     : "This server slot is currently in use."
             }
@@ -259,13 +281,14 @@ showToast(
 
 }
 
-async function copyEndpoint(endpoint) {
+async function copyEndpoint(
+endpoint
+) {
 
 try {
 
-    await navigator.clipboard.writeText(
-        endpoint
-    );
+    await navigator.clipboard
+        .writeText(endpoint);
 
     showToast(
         "Server address copied!"
@@ -280,7 +303,9 @@ try {
 
 }
 
-function showToast(message) {
+function showToast(
+message
+) {
 
 toast.textContent =
     message;
@@ -298,35 +323,66 @@ clearTimeout(
 showToast.timeout =
     setTimeout(
         () => {
+
             toast.classList.remove(
                 "show"
             );
+
         },
         2500
     );
 
 }
 
-function escapeHTML(value) {
+function escapeHTML(
+value
+) {
 
 return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll(
+        "&",
+        "&amp;"
+    )
+    .replaceAll(
+        "<",
+        "&lt;"
+    )
+    .replaceAll(
+        ">",
+        "&gt;"
+    )
+    .replaceAll(
+        '"',
+        "&quot;"
+    )
+    .replaceAll(
+        "'",
+        "&#039;"
+    );
 
 }
 
-function escapeAttribute(value) {
+function escapeAttribute(
+value
+) {
 
 return String(value)
-    .replaceAll("\\", "\\\\")
-    .replaceAll("'", "\\'");
+    .replaceAll(
+        "\\",
+        "\\\\"
+    )
+    .replaceAll(
+        "'",
+        "\\'"
+    );
 
 }
+
+/* Initial load */
 
 loadServers();
+
+/* Refresh server status every 15 seconds */
 
 setInterval(
 loadServers,
