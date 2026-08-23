@@ -1,559 +1,579 @@
 name: L.A. Crimes Playit Server
 
 on:
-  workflow_dispatch:
+workflow_dispatch:
+inputs:
+slot:
+description: "Server slot"
+required: true
+default: "1"
+type: choice
+options:
+- "1"
+- "2"
+- "3"
+- "4"
+
+repository_dispatch:
+types:
+- create-server
 
 permissions:
-  contents: read
+contents: read
 
 jobs:
-  server:
-    runs-on: ubuntu-latest
-    timeout-minutes: 350
 
-    steps:
+server:
+
+runs-on: ubuntu-latest
+timeout-minutes: 350
 
-      # ==========================================
-      # CHECKOUT
-      # ==========================================
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
+steps:
 
-
-      # ==========================================
-      # DEPENDENCIES
-      # ==========================================
+  # ==========================================
+  # DETERMINE SLOT
+  # ==========================================
 
-      - name: Install dependencies
-        run: |
-          set -e
+  - name: Determine server slot
+    id: slot
+    env:
+      EVENT_SLOT: ${{ github.event.client_payload.slot }}
+      MANUAL_SLOT: ${{ inputs.slot }}
+    run: |
+      set -e
 
-          echo "======================================"
-          echo "LAC_SERVER_STATE=INSTALLING_DEPENDENCIES"
-          echo "======================================"
+      SLOT="$EVENT_SLOT"
 
-          sudo apt-get update
+      if [ -z "$SLOT" ]; then
+        SLOT="$MANUAL_SLOT"
+      fi
+
+      if [ -z "$SLOT" ]; then
+        SLOT="1"
+      fi
+
+      case "$SLOT" in
+        1|2|3|4)
+          ;;
+        *)
+          echo "ERROR: Invalid slot: $SLOT"
+          exit 1
+          ;;
+      esac
+
+      echo "SLOT=$SLOT" >> "$GITHUB_OUTPUT"
+
+      echo "======================================"
+      echo "SERVER_SLOT=$SLOT"
+      echo "======================================"
+
+
+  # ==========================================
+  # CHECKOUT
+  # ==========================================
+
+  - name: Checkout repository
+    uses: actions/checkout@v4
+
+
+  # ==========================================
+  # INSTALL DEPENDENCIES
+  # ==========================================
+
+  - name: Install dependencies
+    run: |
+      set -e
+
+      sudo apt-get update
+
+      sudo apt-get install -y \
+        unzip \
+        wget \
+        curl \
+        ca-certificates \
+        iproute2 \
+        jq
+
+      echo "Dependencies installed."
+
+
+  # ==========================================
+  # CHECK DASHBOARD TOKEN
+  # ==========================================
+
+  - name: Check dashboard token
+    env:
+      DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
+    run: |
+      set -e
+
+      echo "======================================"
+      echo "CHECKING DASHBOARD TOKEN"
+      echo "======================================"
 
-          sudo apt-get install -y \
-            unzip \
-            wget \
-            curl \
-            ca-certificates \
-            iproute2
+      if [ -z "$DASHBOARD_TOKEN" ]; then
+        echo "ERROR: DASHBOARD_TOKEN is missing."
+        echo
+        echo "Create it at:"
+        echo "Repository"
+        echo "→ Settings"
+        echo "→ Secrets and variables"
+        echo "→ Actions"
+        echo "→ New repository secret"
+        echo
+        echo "Name: DASHBOARD_TOKEN"
+        exit 1
+      fi
+
+      echo "DASHBOARD_TOKEN is configured."
+
+
+  # ==========================================
+  # TEST GITHUB TOKEN
+  # ==========================================
+
+  - name: Test GitHub token
+    env:
+      DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
+    run: |
+      set -e
 
+      echo "======================================"
+      echo "TESTING GITHUB TOKEN"
+      echo "======================================"
 
-      # ==========================================
-      # DOWNLOAD PLAYIT
-      # ==========================================
+      RESPONSE=$(
+        curl \
+          --fail \
+          --silent \
+          --show-error \
+          --request GET \
+          --url "https://api.github.com/user" \
+          --header "Accept: application/vnd.github+json" \
+          --header "Authorization: Bearer $DASHBOARD_TOKEN" \
+          --header "X-GitHub-Api-Version: 2022-11-28"
+      )
+
+      USERNAME=$(
+        echo "$RESPONSE" |
+          jq -r '.login // empty'
+      )
 
-      - name: Download Playit
-        run: |
-          set -e
+      if [ -z "$USERNAME" ]; then
+        echo "ERROR: GitHub token test failed."
+        exit 1
+      fi
+
+      echo "GitHub token works."
+      echo "Authenticated account: $USERNAME"
+
+
+  # ==========================================
+  # TEST GIST ACCESS
+  # ==========================================
+
+  - name: Test Gist access
+    env:
+      DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
+    run: |
+      set -e
+
+      GIST_ID="a6bd68866931ce5999003aa4f59d50b5"
+
+      echo "======================================"
+      echo "TESTING GIST ACCESS"
+      echo "======================================"
+
+      curl \
+        --fail \
+        --silent \
+        --show-error \
+        --request GET \
+        --url "https://api.github.com/gists/$GIST_ID" \
+        --header "Accept: application/vnd.github+json" \
+        --header "Authorization: Bearer $DASHBOARD_TOKEN" \
+        --header "X-GitHub-Api-Version: 2022-11-28" \
+        > "$GITHUB_WORKSPACE/gist.json"
+
+      if ! jq -e '.files["servers.json"]' \
+        "$GITHUB_WORKSPACE/gist.json" >/dev/null; then
+
+        echo "ERROR: servers.json was not found in the Gist."
+
+        jq '.files | keys' \
+          "$GITHUB_WORKSPACE/gist.json"
+
+        exit 1
+      fi
+
+      echo "Gist access works."
+      echo "servers.json found."
+
+
+  # ==========================================
+  # DOWNLOAD PLAYIT
+  # ==========================================
+
+  - name: Download Playit
+    run: |
+      set -e
+
+      echo "======================================"
+      echo "LAC_SERVER_STATE=INSTALLING_PLAYIT"
+      echo "======================================"
+
+      wget \
+        --timeout=60 \
+        --tries=5 \
+        -O "$GITHUB_WORKSPACE/playit" \
+        "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-linux-amd64"
+
+      chmod +x \
+        "$GITHUB_WORKSPACE/playit"
 
-          echo "======================================"
-          echo "LAC_SERVER_STATE=INSTALLING_PLAYIT"
-          echo "======================================"
+      "$GITHUB_WORKSPACE/playit" --help || true
 
-          wget \
-            --timeout=60 \
-            --tries=5 \
-            -O "$GITHUB_WORKSPACE/playit" \
-            "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-linux-amd64"
 
-          chmod +x \
-            "$GITHUB_WORKSPACE/playit"
+  # ==========================================
+  # CHECK PLAYIT SECRET
+  # ==========================================
 
-          echo "Playit installed."
+  - name: Check Playit secret
+    id: playit_secret_check
+    env:
+      PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
+    run: |
+      set -e
 
-          "$GITHUB_WORKSPACE/playit" --help || true
+      if [ -n "$PLAYIT_SECRET" ]; then
+        echo "HAS_SECRET=true" >> "$GITHUB_OUTPUT"
+        echo "PLAYIT_SECRET_FOUND=true"
+      else
+        echo "HAS_SECRET=false" >> "$GITHUB_OUTPUT"
+        echo "PLAYIT_SECRET_FOUND=false"
+      fi
 
 
-      # ==========================================
-      # CHECK PLAYIT SECRET
-      # ==========================================
+  # ==========================================
+  # REQUIRE PLAYIT SECRET
+  # ==========================================
 
-      - name: Check Playit secret
-        id: playit_secret_check
-        env:
-          PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
-        run: |
-          set -e
+  - name: Require Playit secret
+    if: steps.playit_secret_check.outputs.HAS_SECRET == 'false'
+    run: |
+      echo "ERROR: PLAYIT_SECRET is not configured."
+      echo
+      echo "Save your persistent Playit agent secret as:"
+      echo
+      echo "PLAYIT_SECRET"
+      echo
+      echo "Repository"
+      echo "→ Settings"
+      echo "→ Secrets and variables"
+      echo "→ Actions"
+      echo "→ New repository secret"
 
-          echo "======================================"
-          echo "CHECKING PLAYIT SECRET"
-          echo "======================================"
+      exit 1
 
-          if [ -n "$PLAYIT_SECRET" ]; then
-            echo "HAS_SECRET=true" >> "$GITHUB_OUTPUT"
-            echo "PLAYIT_SECRET_FOUND=true"
-          else
-            echo "HAS_SECRET=false" >> "$GITHUB_OUTPUT"
-            echo "PLAYIT_SECRET_FOUND=false"
-          fi
 
-
-      # ==========================================
-      # FIRST-TIME SETUP
-      # ==========================================
+  # ==========================================
+  # DOWNLOAD L.A. CRIMES
+  # ==========================================
 
-      - name: First Playit agent setup
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'false'
-        run: |
-          set -e
+  - name: Download L.A. Crimes
+    run: |
+      set -e
 
-          echo "======================================"
-          echo "LAC_SERVER_STATE=PLAYIT_SETUP"
-          echo "======================================"
+      echo "======================================"
+      echo "LAC_SERVER_STATE=DOWNLOADING"
+      echo "======================================"
 
-          echo
-          echo "No PLAYIT_SECRET was found."
-          echo
-          echo "Use the Playit claim process to create"
-          echo "and approve the agent."
-          echo
-          echo "After claiming the agent, save its secret"
-          echo "as the GitHub repository secret:"
-          echo
-          echo "PLAYIT_SECRET"
-          echo
-          echo "Then run this workflow again."
-
-          echo
-          echo "LAC_SERVER_STATE=WAITING_FOR_SECRET"
-
-          exit 0
-
-
-      # ==========================================
-      # LOAD SECRET
-      # ==========================================
-
-      - name: Load Playit secret
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
-        env:
-          PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
-        run: |
-          set -e
-
-          echo "======================================"
-          echo "LAC_SERVER_STATE=PLAYIT_REUSING_AGENT"
-          echo "======================================"
-
-          if [ -z "$PLAYIT_SECRET" ]; then
-            echo "ERROR: PLAYIT_SECRET is empty."
-            exit 1
-          fi
-
-          echo "PLAYIT_AGENT=PERSISTENT"
-          echo "LACServer2 will be reused."
-
-
-      # ==========================================
-      # DOWNLOAD L.A. CRIMES
-      # ==========================================
-
-      - name: Download L.A. Crimes
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
-        run: |
-          set -e
-
-          echo "======================================"
-          echo "LAC_SERVER_STATE=DOWNLOADING"
-          echo "======================================"
-
-          wget \
-            --timeout=60 \
-            --tries=5 \
-            -O "$GITHUB_WORKSPACE/LAC.zip" \
-            "https://www.lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
+      wget \
+        --timeout=60 \
+        --tries=5 \
+        -O "$GITHUB_WORKSPACE/LAC.zip" \
+        "https://www.lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
 
-          rm -rf \
-            "$GITHUB_WORKSPACE/lac"
+      rm -rf \
+        "$GITHUB_WORKSPACE/lac"
 
-          mkdir -p \
-            "$GITHUB_WORKSPACE/lac"
+      mkdir -p \
+        "$GITHUB_WORKSPACE/lac"
 
-          unzip -q \
-            "$GITHUB_WORKSPACE/LAC.zip" \
-            -d "$GITHUB_WORKSPACE/lac"
+      unzip -q \
+        "$GITHUB_WORKSPACE/LAC.zip" \
+        -d "$GITHUB_WORKSPACE/lac"
 
-          SERVER=$(
-            find "$GITHUB_WORKSPACE/lac" \
-              -type f \
-              -name "LAC_Linux_v1.9.6.x86_64" \
-              -print -quit
-          )
-
-          if [ -z "$SERVER" ]; then
-            echo "ERROR: L.A. Crimes executable was not found."
+      SERVER=$(
+        find "$GITHUB_WORKSPACE/lac" \
+          -type f \
+          -name "LAC_Linux_v1.9.6.x86_64" \
+          -print -quit
+      )
 
-            find "$GITHUB_WORKSPACE/lac" \
-              -maxdepth 5 \
-              -type f \
-              -print
+      if [ -z "$SERVER" ]; then
 
-            exit 1
-          fi
+        echo "ERROR: L.A. Crimes executable not found."
 
-          chmod +x "$SERVER"
+        find "$GITHUB_WORKSPACE/lac" \
+          -maxdepth 5 \
+          -type f \
+          -print
 
-          echo
-          echo "L.A. Crimes executable:"
-          echo "$SERVER"
+        exit 1
 
+      fi
 
-      # ==========================================
-      # SERVER CONFIG
-      # ==========================================
+      chmod +x "$SERVER"
 
-      - name: Create ServerConfig.txt
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
-        run: |
-          set -e
+      echo "SERVER=$SERVER"
 
-          cat > "$GITHUB_WORKSPACE/ServerConfig.txt" <<'EOF'
-          #Maps (City, Garage, RagdollParty, TrainFacility)
-          #Maps (ZombieSurvival, NewTerrainRamps, Island, CarSoccer)
-          #Editor Maps (editor:myMap)
 
-          (Moderator)
-          admin code=YOUR-NUM-CODE
-          lock down=true
+  # ==========================================
+  # SERVER CONFIG
+  # ==========================================
 
-          (Basic)
-          restart timer=never
-          max players=16
-          map name=City
-          starting port=7777
+  - name: Create ServerConfig.txt
+    run: |
+      set -e
 
-          (Server List)
-          share to community=true
-          server language=English
-          server password=none
+      cat > "$GITHUB_WORKSPACE/ServerConfig.txt" <<'EOF'
+      #Maps (City, Garage, RagdollParty, TrainFacility)
+      #Maps (ZombieSurvival, NewTerrainRamps, Island, CarSoccer)
+      #Editor Maps (editor:myMap)
 
-          (Roleplay)
-          username=HOST
-          password=0000
-          EOF
+      (Moderator)
+      admin code=YOUR-NUM-CODE
+      lock down=true
 
-          echo "======================================"
-          echo "LAC_SERVER_STATE=CONFIGURING"
-          echo "======================================"
+      (Basic)
+      restart timer=never
+      max players=16
+      map name=City
+      starting port=7777
 
-          echo "MAP=City"
-          echo "LOCAL_UDP=7777"
+      (Server List)
+      share to community=true
+      server language=English
+      server password=none
 
+      (Roleplay)
+      username=HOST
+      password=0000
+      EOF
 
-      # ==========================================
-      # INSTALL SERVER CONFIG
-      # ==========================================
 
-      - name: Install ServerConfig.txt
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
-        run: |
-          set -e
+  # ==========================================
+  # INSTALL CONFIG
+  # ==========================================
 
-          CONFIG_DIR="/root/.config/unity3d/MA/LAC"
+  - name: Install ServerConfig.txt
+    run: |
+      set -e
 
-          sudo mkdir -p \
-            "$CONFIG_DIR"
+      CONFIG_DIR="/root/.config/unity3d/MA/LAC"
 
-          sudo cp \
-            "$GITHUB_WORKSPACE/ServerConfig.txt" \
-            "$CONFIG_DIR/ServerConfig.txt"
+      sudo mkdir -p "$CONFIG_DIR"
 
-          sudo chmod 644 \
-            "$CONFIG_DIR/ServerConfig.txt"
+      sudo cp \
+        "$GITHUB_WORKSPACE/ServerConfig.txt" \
+        "$CONFIG_DIR/ServerConfig.txt"
 
-          echo "CONFIG_INSTALLED=true"
+      sudo chmod 644 \
+        "$CONFIG_DIR/ServerConfig.txt"
 
 
-      # ==========================================
-      # START L.A. CRIMES
-      # ==========================================
+  # ==========================================
+  # START L.A. CRIMES
+  # ==========================================
 
-      - name: Start L.A. Crimes
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
-        run: |
-          set -e
+  - name: Start L.A. Crimes
+    run: |
+      set -e
 
-          SERVER=$(
-            find "$GITHUB_WORKSPACE/lac" \
-              -type f \
-              -name "LAC_Linux_v1.9.6.x86_64" \
-              -print -quit
-          )
+      SERVER=$(
+        find "$GITHUB_WORKSPACE/lac" \
+          -type f \
+          -name "LAC_Linux_v1.9.6.x86_64" \
+          -print -quit
+      )
 
-          SERVER_DIR=$(dirname "$SERVER")
+      SERVER_DIR=$(dirname "$SERVER")
 
-          cd "$SERVER_DIR"
+      cd "$SERVER_DIR"
 
-          echo "======================================"
-          echo "LAC_SERVER_STATE=STARTING_GAME"
-          echo "======================================"
+      echo "======================================"
+      echo "LAC_SERVER_STATE=STARTING_GAME"
+      echo "======================================"
 
-          echo "MAP=City"
-          echo "LOCAL_UDP=7777"
+      ./LAC_Linux_v1.9.6.x86_64 \
+        -batchmode \
+        -nographics \
+        > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
 
-          ./LAC_Linux_v1.9.6.x86_64 \
-            -batchmode \
-            -nographics \
-            > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
+      LAC_PID=$!
 
-          LAC_PID=$!
+      echo "$LAC_PID" \
+        > "$GITHUB_WORKSPACE/lac.pid"
 
-          echo "$LAC_PID" \
-            > "$GITHUB_WORKSPACE/lac.pid"
+      echo "LAC_PID=$LAC_PID"
 
-          echo "LAC_PID=$LAC_PID"
+      sleep 10
 
-          sleep 10
+      if ! kill -0 "$LAC_PID" 2>/dev/null; then
 
-          if ! kill -0 "$LAC_PID" 2>/dev/null; then
-            echo
-            echo "LAC_SERVER_STATE=GAME_FAILED"
+        echo "LAC_SERVER_STATE=GAME_FAILED"
 
-            echo
-            echo "===== L.A. CRIMES LOG ====="
+        tail -250 \
+          "$GITHUB_WORKSPACE/lac-server.log" \
+          || true
 
-            tail -250 \
-              "$GITHUB_WORKSPACE/lac-server.log" \
-              || true
+        exit 1
 
-            exit 1
-          fi
+      fi
 
-          echo
-          echo "LAC_SERVER_STATE=GAME_RUNNING"
+      echo "LAC_SERVER_STATE=GAME_RUNNING"
 
-          echo
-          echo "===== UDP 7777 ====="
+      ss -lunp |
+        grep ':7777' ||
+        true
 
-          ss -lunp | grep ':7777' || true
 
+  # ==========================================
+  # PREPARE PLAYIT
+  # ==========================================
 
-      # ==========================================
-      # PREPARE PLAYIT IPC DIRECTORY
-      # ==========================================
+  - name: Prepare Playit runtime
+    run: |
+      set -e
 
-      - name: Prepare Playit runtime
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
-        run: |
-          set -e
+      sudo rm -rf /run/playit
 
-          echo "======================================"
-          echo "LAC_SERVER_STATE=PREPARING_PLAYIT"
-          echo "======================================"
+      sudo mkdir -p /run/playit
 
-          # Playit 1.0.10 uses:
-          # /run/playit/playitd.sock
-          #
-          # GitHub-hosted runners do not necessarily
-          # have this directory available.
+      sudo chown \
+        "$(id -u):$(id -g)" \
+        /run/playit
 
-          sudo rm -rf \
-            /run/playit
+      sudo chmod 700 /run/playit
 
-          sudo mkdir -p \
-            /run/playit
+      echo "PLAYIT_RUNTIME=/run/playit"
 
-          sudo chown \
-            "$(id -u):$(id -g)" \
-            /run/playit
 
-          sudo chmod 700 \
-            /run/playit
+  # ==========================================
+  # START PLAYIT
+  # ==========================================
 
-          echo
-          echo "PLAYIT_RUNTIME=/run/playit"
+  - name: Start Playit tunnel
+    env:
+      PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
+    run: |
+      set -e
 
-          echo
-          echo "Directory permissions:"
+      echo "======================================"
+      echo "LAC_SERVER_STATE=STARTING_TUNNEL"
+      echo "======================================"
 
-          ls -ld \
-            /run/playit
+      "$GITHUB_WORKSPACE/playit" \
+        --secret "$PLAYIT_SECRET" \
+        > "$GITHUB_WORKSPACE/playit.log" 2>&1 &
 
+      PLAYIT_PID=$!
 
-      # ==========================================
-      # START PLAYIT TUNNEL
-      # ==========================================
+      echo "$PLAYIT_PID" \
+        > "$GITHUB_WORKSPACE/playit.pid"
 
-      - name: Start Playit tunnel
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
-        env:
-          PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
-        run: |
-          set -e
+      echo "PLAYIT_PID=$PLAYIT_PID"
 
-          echo "======================================"
-          echo "LAC_SERVER_STATE=STARTING_TUNNEL"
-          echo "======================================"
+      for i in $(seq 1 60); do
 
-          echo "TUNNEL_PROVIDER=playit"
-          echo "LOCAL_UDP=7777"
+        if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
 
-          if [ -z "$PLAYIT_SECRET" ]; then
-            echo "ERROR: PLAYIT_SECRET is missing."
-            exit 1
-          fi
-
-          echo
-          echo "Checking Playit IPC directory..."
-
-          ls -ld \
-            /run/playit
-
-          echo
-          echo "Starting Playit agent..."
-
-          "$GITHUB_WORKSPACE/playit" \
-            --secret "$PLAYIT_SECRET" \
-            > "$GITHUB_WORKSPACE/playit.log" 2>&1 &
-
-          PLAYIT_PID=$!
-
-          echo "$PLAYIT_PID" \
-            > "$GITHUB_WORKSPACE/playit.pid"
-
-          echo "PLAYIT_PID=$PLAYIT_PID"
-
-          echo
-          echo "Waiting for Playit..."
-
-          for i in $(seq 1 60); do
-
-            if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
-
-              echo
-              echo "ERROR: Playit stopped."
-
-              echo
-              echo "===== PLAYIT LOG ====="
-
-              cat \
-                "$GITHUB_WORKSPACE/playit.log" \
-                || true
-
-              exit 1
-            fi
-
-            echo "Playit running... $i/60"
-
-            sleep 1
-
-          done
-
-          echo
-          echo "======================================"
-          echo "LAC_SERVER_STATE=TUNNEL_RUNNING"
-          echo "======================================"
-
-          echo "TUNNEL_PROVIDER=playit"
-          echo "LOCAL_UDP=7777"
-
-          echo
-          echo "===== PLAYIT LOG ====="
+          echo "ERROR: Playit stopped."
 
           cat \
             "$GITHUB_WORKSPACE/playit.log" \
             || true
 
+          exit 1
 
-      # ==========================================
-      # SERVER READY
-      # ==========================================
+        fi
 
-      - name: Server ready
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
-        run: |
-          set -e
+        echo "Playit running... $i/60"
 
-          echo
-          echo "======================================"
-          echo "       L.A. CRIMES SERVER READY"
-          echo "======================================"
+        sleep 1
 
-          echo "LAC_SERVER_STATE=ONLINE"
-          echo "SERVER_STATUS=ONLINE"
-          echo "SERVER_READY=true"
+      done
 
-          echo "MAP=City"
-          echo "LOCAL_UDP=7777"
-          echo "TUNNEL_PROVIDER=playit"
+      echo
+      echo "======================================"
+      echo "LAC_SERVER_STATE=TUNNEL_RUNNING"
+      echo "======================================"
 
-          echo
-          echo "======================================"
+      cat \
+        "$GITHUB_WORKSPACE/playit.log" \
+        || true
 
 
-      # ==========================================
-      # KEEP SERVER ALIVE
-      # ==========================================
+  # ==========================================
+  # SERVER READY
+  # ==========================================
 
-      - name: Keep server alive
-        if: steps.playit_secret_check.outputs.HAS_SECRET == 'true'
-        run: |
-          set -e
+  - name: Server ready
+    run: |
+      set -e
 
-          echo
-          echo "======================================"
-          echo "SERVER_READY=true"
-          echo "SERVER_STATUS=ONLINE"
-          echo "LAC_SERVER_STATE=ONLINE"
-          echo "MAP=City"
-          echo "LOCAL_UDP=7777"
-          echo "TUNNEL_PROVIDER=playit"
-          echo "======================================"
+      echo "======================================"
+      echo "L.A. CRIMES SERVER READY"
+      echo "======================================"
 
-          while true; do
+      echo "SERVER_STATUS=ONLINE"
+      echo "SERVER_READY=true"
+      echo "LOCAL_UDP=7777"
+      echo "TUNNEL_PROVIDER=playit"
 
-            LAC_PID=$(cat "$GITHUB_WORKSPACE/lac.pid")
-            PLAYIT_PID=$(cat "$GITHUB_WORKSPACE/playit.pid")
 
-            if ! kill -0 "$LAC_PID" 2>/dev/null; then
+  # ==========================================
+  # KEEP SERVER ALIVE
+  # ==========================================
 
-              echo
-              echo "SERVER_READY=false"
-              echo "SERVER_STATUS=OFFLINE"
-              echo "LAC_SERVER_STATE=GAME_STOPPED"
+  - name: Keep server alive
+    run: |
+      set -e
 
-              echo
-              echo "===== L.A. CRIMES LOG ====="
+      echo "SERVER_STATUS=ONLINE"
 
-              tail -250 \
-                "$GITHUB_WORKSPACE/lac-server.log" \
-                || true
+      while true; do
 
-              exit 1
-            fi
+        LAC_PID=$(cat "$GITHUB_WORKSPACE/lac.pid")
+        PLAYIT_PID=$(cat "$GITHUB_WORKSPACE/playit.pid")
 
-            if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
+        if ! kill -0 "$LAC_PID" 2>/dev/null; then
 
-              echo
-              echo "SERVER_READY=false"
-              echo "SERVER_STATUS=OFFLINE"
-              echo "LAC_SERVER_STATE=TUNNEL_STOPPED"
+          echo "SERVER_STATUS=OFFLINE"
 
-              echo
-              echo "===== PLAYIT LOG ====="
+          tail -250 \
+            "$GITHUB_WORKSPACE/lac-server.log" \
+            || true
 
-              cat \
-                "$GITHUB_WORKSPACE/playit.log" \
-                || true
+          exit 1
 
-              exit 1
-            fi
+        fi
 
-            echo
-            echo "[$(date '+%H:%M:%S')]"
+        if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
 
-            echo "LAC_SERVER_STATE=ONLINE"
-            echo "SERVER_READY=true"
-            echo "SERVER_STATUS=ONLINE"
-            echo "MAP=City"
-            echo "LOCAL_UDP=7777"
-            echo "TUNNEL_PROVIDER=playit"
+          echo "SERVER_STATUS=OFFLINE"
 
-            sleep 10
+          cat \
+            "$GITHUB_WORKSPACE/playit.log" \
+            || true
 
-          done
+          exit 1
+
+        fi
+
+        echo "[$(date '+%H:%M:%S')] SERVER_STATUS=ONLINE"
+
+        sleep 10
+
+      done
