@@ -248,7 +248,7 @@ jobs:
           restart timer=never
           max players=16
           map name=City
-          starting port=7778
+          starting port=7777
 
           (Server List)
           share to community=true
@@ -269,7 +269,7 @@ jobs:
           restart timer=never
           max players=16
           map name=City
-          starting port=7779
+          starting port=7777
 
           (Server List)
           share to community=true
@@ -290,7 +290,7 @@ jobs:
           restart timer=never
           max players=16
           map name=City
-          starting port=7780
+          starting port=7777
 
           (Server List)
           share to community=true
@@ -328,7 +328,7 @@ jobs:
                 "$GITHUB_WORKSPACE/servers.json"
             )
 
-            PORT=$((7776 + SLOT))
+            PORT=7777
 
             echo
             echo "======================================"
@@ -393,7 +393,7 @@ jobs:
 
           ss -lunp || true
 
-          for PORT in 7777 7778 7779 7780; do
+          for PORT in 7777; do
             echo
             echo "UDP PORT $PORT"
 
