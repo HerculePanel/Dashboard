@@ -1,6 +1,6 @@
 name: L.A. Crimes Playit Server
 
-"on":
+on:
   workflow_dispatch:
     inputs:
       slot:
@@ -32,6 +32,7 @@ jobs:
     timeout-minutes: 350
 
     steps:
+
       # ==========================================
       # DETERMINE SLOT
       # ==========================================
@@ -69,12 +70,14 @@ jobs:
           echo "SERVER_SLOT=$SLOT"
           echo "======================================"
 
+
       # ==========================================
       # CHECKOUT
       # ==========================================
 
       - name: Checkout repository
         uses: actions/checkout@v4
+
 
       # ==========================================
       # DEPENDENCIES
@@ -97,6 +100,7 @@ jobs:
 
           echo "Dependencies installed."
 
+
       # ==========================================
       # CHECK DASHBOARD TOKEN
       # ==========================================
@@ -117,6 +121,7 @@ jobs:
           fi
 
           echo "DASHBOARD_TOKEN_FOUND=true"
+
 
       # ==========================================
       # TEST GITHUB TOKEN
@@ -156,6 +161,7 @@ jobs:
 
           echo "GitHub token works."
           echo "Authenticated account: $USERNAME"
+
 
       # ==========================================
       # DOWNLOAD GIST DATABASE
@@ -197,6 +203,7 @@ jobs:
           echo "Current database:"
           cat "$GITHUB_WORKSPACE/servers.json"
 
+
       # ==========================================
       # MARK SLOT STARTING
       # ==========================================
@@ -212,7 +219,9 @@ jobs:
           echo "SERVER $SLOT -> STARTING"
           echo "======================================"
 
-          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" <<'PY'
+          python3 - \
+            "$GITHUB_WORKSPACE/servers.json" \
+            "$SLOT" <<'PY'
           import json
           import sys
 
@@ -269,6 +278,7 @@ jobs:
 
           echo "Server $SLOT marked STARTING."
 
+
       # ==========================================
       # DOWNLOAD PLAYIT
       # ==========================================
@@ -291,6 +301,7 @@ jobs:
 
           "$GITHUB_WORKSPACE/playit" --help || true
 
+
       # ==========================================
       # CHECK PLAYIT SECRET
       # ==========================================
@@ -310,6 +321,7 @@ jobs:
             echo "PLAYIT_SECRET_FOUND=false"
           fi
 
+
       # ==========================================
       # REQUIRE PLAYIT SECRET
       # ==========================================
@@ -325,6 +337,7 @@ jobs:
           echo "Secret name:"
           echo "PLAYIT_SECRET"
           exit 1
+
 
       # ==========================================
       # DOWNLOAD L.A. CRIMES
@@ -375,6 +388,7 @@ jobs:
           echo "L.A. Crimes executable:"
           echo "$SERVER"
 
+
       # ==========================================
       # CREATE SERVER CONFIG
       # ==========================================
@@ -408,7 +422,6 @@ jobs:
           password=0000
           EOF
 
-          echo "ServerConfig.txt created."
 
       # ==========================================
       # INSTALL SERVER CONFIG
@@ -431,6 +444,7 @@ jobs:
 
           echo "CONFIG_INSTALLED=true"
 
+
       # ==========================================
       # START L.A. CRIMES
       # ==========================================
@@ -445,11 +459,6 @@ jobs:
               -name "LAC_Linux_v1.9.6.x86_64" \
               -print -quit
           )
-
-          if [ -z "$SERVER" ]; then
-            echo "ERROR: Server executable not found."
-            exit 1
-          fi
 
           SERVER_DIR=$(dirname "$SERVER")
 
@@ -496,6 +505,7 @@ jobs:
             grep ':7777' ||
             true
 
+
       # ==========================================
       # PREPARE PLAYIT
       # ==========================================
@@ -521,6 +531,7 @@ jobs:
           echo "PLAYIT_RUNTIME=/run/playit"
 
           ls -ld /run/playit
+
 
       # ==========================================
       # START PLAYIT
@@ -583,6 +594,7 @@ jobs:
             "$GITHUB_WORKSPACE/playit.log" \
             || true
 
+
       # ==========================================
       # DETECT PLAYIT ENDPOINT
       # ==========================================
@@ -596,22 +608,13 @@ jobs:
 
           ENDPOINT=""
 
-          for i in $(seq 1 30); do
-            ENDPOINT=$(
-              grep -Eo \
-                '([A-Za-z0-9.-]+\.(playit\.gg|playit\.cloud):[0-9]+|[0-9]{1,3}(\.[0-9]{1,3}){3}:[0-9]+)' \
-                "$LOG" |
-              head -1 ||
-              true
-            )
-
-            if [ -n "$ENDPOINT" ]; then
-              break
-            fi
-
-            echo "Waiting for public endpoint..."
-            sleep 2
-          done
+          ENDPOINT=$(
+            grep -Eo \
+              '([A-Za-z0-9.-]+\.(playit\.gg|playit\.cloud):[0-9]+|[0-9]{1,3}(\.[0-9]{1,3}){3}:[0-9]+)' \
+              "$LOG" |
+            head -1 ||
+            true
+          )
 
           if [ -z "$ENDPOINT" ]; then
             echo "No public endpoint detected in Playit log."
@@ -620,6 +623,7 @@ jobs:
             echo "Playit endpoint detected."
             echo "ENDPOINT=$ENDPOINT" >> "$GITHUB_OUTPUT"
           fi
+
 
       # ==========================================
       # MARK SERVER ONLINE
@@ -637,7 +641,7 @@ jobs:
           echo "SERVER $SLOT -> ONLINE"
           echo "======================================"
 
-          python3 \
+          python3 - \
             "$GITHUB_WORKSPACE/servers.json" \
             "$SLOT" \
             "$ENDPOINT" <<'PY'
@@ -666,7 +670,11 @@ jobs:
               )
 
           with open(path, "w", encoding="utf-8") as f:
-              json.dump(data, f, indent=2)
+              json.dump(
+                  data,
+                  f,
+                  indent=2
+              )
               f.write("\n")
           PY
 
@@ -698,6 +706,7 @@ jobs:
 
           echo "Gist updated."
 
+
       # ==========================================
       # READY
       # ==========================================
@@ -727,6 +736,7 @@ jobs:
           fi
 
           echo "======================================"
+
 
       # ==========================================
       # KEEP SERVER ALIVE
@@ -780,6 +790,7 @@ jobs:
             sleep 10
           done
 
+
       # ==========================================
       # FAILURE CLEANUP
       # ==========================================
@@ -814,7 +825,7 @@ jobs:
               > "$GITHUB_WORKSPACE/servers.json"
           fi
 
-          python3 \
+          python3 - \
             "$GITHUB_WORKSPACE/servers.json" \
             "$SLOT" <<'PY'
           import json
@@ -833,7 +844,11 @@ jobs:
                   break
 
           with open(path, "w", encoding="utf-8") as f:
-              json.dump(data, f, indent=2)
+              json.dump(
+                  data,
+                  f,
+                  indent=2
+              )
               f.write("\n")
           PY
 
@@ -863,6 +878,7 @@ jobs:
             > /dev/null || true
 
           echo "Server $SLOT returned to AVAILABLE."
+
 
       # ==========================================
       # FINAL STATUS
