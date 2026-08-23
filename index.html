@@ -1,169 +1,157 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8"><meta
+  <meta charset="UTF-8">
+
+  <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
->
+  >
 
-<meta
-    name="description"
-    content="LACServer free game server dashboard"
->
+  <title>L.A. Crimes Server Control Panel</title>
 
-<meta name="theme-color" content="#0b0d12">
+  <link rel="stylesheet" href="style.css">
+</head>
 
-<title>LACServer Dashboard</title>
+<body>
 
-<link rel="stylesheet" href="style.css">
+  <main class="container">
 
-</head><body><div class="background-glow"></div>
+    <header class="hero">
+      <div class="hero-icon">🎮</div>
 
-<header class="topbar">
+      <div>
+        <h1>L.A. Crimes</h1>
+        <p>4-Server Control Panel</p>
+      </div>
 
-    <a
-        class="brand"
-        href="./"
-        aria-label="LACServer Dashboard"
-    >
-        <div class="brand-icon">L</div>
+      <div class="connection">
+        <span id="connectionDot" class="connection-dot"></span>
+        <span id="connectionText">Disconnected</span>
+      </div>
+    </header>
 
-        <div class="brand-text">
-            <strong>LACServer</strong>
-            <span>Game Server Hosting</span>
+
+    <section class="card token-card">
+
+      <div class="section-title">
+        <div>
+          <h2>GitHub Authentication</h2>
+          <p>Used only by this browser session.</p>
         </div>
-    </a>
+      </div>
 
-    <div class="usage">
+      <div class="token-row">
 
-        <span class="usage-label">
-            SERVER SLOTS
-        </span>
+        <input
+          id="tokenInput"
+          type="password"
+          placeholder="github_pat_..."
+          autocomplete="off"
+        >
 
-        <strong id="usageCount">
-            0 / 4
-        </strong>
+        <button
+          id="saveTokenButton"
+          class="button primary"
+        >
+          Save Token
+        </button>
 
-    </div>
+        <button
+          id="clearTokenButton"
+          class="button danger-outline"
+        >
+          Clear
+        </button>
 
-</header>
+      </div>
 
-
-<main>
-
-    <section class="hero">
-
-        <div class="hero-badge">
-            <span class="status-dot"></span>
-            LACSERVER HOSTING
-        </div>
-
-        <h1>
-            Your game server,
-            <span>your way.</span>
-        </h1>
-
-        <p>
-            Create and manage free game servers
-            from one simple dashboard.
-        </p>
+      <div id="tokenMessage" class="message"></div>
 
     </section>
 
 
-    <section class="section-header">
+    <section class="stats">
+
+      <div class="stat-card">
+        <span class="stat-label">Servers</span>
+        <strong id="totalServers">4</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Online</span>
+        <strong id="onlineServers">0</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Starting</span>
+        <strong id="startingServers">0</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Available</span>
+        <strong id="availableServers">4</strong>
+      </div>
+
+    </section>
+
+
+    <section class="card">
+
+      <div class="section-header">
 
         <div>
-            <h2>Game Servers</h2>
-
-            <p>
-                Choose an available server slot
-                to get started.
-            </p>
+          <h2>Servers</h2>
+          <p>Manage all four L.A. Crimes servers.</p>
         </div>
 
         <button
-            class="refresh-button"
-            onclick="loadServers()"
-            title="Refresh servers"
-            type="button"
+          id="refreshButton"
+          class="button secondary"
         >
-            ↻
-            <span>Refresh</span>
+          ↻ Refresh
         </button>
 
-    </section>
+      </div>
 
 
-    <section
-        id="serverGrid"
-        class="server-grid"
-        aria-live="polite"
-    >
+      <div id="serversGrid" class="servers-grid">
 
-        <div class="loading-card">
-
-            <div class="loading-spinner"></div>
-
-            <span>
-                Loading servers...
-            </span>
-
+        <div class="loading">
+          Loading servers...
         </div>
+
+      </div>
 
     </section>
 
 
-    <section class="info-panel">
+    <section class="card">
 
-        <div class="info-icon">
-            i
-        </div>
+      <div class="section-header">
 
         <div>
-            <strong>
-                How does this work?
-            </strong>
-
-            <p>
-                Choose an available slot and
-                create your server. Once it is
-                online, you'll receive a public
-                address that your friends can use
-                to connect.
-            </p>
+          <h2>Activity</h2>
+          <p id="activityStatus">Waiting...</p>
         </div>
+
+      </div>
+
+      <pre id="activityLog" class="activity-log">Control panel ready.</pre>
 
     </section>
 
-</main>
+
+    <footer>
+      L.A. Crimes Server Dashboard
+      <span>•</span>
+      GitHub Actions + Playit
+    </footer>
+
+  </main>
 
 
-<footer>
-
-    <span>
-        © 2026 LACServer
-    </span>
-
-    <span class="footer-separator">
-        •
-    </span>
-
-    <span>
-        Free game server hosting
-    </span>
-
-</footer>
-
-
-<div
-    id="toast"
-    class="toast"
-    role="status"
-    aria-live="polite"
-></div>
-
-
-<script src="app.js"></script>
+  <script src="app.js"></script>
 
 </body>
-          </html>
+            </html>
