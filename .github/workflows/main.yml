@@ -68,6 +68,7 @@ jobs:
 
           echo "======================================"
           echo "SERVER_SLOT=$SLOT"
+          echo "RUN_ID=$GITHUB_RUN_ID"
           echo "======================================"
 
 
@@ -212,21 +213,25 @@ jobs:
         env:
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
           SLOT: ${{ steps.slot.outputs.SLOT }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           set -e
 
           echo "======================================"
           echo "SERVER $SLOT -> STARTING"
+          echo "RUN_ID=$RUN_ID"
           echo "======================================"
 
           python3 - \
             "$GITHUB_WORKSPACE/servers.json" \
-            "$SLOT" <<'PY'
+            "$SLOT" \
+            "$RUN_ID" <<'PY'
           import json
           import sys
 
           path = sys.argv[1]
           slot = int(sys.argv[2])
+          run_id = int(sys.argv[3])
 
           with open(path, "r", encoding="utf-8") as f:
               data = json.load(f)
@@ -237,6 +242,7 @@ jobs:
               if int(server["slot"]) == slot:
                   server["status"] = "starting"
                   server["endpoint"] = None
+                  server["run_id"] = run_id
                   found = True
                   break
 
@@ -620,7 +626,9 @@ jobs:
             echo "No public endpoint detected in Playit log."
             echo "ENDPOINT=" >> "$GITHUB_OUTPUT"
           else
-            echo "Playit endpoint detected."
+            echo "Playit endpoint detected:"
+            echo "$ENDPOINT"
+
             echo "ENDPOINT=$ENDPOINT" >> "$GITHUB_OUTPUT"
           fi
 
@@ -634,23 +642,27 @@ jobs:
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
           SLOT: ${{ steps.slot.outputs.SLOT }}
           ENDPOINT: ${{ steps.endpoint.outputs.ENDPOINT }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           set -e
 
           echo "======================================"
           echo "SERVER $SLOT -> ONLINE"
+          echo "RUN_ID=$RUN_ID"
           echo "======================================"
 
           python3 - \
             "$GITHUB_WORKSPACE/servers.json" \
             "$SLOT" \
-            "$ENDPOINT" <<'PY'
+            "$ENDPOINT" \
+            "$RUN_ID" <<'PY'
           import json
           import sys
 
           path = sys.argv[1]
           slot = int(sys.argv[2])
           endpoint = sys.argv[3]
+          run_id = int(sys.argv[4])
 
           with open(path, "r", encoding="utf-8") as f:
               data = json.load(f)
@@ -661,6 +673,7 @@ jobs:
               if int(server["slot"]) == slot:
                   server["status"] = "online"
                   server["endpoint"] = endpoint or None
+                  server["run_id"] = run_id
                   found = True
                   break
 
@@ -670,11 +683,7 @@ jobs:
               )
 
           with open(path, "w", encoding="utf-8") as f:
-              json.dump(
-                  data,
-                  f,
-                  indent=2
-              )
+              json.dump(data, f, indent=2)
               f.write("\n")
           PY
 
@@ -705,6 +714,7 @@ jobs:
             > /dev/null
 
           echo "Gist updated."
+          echo "Server $SLOT is ONLINE."
 
 
       # ==========================================
@@ -715,6 +725,7 @@ jobs:
         env:
           SLOT: ${{ steps.slot.outputs.SLOT }}
           ENDPOINT: ${{ steps.endpoint.outputs.ENDPOINT }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           echo
           echo "======================================"
@@ -725,6 +736,7 @@ jobs:
           echo "SERVER_STATUS=ONLINE"
           echo "SERVER_READY=true"
           echo "SERVER_SLOT=$SLOT"
+          echo "RUN_ID=$RUN_ID"
           echo "MAP=City"
           echo "LOCAL_UDP=7777"
           echo "TUNNEL_PROVIDER=playit"
@@ -745,11 +757,14 @@ jobs:
       - name: Keep server alive
         env:
           SLOT: ${{ steps.slot.outputs.SLOT }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           set -e
 
           echo "SERVER_READY=true"
           echo "SERVER_STATUS=ONLINE"
+          echo "SERVER_SLOT=$SLOT"
+          echo "RUN_ID=$RUN_ID"
 
           while true; do
             LAC_PID=$(cat "$GITHUB_WORKSPACE/lac.pid")
@@ -758,22 +773,12 @@ jobs:
             if ! kill -0 "$LAC_PID" 2>/dev/null; then
               echo "GAME PROCESS STOPPED"
               echo "SERVER_STATUS=OFFLINE"
-
-              tail -250 \
-                "$GITHUB_WORKSPACE/lac-server.log" \
-                || true
-
               exit 1
             fi
 
             if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
               echo "PLAYIT PROCESS STOPPED"
               echo "SERVER_STATUS=OFFLINE"
-
-              cat \
-                "$GITHUB_WORKSPACE/playit.log" \
-                || true
-
               exit 1
             fi
 
@@ -783,6 +788,7 @@ jobs:
             echo "SERVER_READY=true"
             echo "SERVER_STATUS=ONLINE"
             echo "SERVER_SLOT=$SLOT"
+            echo "RUN_ID=$RUN_ID"
             echo "MAP=City"
             echo "LOCAL_UDP=7777"
             echo "TUNNEL_PROVIDER=playit"
@@ -792,19 +798,25 @@ jobs:
 
 
       # ==========================================
-      # FAILURE CLEANUP
+      # FINAL GIST CLEANUP
+      #
+      # IMPORTANT:
+      # always() means this runs after failure/cancel
+      # whenever GitHub allows the runner to continue.
       # ==========================================
 
-      - name: Free slot after failure
-        if: failure()
+      - name: Free slot after workflow ends
+        if: always()
         env:
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
           SLOT: ${{ steps.slot.outputs.SLOT }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           set +e
 
           echo "======================================"
-          echo "FREEING SERVER SLOT $SLOT"
+          echo "CLEANING UP SERVER SLOT $SLOT"
+          echo "RUN_ID=$RUN_ID"
           echo "======================================"
 
           if [ ! -f "$GITHUB_WORKSPACE/servers.json" ]; then
@@ -825,59 +837,72 @@ jobs:
               > "$GITHUB_WORKSPACE/servers.json"
           fi
 
-          python3 - \
-            "$GITHUB_WORKSPACE/servers.json" \
-            "$SLOT" <<'PY'
+          if [ -f "$GITHUB_WORKSPACE/servers.json" ]; then
+
+            python3 - \
+              "$GITHUB_WORKSPACE/servers.json" \
+              "$SLOT" \
+              "$RUN_ID" <<'PY'
           import json
           import sys
 
           path = sys.argv[1]
           slot = int(sys.argv[2])
+          run_id = int(sys.argv[3])
 
           with open(path, "r", encoding="utf-8") as f:
               data = json.load(f)
 
           for server in data["servers"]:
               if int(server["slot"]) == slot:
-                  server["status"] = "available"
-                  server["endpoint"] = None
+
+                  current_run_id = server.get("run_id")
+
+                  if (
+                      current_run_id is None
+                      or int(current_run_id) == run_id
+                  ):
+                      server["status"] = "available"
+                      server["endpoint"] = None
+                      server["run_id"] = None
+
                   break
 
           with open(path, "w", encoding="utf-8") as f:
-              json.dump(
-                  data,
-                  f,
-                  indent=2
-              )
+              json.dump(data, f, indent=2)
               f.write("\n")
           PY
 
-          PAYLOAD=$(
-            jq -n \
-              --arg content "$(cat "$GITHUB_WORKSPACE/servers.json")" \
-              --arg filename "$GIST_FILE" \
-              '{
-                files: {
-                  ($filename): {
-                    content: $content
+            PAYLOAD=$(
+              jq -n \
+                --arg content "$(cat "$GITHUB_WORKSPACE/servers.json")" \
+                --arg filename "$GIST_FILE" \
+                '{
+                  files: {
+                    ($filename): {
+                      content: $content
+                    }
                   }
-                }
-              }'
-          )
+                }'
+            )
 
-          curl \
-            --silent \
-            --show-error \
-            --request PATCH \
-            --url "https://api.github.com/gists/$GIST_ID" \
-            --header "Accept: application/vnd.github+json" \
-            --header "Authorization: Bearer $DASHBOARD_TOKEN" \
-            --header "X-GitHub-Api-Version: 2022-11-28" \
-            --header "Content-Type: application/json" \
-            --data "$PAYLOAD" \
-            > /dev/null || true
+            curl \
+              --silent \
+              --show-error \
+              --request PATCH \
+              --url "https://api.github.com/gists/$GIST_ID" \
+              --header "Accept: application/vnd.github+json" \
+              --header "Authorization: Bearer $DASHBOARD_TOKEN" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --header "Content-Type: application/json" \
+              --data "$PAYLOAD" \
+              > /dev/null
 
-          echo "Server $SLOT returned to AVAILABLE."
+            echo "Server $SLOT cleanup complete."
+
+          else
+            echo "WARNING: servers.json could not be loaded."
+          fi
 
 
       # ==========================================
@@ -888,6 +913,7 @@ jobs:
         if: always()
         env:
           SLOT: ${{ steps.slot.outputs.SLOT }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           echo
           echo "======================================"
@@ -895,6 +921,7 @@ jobs:
           echo "======================================"
 
           echo "SERVER_SLOT=$SLOT"
+          echo "RUN_ID=$RUN_ID"
           echo "WORKFLOW_STATUS=${{ job.status }}"
 
           echo "======================================"
