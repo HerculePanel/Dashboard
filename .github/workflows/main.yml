@@ -61,8 +61,7 @@ jobs:
             ca-certificates \
             iproute2 \
             jq \
-            python3 \
-            net-tools
+            python3
 
       # ==========================================
       # DOWNLOAD CURRENT DATABASE
@@ -156,8 +155,13 @@ jobs:
           "$GITHUB_WORKSPACE/playit" --help || true
 
       # ==========================================
-      # DOWNLOAD L.A. CRIMES
+      # DOWNLOAD L.A. CRIMES (one copy per slot)
       # ==========================================
+      # NOTE: host is lacrimesonline.com, no "www", no "dl." subdomain
+      # (confirmed working directly). Each slot gets its OWN extracted
+      # copy of the binary so four concurrent processes never share
+      # one working directory (avoids lock-file / relative-path
+      # collisions).
 
       - name: Download L.A. Crimes
         run: |
@@ -171,38 +175,41 @@ jobs:
             --timeout=60 \
             --tries=5 \
             -O "$GITHUB_WORKSPACE/LAC.zip" \
-            "https://www.lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
+            "https://lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
 
-          rm -rf "$GITHUB_WORKSPACE/lac"
+          for SLOT in 1 2 3 4; do
 
-          mkdir -p "$GITHUB_WORKSPACE/lac"
+            rm -rf "$GITHUB_WORKSPACE/lac-$SLOT"
 
-          unzip -q \
-            "$GITHUB_WORKSPACE/LAC.zip" \
-            -d "$GITHUB_WORKSPACE/lac"
+            mkdir -p "$GITHUB_WORKSPACE/lac-$SLOT"
 
-          SERVER_BINARY=$(
-            find "$GITHUB_WORKSPACE/lac" \
-              -type f \
-              -name "LAC_Linux_v1.9.6.x86_64" \
-              -print -quit
-          )
+            unzip -q \
+              "$GITHUB_WORKSPACE/LAC.zip" \
+              -d "$GITHUB_WORKSPACE/lac-$SLOT"
 
-          if [ -z "$SERVER_BINARY" ]; then
-            echo "ERROR: L.A. Crimes executable not found."
+            SERVER_BINARY=$(
+              find "$GITHUB_WORKSPACE/lac-$SLOT" \
+                -type f \
+                -name "LAC_Linux_v1.9.6.x86_64" \
+                -print -quit
+            )
 
-            find "$GITHUB_WORKSPACE/lac" \
-              -maxdepth 5 \
-              -type f \
-              -print
+            if [ -z "$SERVER_BINARY" ]; then
+              echo "ERROR: L.A. Crimes executable not found for slot $SLOT."
 
-            exit 1
-          fi
+              find "$GITHUB_WORKSPACE/lac-$SLOT" \
+                -maxdepth 5 \
+                -type f \
+                -print
 
-          chmod +x "$SERVER_BINARY"
+              exit 1
+            fi
 
-          echo "L.A. Crimes executable:"
-          echo "$SERVER_BINARY"
+            chmod +x "$SERVER_BINARY"
+
+            echo "Slot $SLOT executable: $SERVER_BINARY"
+
+          done
 
       # ==========================================
       # CREATE FOUR SERVER RUNTIMES
@@ -219,7 +226,13 @@ jobs:
               "$GITHUB_WORKSPACE/runtimes/server-$SLOT/.config/unity3d/MA/LAC"
           done
 
-          cat > "$GITHUB_WORKSPACE/runtimes/server-1/.config/unity3d/MA/LAC/ServerConfig.txt" <<'EOF'
+          PORTS=(0 7777 7778 7779 7780)
+
+          for SLOT in 1 2 3 4; do
+
+            PORT="${PORTS[$SLOT]}"
+
+            cat > "$GITHUB_WORKSPACE/runtimes/server-$SLOT/.config/unity3d/MA/LAC/ServerConfig.txt" <<EOF
           (Moderator)
           admin code=YOUR-NUM-CODE
           lock down=true
@@ -228,7 +241,7 @@ jobs:
           restart timer=never
           max players=16
           map name=City
-          starting port=7777
+          starting port=$PORT
 
           (Server List)
           share to community=true
@@ -240,173 +253,94 @@ jobs:
           password=0000
           EOF
 
-          cat > "$GITHUB_WORKSPACE/runtimes/server-2/.config/unity3d/MA/LAC/ServerConfig.txt" <<'EOF'
-          (Moderator)
-          admin code=YOUR-NUM-CODE
-          lock down=true
-
-          (Basic)
-          restart timer=never
-          max players=16
-          map name=City
-          starting port=7778
-
-          (Server List)
-          share to community=true
-          server language=English
-          server password=none
-
-          (Roleplay)
-          username=HOST
-          password=0000
-          EOF
-
-          cat > "$GITHUB_WORKSPACE/runtimes/server-3/.config/unity3d/MA/LAC/ServerConfig.txt" <<'EOF'
-          (Moderator)
-          admin code=YOUR-NUM-CODE
-          lock down=true
-
-          (Basic)
-          restart timer=never
-          max players=16
-          map name=City
-          starting port=7779
-
-          (Server List)
-          share to community=true
-          server language=English
-          server password=none
-
-          (Roleplay)
-          username=HOST
-          password=0000
-          EOF
-
-          cat > "$GITHUB_WORKSPACE/runtimes/server-4/.config/unity3d/MA/LAC/ServerConfig.txt" <<'EOF'
-          (Moderator)
-          admin code=YOUR-NUM-CODE
-          lock down=true
-
-          (Basic)
-          restart timer=never
-          max players=16
-          map name=City
-          starting port=7780
-
-          (Server List)
-          share to community=true
-          server language=English
-          server password=none
-
-          (Roleplay)
-          username=HOST
-          password=0000
-          EOF
+          done
 
           echo "Four server configurations created."
 
       # ==========================================
       # START REQUESTED L.A. CRIMES SERVERS
       # ==========================================
+      # Uses each slot's own binary copy under lac-$SLOT.
 
       - name: Start requested servers
         run: |
           set -e
 
-          SERVER_BINARY=$(
-            find "$GITHUB_WORKSPACE/lac" \
-              -type f \
-              -name "LAC_Linux_v1.9.6.x86_64" \
-              -print -quit
-          )
-
-          # Kill any existing server processes
-          pkill -f "LAC_Linux_v1.9.6.x86_64" || true
-
-          # Find which server should be online (ONLY ONE)
-          ONLINE_SLOT=""
           for SLOT in 1 2 3 4; do
+
             DESIRED=$(
               jq -r \
                 --argjson slot "$SLOT" \
                 '.servers[] | select(.slot == $slot) | .desired' \
                 "$GITHUB_WORKSPACE/servers.json"
             )
-            if [ "$DESIRED" = "online" ]; then
-              if [ -n "$ONLINE_SLOT" ]; then
-                echo "ERROR: Multiple servers requested online!"
-                exit 1
-              fi
-              ONLINE_SLOT="$SLOT"
+
+            PORT=$((7776 + SLOT))
+
+            echo
+            echo "======================================"
+            echo "SERVER $SLOT"
+            echo "DESIRED=$DESIRED"
+            echo "LOCAL_PORT=$PORT"
+            echo "======================================"
+
+            if [ "$DESIRED" != "online" ]; then
+              echo "Server $SLOT is not requested."
+              continue
             fi
-          done
 
-          if [ -z "$ONLINE_SLOT" ]; then
-            echo "No servers requested online."
-            exit 0
-          fi
+            SERVER_BINARY=$(
+              find "$GITHUB_WORKSPACE/lac-$SLOT" \
+                -type f \
+                -name "LAC_Linux_v1.9.6.x86_64" \
+                -print -quit
+            )
 
-          PORT=$((7776 + ONLINE_SLOT))
+            RUNTIME="$GITHUB_WORKSPACE/runtimes/server-$SLOT"
 
-          echo "======================================"
-          echo "STARTING SERVER $ONLINE_SLOT"
-          echo "LOCAL_PORT=$PORT"
-          echo "======================================"
+            LOG="$GITHUB_WORKSPACE/server-$SLOT.log"
 
-          RUNTIME="$GITHUB_WORKSPACE/runtimes/server-$ONLINE_SLOT"
-          LOG="$GITHUB_WORKSPACE/server-$ONLINE_SLOT.log"
-          PID_FILE="$GITHUB_WORKSPACE/server-$ONLINE_SLOT.pid"
+            echo "Starting Server $SLOT..."
 
-          echo "Starting Server $ONLINE_SLOT on port $PORT..."
+            (
+              cd "$(dirname "$SERVER_BINARY")"
 
-          # Kill any existing process on this port
-          if ss -lunp | grep -q ":$PORT"; then
-            echo "Port $PORT is in use. Killing existing process..."
-            PID_TO_KILL=$(ss -lunp | grep ":$PORT" | awk '{print $6}' | cut -d',' -f2 | cut -d'=' -f2)
-            kill -9 "$PID_TO_KILL" 2>/dev/null || true
-            sleep 2
-          fi
+              export HOME="$RUNTIME"
 
-          (
-            cd "$(dirname "$SERVER_BINARY")"
+              export XDG_CONFIG_HOME="$RUNTIME/.config"
 
-            export HOME="$RUNTIME"
-            export XDG_CONFIG_HOME="$RUNTIME/.config"
+              "./$(basename "$SERVER_BINARY")" \
+                -batchmode \
+                -nographics
+            ) > "$LOG" 2>&1 &
 
-            "./$(basename "$SERVER_BINARY")" \
-              -batchmode \
-              -nographics
-          ) > "$LOG" 2>&1 &
+            PID=$!
 
-          PID=$!
+            echo "$PID" \
+              > "$GITHUB_WORKSPACE/server-$SLOT.pid"
 
-          echo "$PID" > "$PID_FILE"
-          echo "SERVER_${ONLINE_SLOT}_PID=$PID"
+            echo "SERVER_${SLOT}_PID=$PID"
 
-          sleep 10
+            sleep 5
 
-          if kill -0 "$PID" 2>/dev/null; then
-            echo "Server $ONLINE_SLOT is running on port $PORT."
-            
-            # Check if port is actually listening
-            if ss -lunp | grep -q ":$PORT"; then
-              echo "✅ Port $PORT is listening!"
+            if kill -0 "$PID" 2>/dev/null; then
+              echo "Server $SLOT is running."
             else
-              echo "❌ WARNING: Port $PORT is NOT listening yet. Check logs."
-              tail -50 "$LOG"
+              echo "ERROR: Server $SLOT failed to start."
+
+              tail -250 "$LOG" || true
+
               exit 1
             fi
-          else
-            echo "ERROR: Server $ONLINE_SLOT failed to start."
-            tail -250 "$LOG" || true
-            exit 1
-          fi
 
-          echo "$ONLINE_SLOT" > "$GITHUB_WORKSPACE/online_slot.txt"
+          done
 
       # ==========================================
-      # CHECK LOCAL PORTS
+      # CHECK LOCAL PORTS (per-slot verification)
       # ==========================================
+      # Confirms each slot actually BOUND its own assigned
+      # UDP port, rather than assuming "process alive" means
+      # "listening on the right port".
 
       - name: Check server ports
         run: |
@@ -415,16 +349,42 @@ jobs:
           echo "======================================"
 
           ss -lunp || true
-          
-          echo
-          for PORT in 7777 7778 7779 7780; do
-            echo "Checking UDP port $PORT:"
-            if ss -lunp | grep -q ":$PORT"; then
-              echo "✅ Port $PORT is listening!"
-            else
-              echo "❌ Port $PORT is NOT listening!"
+
+          FAILED=0
+
+          for SLOT in 1 2 3 4; do
+
+            PORT=$((7776 + SLOT))
+
+            PID_FILE="$GITHUB_WORKSPACE/server-$SLOT.pid"
+
+            if [ ! -f "$PID_FILE" ]; then
+              echo "Slot $SLOT: not requested, skipping port check."
+              continue
             fi
+
+            echo
+            echo "SLOT $SLOT expects UDP PORT $PORT"
+
+            if ss -lunp | grep -q ":$PORT "; then
+              echo "OK: slot $SLOT is bound to $PORT."
+            else
+              echo "WARNING: slot $SLOT is NOT bound to $PORT."
+              echo "This usually means the game binary ignored"
+              echo "the 'starting port=' config value. If another"
+              echo "slot IS bound to 7777 instead, all instances"
+              echo "are likely colliding on the same hardcoded port."
+              FAILED=1
+            fi
+
           done
+
+          if [ "$FAILED" = "1" ]; then
+            echo
+            echo "======================================"
+            echo "PORT VERIFICATION FAILED FOR ONE OR MORE SLOTS"
+            echo "======================================"
+          fi
 
       # ==========================================
       # CHECK PLAYIT SECRET
@@ -444,34 +404,32 @@ jobs:
           echo "PLAYIT_SECRET_FOUND=true"
 
       # ==========================================
-      # START PLAYIT AGENT
+      # START ONE PLAYIT AGENT
       # ==========================================
 
-      - name: Start Playit agent
+      - name: Start single Playit agent
         env:
           PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
         run: |
           set -e
 
           echo "======================================"
-          echo "STARTING PLAYIT AGENT"
+          echo "STARTING SINGLE PLAYIT AGENT"
           echo "======================================"
 
           mkdir -p "$GITHUB_WORKSPACE/playit-runtime"
-          mkdir -p "$GITHUB_WORKSPACE/playit-sockets"
 
           chmod 700 \
             "$GITHUB_WORKSPACE/playit-runtime"
-          chmod 700 \
-            "$GITHUB_WORKSPACE/playit-sockets"
 
           echo "Starting Playit..."
 
           cd "$GITHUB_WORKSPACE"
 
+          PLAYIT_RUNTIME="$GITHUB_WORKSPACE/playit-runtime"
+
           "$GITHUB_WORKSPACE/playit" \
             --secret "$PLAYIT_SECRET" \
-            --socket-path "$GITHUB_WORKSPACE/playit-sockets/playit.sock" \
             > "$GITHUB_WORKSPACE/playit.log" 2>&1 &
 
           PLAYIT_PID=$!
@@ -481,7 +439,8 @@ jobs:
 
           echo "PLAYIT_PID=$PLAYIT_PID"
 
-          for i in $(seq 1 30); do
+          for i in $(seq 1 60); do
+
             if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
               echo "ERROR: Playit stopped."
 
@@ -492,8 +451,10 @@ jobs:
               exit 1
             fi
 
-            echo "Playit running... $i/30"
+            echo "Playit running... $i/60"
+
             sleep 1
+
           done
 
           echo "======================================"
@@ -515,6 +476,7 @@ jobs:
           set -e
 
           python3 - "$GITHUB_WORKSPACE/servers.json" <<'PY'
+
           import json
           import os
           import sys
@@ -549,25 +511,23 @@ jobs:
 
           run_id = os.environ.get("GITHUB_RUN_ID")
 
-          # Find which server is online
-          online_slot = None
           for server in data["servers"]:
-              if server.get("desired") == "online":
-                  online_slot = int(server["slot"])
-                  break
 
-          for server in data["servers"]:
               slot = int(server["slot"])
-              
-              if slot == online_slot:
+
+              if server.get("desired") == "online":
+
                   server["status"] = "online"
                   server["run_id"] = int(run_id)
+
                   server["domain"] = addresses[slot]["domain"]
                   server["ip"] = addresses[slot]["ip"]
                   server["port"] = addresses[slot]["port"]
+
               else:
+
                   server["status"] = "offline"
-                  server["run_id"] = None
+                  server["run_id"] = int(run_id)
 
           with open(path, "w", encoding="utf-8") as f:
               json.dump(data, f, indent=2)
@@ -606,6 +566,11 @@ jobs:
       # ==========================================
       # CONTROLLER LOOP
       # ==========================================
+      # Fixed: this loop now also LAUNCHES any slot that
+      # becomes newly "desired=online" while the job is
+      # already running (previously it only ever stopped
+      # servers; starting a 2nd/3rd/4th server after the
+      # job had already begun silently did nothing).
 
       - name: Control server lifecycle
         env:
@@ -643,6 +608,7 @@ jobs:
               > "$GITHUB_WORKSPACE/servers.json"
 
             ANY_ONLINE=false
+            DB_CHANGED=false
 
             for SLOT in 1 2 3 4; do
 
@@ -666,13 +632,48 @@ jobs:
                   if kill -0 "$PID" 2>/dev/null; then
                     echo "Server $SLOT: ONLINE"
                   else
-                    echo "Server $SLOT: PROCESS STOPPED - Restarting..."
-                    # Restart logic would go here
+                    echo "Server $SLOT: PROCESS STOPPED, restarting..."
+                    rm -f "$PID_FILE"
                   fi
 
-                else
+                fi
 
-                  echo "Server $SLOT: NO PID"
+                if [ ! -f "$PID_FILE" ]; then
+
+                  echo "Server $SLOT: newly requested, starting now..."
+
+                  SERVER_BINARY=$(
+                    find "$GITHUB_WORKSPACE/lac-$SLOT" \
+                      -type f \
+                      -name "LAC_Linux_v1.9.6.x86_64" \
+                      -print -quit
+                  )
+
+                  RUNTIME="$GITHUB_WORKSPACE/runtimes/server-$SLOT"
+                  LOG="$GITHUB_WORKSPACE/server-$SLOT.log"
+
+                  (
+                    cd "$(dirname "$SERVER_BINARY")"
+                    export HOME="$RUNTIME"
+                    export XDG_CONFIG_HOME="$RUNTIME/.config"
+                    "./$(basename "$SERVER_BINARY")" \
+                      -batchmode \
+                      -nographics
+                  ) > "$LOG" 2>&1 &
+
+                  NEWPID=$!
+                  echo "$NEWPID" > "$PID_FILE"
+                  sleep 5
+
+                  if kill -0 "$NEWPID" 2>/dev/null; then
+                    echo "Server $SLOT started (PID $NEWPID)."
+                  else
+                    echo "ERROR: Server $SLOT failed to start."
+                    tail -100 "$LOG" || true
+                    rm -f "$PID_FILE"
+                  fi
+
+                  DB_CHANGED=true
 
                 fi
 
@@ -696,11 +697,77 @@ jobs:
 
                   rm -f "$PID_FILE"
 
+                  DB_CHANGED=true
+
                 fi
 
               fi
 
             done
+
+            if [ "$DB_CHANGED" = "true" ]; then
+
+              python3 - "$GITHUB_WORKSPACE/servers.json" <<'PY'
+          import json
+          import os
+          import sys
+
+          path = sys.argv[1]
+
+          addresses = {
+              1: {"domain": "irvine-util.tun.ply.gg", "ip": "147.185.221.231", "port": 54710},
+              2: {"domain": "drake-expansion.tun.ply.gg", "ip": "147.185.221.18", "port": 20718},
+              3: {"domain": "drake-drama.tun.ply.gg", "ip": "147.185.221.231", "port": 58951},
+              4: {"domain": "drake-muscle.tun.ply.gg", "ip": "147.185.221.231", "port": 58968}
+          }
+
+          with open(path, "r", encoding="utf-8") as f:
+              data = json.load(f)
+
+          run_id = os.environ.get("GITHUB_RUN_ID")
+
+          for server in data["servers"]:
+              slot = int(server["slot"])
+              pid_file = f"{os.environ['GITHUB_WORKSPACE']}/server-{slot}.pid"
+
+              if os.path.exists(pid_file):
+                  server["status"] = "online"
+                  server["run_id"] = int(run_id)
+                  server["domain"] = addresses[slot]["domain"]
+                  server["ip"] = addresses[slot]["ip"]
+                  server["port"] = addresses[slot]["port"]
+              else:
+                  server["status"] = "offline"
+                  server["run_id"] = int(run_id)
+
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(data, f, indent=2)
+              f.write("\n")
+          PY
+
+              PAYLOAD=$(
+                jq -n \
+                  --arg content "$(cat "$GITHUB_WORKSPACE/servers.json")" \
+                  --arg filename "$GIST_FILE" \
+                  '{files: {($filename): {content: $content}}}'
+              )
+
+              curl \
+                --fail \
+                --silent \
+                --show-error \
+                --request PATCH \
+                --url "https://api.github.com/gists/$GIST_ID" \
+                --header "Accept: application/vnd.github+json" \
+                --header "Authorization: Bearer $DASHBOARD_TOKEN" \
+                --header "X-GitHub-Api-Version: 2022-11-28" \
+                --header "Content-Type: application/json" \
+                --data "$PAYLOAD" \
+                > /dev/null
+
+              echo "Server database updated after lifecycle change."
+
+            fi
 
             if [ "$ANY_ONLINE" = false ]; then
               echo
@@ -734,8 +801,6 @@ jobs:
           echo "======================================"
           echo "CLEANUP"
           echo "======================================"
-
-          pkill -f "LAC_Linux_v1.9.6.x86_64" || true
 
           for SLOT in 1 2 3 4; do
 
