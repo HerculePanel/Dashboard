@@ -434,9 +434,12 @@ jobs:
           echo "======================================"
 
           mkdir -p "$GITHUB_WORKSPACE/playit-runtime"
+          mkdir -p "$GITHUB_WORKSPACE/playit-sockets"
 
           chmod 700 \
             "$GITHUB_WORKSPACE/playit-runtime"
+          chmod 700 \
+            "$GITHUB_WORKSPACE/playit-sockets"
 
           echo "Starting Playit..."
 
@@ -446,6 +449,7 @@ jobs:
 
           "$GITHUB_WORKSPACE/playit" \
             --secret "$PLAYIT_SECRET" \
+            --socket-dir "$GITHUB_WORKSPACE/playit-sockets" \
             > "$GITHUB_WORKSPACE/playit.log" 2>&1 &
 
           PLAYIT_PID=$!
