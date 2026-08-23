@@ -417,19 +417,40 @@ jobs:
           echo "STARTING SINGLE PLAYIT AGENT"
           echo "======================================"
 
-          mkdir -p "$GITHUB_WORKSPACE/playit-runtime"
+          # playit-agent v1.0.10 saves its config/secret at a
+          # default path (normally ~/.config/playit_gg/playit.toml)
+          # and needs that directory to already exist, or it fails
+          # with "IPC error: Failed to bind to socket: No such file
+          # or directory". GitHub Actions runners don't have this
+          # directory by default, so we create it explicitly and
+          # write the secret into a TOML file ourselves, then point
+          # playit at it with --secret_path. (The --secret flag used
+          # previously isn't a documented option for the standalone
+          # binary and was being silently ignored.)
 
-          chmod 700 \
-            "$GITHUB_WORKSPACE/playit-runtime"
+          PLAYIT_CONFIG_DIR="$HOME/.config/playit_gg"
+
+          mkdir -p "$PLAYIT_CONFIG_DIR"
+
+          PLAYIT_TOML="$PLAYIT_CONFIG_DIR/playit.toml"
+
+          printf 'secret_key = "%s"\n' "$PLAYIT_SECRET" > "$PLAYIT_TOML"
+
+          # Also give playit its own runtime dir for the IPC socket,
+          # in case it needs XDG_RUNTIME_DIR (often unset/missing on
+          # CI runners with no active login session).
+          export XDG_RUNTIME_DIR="$GITHUB_WORKSPACE/playit-runtime"
+
+          mkdir -p "$XDG_RUNTIME_DIR"
+
+          chmod 700 "$XDG_RUNTIME_DIR"
 
           echo "Starting Playit..."
 
           cd "$GITHUB_WORKSPACE"
 
-          PLAYIT_RUNTIME="$GITHUB_WORKSPACE/playit-runtime"
-
           "$GITHUB_WORKSPACE/playit" \
-            --secret "$PLAYIT_SECRET" \
+            --secret_path "$PLAYIT_TOML" \
             > "$GITHUB_WORKSPACE/playit.log" 2>&1 &
 
           PLAYIT_PID=$!
@@ -568,9 +589,12 @@ jobs:
       # ==========================================
       # Fixed: this loop now also LAUNCHES any slot that
       # becomes newly "desired=online" while the job is
-      # already running (previously it only ever stopped
-      # servers; starting a 2nd/3rd/4th server after the
-      # job had already begun silently did nothing).
+      # already running, and PATCHes the Gist with the real
+      # status after every start/stop (previously it only
+      # ever stopped servers, and never wrote status back to
+      # the Gist after the initial "Mark requested servers
+      # online" step — which is why stop clicks stayed stuck
+      # showing "stopping" instead of "offline").
 
       - name: Control server lifecycle
         env:
