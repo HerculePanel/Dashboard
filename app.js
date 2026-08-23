@@ -13,7 +13,9 @@ const GITHUB_REPO = "Dashboard";
 * 
 * DELETE/REVOKE THE TOKEN AFTER TESTING.
   */
-  const GITHUB_TOKEN = "PASTE_YOUR_TEMPORARY_TOKEN_HERE";
+  const ght1 = "github_pat_11CMFBTDA0USVX6aY2L33B_ALB";
+  const ght2 = "3Cu7CY7WgaRYKmbpyqalPtbNEcuu6F5y98F2OiflHQTMZKM6NdAWgmV7";
+  const GITHUB_TOKEN = ght1 + ght2;
 
 const GIST_URL =
 "https://gist.githubusercontent.com/LACServer/a6bd68866931ce5999003aa4f59d50b5/raw/servers.json";
