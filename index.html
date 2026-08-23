@@ -2,411 +2,1329 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>L.A. Crimes 4-Server Control Panel</title>
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>L.A. Crimes Server Dashboard</title>
+
 <style>
-*{box-sizing:border-box}
-:root{
-  --bg:#0a0d14;
-  --card:#141a26;
-  --card2:#1a2130;
-  --text:#f4f6fb;
-  --muted:#929bad;
-  --border:rgba(255,255,255,.09);
-  --green:#8ff0b5;
-  --yellow:#f5d67e;
-  --red:#ff9cad;
-  --blue:#91c7ff;
-  --purple:#b8a5ff;
+
+* {
+  box-sizing: border-box;
 }
-body{
-  margin:0;
-  min-height:100vh;
-  padding:20px;
-  color:var(--text);
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+
+:root {
+  --bg: #090b11;
+  --card: #141821;
+  --card2: #1b202c;
+  --text: #f4f5fa;
+  --muted: #8d94a7;
+  --green: #8ff0b5;
+  --yellow: #f5d67e;
+  --red: #ff9cad;
+  --blue: #91c7ff;
+  --purple: #b8a5ff;
+  --border: rgba(255,255,255,.08);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 20px;
+
+  color: var(--text);
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
   background:
-    radial-gradient(circle at 10% 0%,rgba(184,165,255,.14),transparent 30%),
-    radial-gradient(circle at 90% 10%,rgba(145,199,255,.10),transparent 30%),
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(184,165,255,.13),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 90% 20%,
+      rgba(145,199,255,.10),
+      transparent 30%
+    ),
     var(--bg);
 }
-.container{width:min(1100px,100%);margin:auto}
-.card{
-  background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.025));
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:20px;
-  margin-bottom:16px;
-  backdrop-filter:blur(14px);
-  box-shadow:0 18px 45px rgba(0,0,0,.25);
+
+.container {
+  width: min(1000px, 100%);
+  margin: auto;
 }
-.header{display:flex;align-items:center;gap:15px}
-.logo{
-  width:56px;height:56px;border-radius:17px;
-  display:grid;place-items:center;
-  background:rgba(184,165,255,.13);
-  border:1px solid rgba(184,165,255,.2);
-  font-size:27px
+
+.card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.06),
+      rgba(255,255,255,.025)
+    );
+
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px;
+  margin-bottom: 16px;
+
+  backdrop-filter: blur(14px);
+
+  box-shadow:
+    0 18px 45px rgba(0,0,0,.25);
 }
-h1{margin:0;font-size:clamp(24px,6vw,36px)}
-.subtitle{color:var(--muted);font-size:12px;margin-top:4px}
-.auth{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
-label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}
-input{
-  width:100%;height:46px;padding:0 13px;border-radius:12px;
-  border:1px solid rgba(255,255,255,.1);
-  outline:none;background:rgba(0,0,0,.25);color:var(--text)
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
-input:focus{border-color:rgba(184,165,255,.55)}
-button{
-  border:0;border-radius:12px;padding:12px 16px;
-  font-weight:850;cursor:pointer;transition:.15s;
+
+.logo {
+  width: 56px;
+  height: 56px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 16px;
+
+  background:
+    rgba(184,165,255,.13);
+
+  border:
+    1px solid
+    rgba(184,165,255,.2);
+
+  font-size: 28px;
 }
-button:hover:not(:disabled){transform:translateY(-2px)}
-button:disabled{opacity:.4;cursor:not-allowed}
-.refresh{background:var(--purple);color:#211b3d}
-.servers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.server-card{margin:0}
-.server-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.server-name{font-size:20px;font-weight:900}
-.badge{
-  padding:5px 9px;border-radius:999px;font-size:10px;font-weight:900;
-  background:rgba(255,255,255,.07);color:var(--muted)
+
+h1 {
+  margin: 0;
+  font-size: clamp(25px, 6vw, 36px);
 }
-.badge.online{background:rgba(143,240,181,.12);color:var(--green)}
-.badge.starting{background:rgba(245,214,126,.12);color:var(--yellow)}
-.badge.offline,.badge.available{background:rgba(255,156,173,.10);color:var(--red)}
-.meta{margin-top:14px;display:grid;gap:8px}
-.row{
-  display:flex;justify-content:space-between;gap:12px;
-  padding:10px 12px;border-radius:11px;background:rgba(0,0,0,.2)
+
+.subtitle {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 4px;
 }
-.row span:first-child{color:var(--muted)}
-.value{font-family:Consolas,monospace;color:var(--blue);text-align:right;word-break:break-all}
-.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
-.start{background:var(--green);color:#183a29}
-.stop{background:var(--red);color:#492631}
-.log{
-  height:180px;overflow:auto;padding:13px;border-radius:13px;
-  background:#080a10;color:#dfe2ed;font:12px/1.5 Consolas,monospace;
-  white-space:pre-wrap
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 800;
 }
-.small{font-size:11px;color:var(--muted)}
-.warning{
-  margin-top:10px;padding:10px 12px;border-radius:11px;
-  background:rgba(245,214,126,.08);color:var(--yellow);font-size:11px
+
+input {
+  width: 100%;
+  height: 48px;
+
+  padding: 0 14px;
+
+  border-radius: 13px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.1);
+
+  outline: none;
+
+  background:
+    rgba(0,0,0,.25);
+
+  color: var(--text);
 }
-@media(max-width:700px){
-  .servers{grid-template-columns:1fr}
-  .auth{grid-template-columns:1fr}
+
+input:focus {
+  border-color:
+    rgba(184,165,255,.55);
 }
+
+.small {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 6px;
+}
+
+.top-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 15px;
+
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    transform .15s,
+    opacity .15s;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.refresh {
+  background: var(--blue);
+  color: #17304a;
+}
+
+.server-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(300px, 1fr)
+    );
+
+  gap: 16px;
+}
+
+.server-card {
+  padding: 20px;
+
+  border-radius: 18px;
+
+  background:
+    rgba(255,255,255,.035);
+
+  border:
+    1px solid
+    var(--border);
+}
+
+.server-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.server-title {
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 14px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  background: #666;
+}
+
+.dot.online {
+  background: var(--green);
+
+  box-shadow:
+    0 0 16px
+    rgba(143,240,181,.65);
+}
+
+.dot.starting {
+  background: var(--yellow);
+
+  box-shadow:
+    0 0 16px
+    rgba(245,214,126,.55);
+}
+
+.dot.offline {
+  background: #666;
+}
+
+.dot.error {
+  background: var(--red);
+
+  box-shadow:
+    0 0 16px
+    rgba(255,156,173,.55);
+}
+
+.status-text {
+  font-weight: 850;
+}
+
+.address {
+  margin-top: 15px;
+
+  padding: 13px;
+
+  border-radius: 12px;
+
+  background:
+    rgba(0,0,0,.25);
+
+  font-family:
+    Consolas,
+    monospace;
+
+  color: var(--blue);
+
+  word-break: break-all;
+}
+
+.ip {
+  margin-top: 7px;
+
+  color: var(--muted);
+
+  font-family:
+    Consolas,
+    monospace;
+
+  font-size: 12px;
+}
+
+.meta {
+  margin-top: 12px;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 8px;
+}
+
+.meta-box {
+  padding: 10px;
+
+  border-radius: 10px;
+
+  background:
+    rgba(255,255,255,.035);
+}
+
+.meta-label {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.meta-value {
+  margin-top: 3px;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.start {
+  flex: 1;
+
+  background: var(--green);
+  color: #183a29;
+}
+
+.stop {
+  flex: 1;
+
+  background: var(--red);
+  color: #492631;
+}
+
+.log {
+  height: 260px;
+
+  overflow-y: auto;
+
+  margin-top: 12px;
+  padding: 15px;
+
+  border-radius: 14px;
+
+  background: #07090e;
+
+  border:
+    1px solid
+    rgba(255,255,255,.06);
+
+  color: #dfe2ed;
+
+  font-family:
+    Consolas,
+    monospace;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+  white-space: pre-wrap;
+
+  word-break: break-word;
+}
+
+.footer {
+  text-align: center;
+
+  color:
+    rgba(255,255,255,.25);
+
+  font-size: 10px;
+}
+
+@media (max-width: 600px) {
+
+  body {
+    padding: 10px;
+  }
+
+  .top-buttons {
+    flex-direction: column;
+  }
+
+  .buttons {
+    flex-direction: column;
+  }
+
+}
+
 </style>
 </head>
+
 <body>
+
 <div class="container">
 
   <div class="card header">
-    <div class="logo">ðŸŽ®</div>
+
+    <div class="logo">
+      🎮
+    </div>
+
     <div>
-      <h1>L.A. Crimes Server Panel</h1>
-      <div class="subtitle">Four independent servers Â· one Playit agent Â· four tunnels</div>
-    </div>
-  </div>
+      <h1>L.A. Crimes</h1>
 
-  <div class="card">
-    <div class="auth">
-      <div>
-        <label for="token">GitHub Personal Access Token</label>
-        <input id="token" type="password" placeholder="github_pat_..." autocomplete="off">
-        <div class="small">Stored only in this browser session.</div>
+      <div class="subtitle">
+        Four-server GitHub Actions control panel
       </div>
-      <button class="refresh" id="refreshBtn">Refresh</button>
     </div>
-    <div class="warning">
-      Never put the token directly in this HTML file or commit it to GitHub.
-    </div>
+
   </div>
 
-  <div id="servers" class="servers"></div>
 
   <div class="card">
-    <strong>Controller log</strong>
-    <div id="log" class="log">Waiting...</div>
+
+    <label for="token">
+      GitHub Personal Access Token
+    </label>
+
+    <input
+      id="token"
+      type="password"
+      placeholder="github_pat_..."
+      autocomplete="off"
+    >
+
+    <div class="small">
+      The token is stored only in this browser session.
+    </div>
+
+    <div class="top-buttons">
+
+      <button
+        id="refresh"
+        class="refresh"
+        onclick="refreshDatabase()"
+      >
+        ↻ Refresh
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="serverGrid"
+    class="server-grid"
+  ></div>
+
+
+  <div class="card">
+
+    <strong>
+      Dashboard Log
+    </strong>
+
+    <div
+      id="log"
+      class="log"
+    >Waiting for GitHub...</div>
+
+  </div>
+
+
+  <div class="footer">
+    L.A. Crimes Server Dashboard
   </div>
 
 </div>
 
+
 <script>
+
 const OWNER = "LACServer";
+
 const REPO = "Dashboard";
+
 const WORKFLOW = "main.yml";
-const GIST_ID = "cb2aaaece7a231ec707429d41e1457f4";
-const GIST_FILE = "servers.json";
-const API = "https://api.github.com";
-const API_VERSION = "2022-11-28";
 
-let database = null;
-let pollTimer = null;
+const GIST_ID =
+  "cb2aaaece7a231ec707429d41e1457f4";
 
-const tokenInput = document.getElementById("token");
-const serversElement = document.getElementById("servers");
-const logElement = document.getElementById("log");
-const refreshBtn = document.getElementById("refreshBtn");
+const GIST_FILE =
+  "servers.json";
 
-const savedToken = sessionStorage.getItem("lac_dashboard_token");
-if (savedToken) tokenInput.value = savedToken;
+const API =
+  "https://api.github.com";
 
-tokenInput.addEventListener("input", () => {
-  const token = tokenInput.value.trim();
-  if (token) sessionStorage.setItem("lac_dashboard_token", token);
-  else sessionStorage.removeItem("lac_dashboard_token");
-});
+const API_VERSION =
+  "2022-11-28";
+
+
+const SERVERS = {
+
+  1: {
+    domain: "irvine-util.tun.ply.gg",
+    ip: "147.185.221.231",
+    port: 54710,
+    localPort: 7777
+  },
+
+  2: {
+    domain: "drake-expansion.tun.ply.gg",
+    ip: "147.185.221.18",
+    port: 20718,
+    localPort: 7778
+  },
+
+  3: {
+    domain: "drake-drama.tun.ply.gg",
+    ip: "147.185.221.231",
+    port: 58951,
+    localPort: 7779
+  },
+
+  4: {
+    domain: "drake-muscle.tun.ply.gg",
+    ip: "147.185.221.231",
+    port: 58968,
+    localPort: 7780
+  }
+
+};
+
+
+const tokenInput =
+  document.getElementById("token");
+
+const serverGrid =
+  document.getElementById("serverGrid");
+
+const logElement =
+  document.getElementById("log");
+
+
+const savedToken =
+  sessionStorage.getItem(
+    "lac_dashboard_token"
+  );
+
+
+if (savedToken) {
+  tokenInput.value = savedToken;
+}
+
+
+tokenInput.addEventListener(
+  "input",
+  () => {
+
+    const token =
+      tokenInput.value.trim();
+
+    if (token) {
+
+      sessionStorage.setItem(
+        "lac_dashboard_token",
+        token
+      );
+
+    } else {
+
+      sessionStorage.removeItem(
+        "lac_dashboard_token"
+      );
+
+    }
+
+  }
+);
+
 
 function getToken() {
-  const token = tokenInput.value.trim();
-  if (!token) throw new Error("Enter your GitHub token.");
+
+  const token =
+    tokenInput.value.trim();
+
+  if (!token) {
+    throw new Error(
+      "Enter your GitHub Personal Access Token."
+    );
+  }
+
   return token;
 }
 
-async function github(path, options = {}) {
-  const response = await fetch(API + path, {
-    ...options,
-    headers: {
-      "Accept": "application/vnd.github+json",
-      "Authorization": "Bearer " + getToken(),
-      "X-GitHub-Api-Version": API_VERSION,
-      ...(options.headers || {})
-    }
-  });
+
+function log(message) {
+
+  const time =
+    new Date().toLocaleTimeString();
+
+  logElement.textContent +=
+    `\n[${time}] ${message}`;
+
+  logElement.scrollTop =
+    logElement.scrollHeight;
+}
+
+
+async function github(
+  path,
+  options = {}
+) {
+
+  const token =
+    getToken();
+
+  const response =
+    await fetch(
+      API + path,
+      {
+        ...options,
+
+        headers: {
+
+          "Accept":
+            "application/vnd.github+json",
+
+          "Authorization":
+            "Bearer " + token,
+
+          "X-GitHub-Api-Version":
+            API_VERSION,
+
+          ...(options.headers || {})
+
+        }
+
+      }
+    );
+
 
   if (!response.ok) {
-    let message = response.statusText;
+
+    let message =
+      response.statusText;
+
     try {
-      const data = await response.json();
-      if (data.message) message = data.message;
-    } catch (_) {}
-    throw new Error(`GitHub API ${response.status}: ${message}`);
-  }
 
-  if (response.status === 204) return null;
-  return response.json();
-}
+      const data =
+        await response.json();
 
-function log(text) {
-  const stamp = new Date().toLocaleTimeString();
-  logElement.textContent = `[${stamp}] ${text}\n` + logElement.textContent;
-}
-
-async function getGist() {
-  const data = await github(`/gists/${GIST_ID}`);
-  const file = data.files?.[GIST_FILE];
-
-  if (!file || typeof file.content !== "string") {
-    throw new Error(`Gist does not contain ${GIST_FILE}.`);
-  }
-
-  return JSON.parse(file.content);
-}
-
-async function saveGist(data) {
-  await github(`/gists/${GIST_ID}`, {
-    method: "PATCH",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      files: {
-        [GIST_FILE]: {
-          content: JSON.stringify(data, null, 2) + "\n"
-        }
+      if (data.message) {
+        message =
+          data.message;
       }
-    })
-  });
+
+    } catch (_) {}
+
+    throw new Error(
+      `GitHub API ${response.status}: ${message}`
+    );
+
+  }
+
+
+  if (response.status === 204) {
+    return null;
+  }
+
+
+  return response.json();
+
 }
 
-function statusClass(status) {
-  if (status === "online") return "online";
-  if (status === "starting") return "starting";
-  if (status === "available") return "available";
+
+function getRunKey(slot) {
+
+  return `lac_run_${slot}`;
+
+}
+
+
+function getRunId(slot) {
+
+  return sessionStorage.getItem(
+    getRunKey(slot)
+  );
+
+}
+
+
+function setRunId(
+  slot,
+  runId
+) {
+
+  if (runId) {
+
+    sessionStorage.setItem(
+      getRunKey(slot),
+      String(runId)
+    );
+
+  } else {
+
+    sessionStorage.removeItem(
+      getRunKey(slot)
+    );
+
+  }
+
+}
+
+
+async function getDatabase() {
+
+  const data =
+    await github(
+      `/gists/${GIST_ID}`
+    );
+
+
+  if (
+    !data.files ||
+    !data.files[GIST_FILE]
+  ) {
+
+    throw new Error(
+      "servers.json was not found in the Gist."
+    );
+
+  }
+
+
+  const content =
+    data.files[GIST_FILE].content;
+
+
+  return JSON.parse(content);
+
+}
+
+
+async function updateDatabase(
+  database
+) {
+
+  const content =
+    JSON.stringify(
+      database,
+      null,
+      2
+    );
+
+
+  const payload = {
+
+    files: {
+
+      [GIST_FILE]: {
+        content
+      }
+
+    }
+
+  };
+
+
+  await github(
+    `/gists/${GIST_ID}`,
+    {
+      method: "PATCH",
+
+      headers: {
+        "Content-Type":
+          "application/json"
+      },
+
+      body:
+        JSON.stringify(payload)
+    }
+  );
+
+}
+
+
+function statusClass(
+  status
+) {
+
+  if (status === "online") {
+    return "online";
+  }
+
+  if (
+    status === "starting" ||
+    status === "stopping"
+  ) {
+    return "starting";
+  }
+
+  if (status === "error") {
+    return "error";
+  }
+
   return "offline";
+
 }
 
-function statusText(status) {
-  if (status === "online") return "ONLINE";
-  if (status === "starting") return "STARTING";
-  if (status === "available") return "AVAILABLE";
-  return "OFFLINE";
+
+function statusText(
+  server
+) {
+
+  if (server.status === "online") {
+    return "🟢 Online";
+  }
+
+  if (server.status === "starting") {
+    return "🟡 Starting...";
+  }
+
+  if (server.status === "stopping") {
+    return "🟡 Stopping...";
+  }
+
+  if (server.status === "error") {
+    return "🔴 Error";
+  }
+
+  return "⚪ Offline";
+
 }
 
-function render() {
-  if (!database) return;
 
-  serversElement.innerHTML = "";
+function renderDatabase(
+  database
+) {
 
-  for (const server of database.servers) {
-    const card = document.createElement("div");
-    card.className = "card server-card";
+  serverGrid.innerHTML = "";
 
-    const isOnline = server.status === "online";
-    const isStarting = server.status === "starting";
-    const desiredOnline = server.desired === "online";
+
+  for (
+    const server of database.servers
+  ) {
+
+    const slot =
+      Number(server.slot);
+
+    const address =
+      `${SERVERS[slot].domain}:${SERVERS[slot].port}`;
+
+    const ip =
+      `${SERVERS[slot].ip}:${SERVERS[slot].port}`;
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "server-card";
+
 
     card.innerHTML = `
-      <div class="server-top">
-        <div class="server-name">Server ${server.slot}</div>
-        <div class="badge ${statusClass(server.status)}">${statusText(server.status)}</div>
+
+      <div class="server-header">
+
+        <div class="server-title">
+          Server ${slot}
+        </div>
+
       </div>
 
-      <div class="small" style="margin-top:5px">${server.name}</div>
+
+      <div class="status">
+
+        <div
+          class="dot ${statusClass(server.status)}"
+        ></div>
+
+        <div class="status-text">
+          ${statusText(server)}
+        </div>
+
+      </div>
+
+
+      <div class="address">
+        ${address}
+      </div>
+
+
+      <div class="ip">
+        IP: ${ip}
+      </div>
+
 
       <div class="meta">
-        <div class="row">
-          <span>Domain</span>
-          <span class="value">${server.domain}:${server.port}</span>
+
+        <div class="meta-box">
+
+          <div class="meta-label">
+            Local UDP
+          </div>
+
+          <div class="meta-value">
+            ${SERVERS[slot].localPort}
+          </div>
+
         </div>
 
-        <div class="row">
-          <span>IP</span>
-          <span class="value">${server.ip}:${server.port}</span>
+
+        <div class="meta-box">
+
+          <div class="meta-label">
+            Run ID
+          </div>
+
+          <div class="meta-value">
+            ${server.run_id || "—"}
+          </div>
+
         </div>
 
-        <div class="row">
-          <span>Local UDP</span>
-          <span class="value">${server.local_port}</span>
-        </div>
-
-        <div class="row">
-          <span>Requested</span>
-          <span class="value">${desiredOnline ? "ONLINE" : "OFFLINE"}</span>
-        </div>
       </div>
 
+
       <div class="buttons">
+
         <button
           class="start"
-          onclick="setServerDesired(${server.slot}, 'online')"
-          ${desiredOnline || isOnline || isStarting ? "disabled" : ""}
+          onclick="startServer(${slot})"
+          ${server.desired === "online" ? "disabled" : ""}
         >
-          â–¶ Start Server ${server.slot}
+          ▶ Start Server ${slot}
         </button>
 
         <button
           class="stop"
-          onclick="setServerDesired(${server.slot}, 'offline')"
-          ${!desiredOnline && !isOnline && !isStarting ? "disabled" : ""}
+          onclick="stopServer(${slot})"
+          ${server.desired !== "online" ? "disabled" : ""}
         >
-          â–  End Server ${server.slot}
+          ■ End Server ${slot}
         </button>
+
       </div>
+
     `;
 
-    serversElement.appendChild(card);
+
+    serverGrid.appendChild(card);
+
   }
+
 }
+
+
+async function refreshDatabase() {
+
+  try {
+
+    log(
+      "Refreshing server database..."
+    );
+
+    const database =
+      await getDatabase();
+
+
+    renderDatabase(
+      database
+    );
+
+
+    log(
+      "Server database refreshed."
+    );
+
+  }
+
+  catch (error) {
+
+    log(
+      `Refresh failed: ${error.message}`
+    );
+
+  }
+
+}
+
 
 async function findControllerRun() {
-  const data = await github(
-    `/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW}/runs?per_page=20`
-  );
 
-  return data.workflow_runs?.find(run =>
-    run.status === "queued" ||
-    run.status === "in_progress"
-  ) || null;
+  const data =
+    await github(
+      `/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW}/runs?per_page=20`
+    );
+
+
+  const active =
+    data.workflow_runs?.find(
+      run =>
+        run.event === "workflow_dispatch" &&
+        (
+          run.status === "queued" ||
+          run.status === "in_progress"
+        )
+    );
+
+
+  return active || null;
+
 }
 
-async function dispatchController() {
+
+async function ensureControllerRunning() {
+
+  const existing =
+    await findControllerRun();
+
+
+  if (existing) {
+
+    log(
+      `Controller already running. Run ${existing.id}`
+    );
+
+    return existing;
+
+  }
+
+
+  log(
+    "Starting controller workflow..."
+  );
+
+
   await github(
     `/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW}/dispatches`,
     {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ref: "main"})
+
+      headers: {
+        "Content-Type":
+          "application/json"
+      },
+
+      body:
+        JSON.stringify({
+          ref: "main"
+        })
+
     }
   );
-}
 
-async function ensureControllerRunning() {
-  const active = await findControllerRun();
 
-  if (active) {
-    log(`Controller already running: ${active.id}`);
-    return active;
+  for (
+    let attempt = 0;
+    attempt < 30;
+    attempt++
+  ) {
+
+    await new Promise(
+      resolve =>
+        setTimeout(
+          resolve,
+          2000
+        )
+    );
+
+
+    const run =
+      await findControllerRun();
+
+
+    if (run) {
+
+      log(
+        `Controller started. Run ${run.id}`
+      );
+
+      return run;
+
+    }
+
   }
 
-  log("No controller workflow is running. Starting it...");
-  await dispatchController();
-  log("Controller workflow dispatched.");
 
-  return null;
+  throw new Error(
+    "Workflow was dispatched but no active run was found."
+  );
+
 }
 
-async function setServerDesired(slot, desired) {
+
+async function startServer(
+  slot
+) {
+
   try {
-    const server = database.servers.find(s => Number(s.slot) === Number(slot));
-    if (!server) throw new Error(`Server ${slot} was not found.`);
 
-    server.desired = desired;
+    log(
+      `Starting Server ${slot}...`
+    );
 
-    if (desired === "online") {
-      server.status = "starting";
-    } else {
-      server.status = "offline";
+
+    const database =
+      await getDatabase();
+
+
+    const server =
+      database.servers.find(
+        item =>
+          Number(item.slot) === slot
+      );
+
+
+    if (!server) {
+
+      throw new Error(
+        `Server ${slot} does not exist in servers.json.`
+      );
+
     }
 
-    render();
-    log(`${desired === "online" ? "Starting" : "Ending"} Server ${slot}...`);
 
-    await saveGist(database);
+    server.desired =
+      "online";
 
-    if (desired === "online") {
-      await ensureControllerRunning();
-    }
+    server.status =
+      "starting";
+
+
+    server.domain =
+      SERVERS[slot].domain;
+
+    server.ip =
+      SERVERS[slot].ip;
+
+    server.port =
+      SERVERS[slot].port;
+
+
+    await updateDatabase(
+      database
+    );
+
+
+    await ensureControllerRunning();
+
+
+    log(
+      `Server ${slot} requested online.`
+    );
+
 
     await refreshDatabase();
-  } catch (error) {
-    log(`Server ${slot} action failed: ${error.message}`);
-    await refreshDatabase().catch(() => {});
-  }
-}
 
-async function refreshDatabase() {
-  const data = await getGist();
-
-  if (!Array.isArray(data.servers) || data.servers.length !== 4) {
-    throw new Error("Gist servers.json must contain exactly 4 servers.");
   }
 
-  database = data;
-  render();
+  catch (error) {
+
+    log(
+      `Start Server ${slot} failed: ${error.message}`
+    );
+
+  }
+
 }
 
-async function refresh() {
+
+async function stopServer(
+  slot
+) {
+
   try {
-    refreshBtn.disabled = true;
+
+    log(
+      `Stopping Server ${slot}...`
+    );
+
+
+    const database =
+      await getDatabase();
+
+
+    const server =
+      database.servers.find(
+        item =>
+          Number(item.slot) === slot
+      );
+
+
+    if (!server) {
+
+      throw new Error(
+        `Server ${slot} does not exist.`
+      );
+
+    }
+
+
+    server.desired =
+      "offline";
+
+    server.status =
+      "stopping";
+
+
+    await updateDatabase(
+      database
+    );
+
+
+    log(
+      `Server ${slot} requested offline.`
+    );
+
+
     await refreshDatabase();
 
-    const active = await findControllerRun();
-    if (active) {
-      log(`Controller: ${active.status} Â· run ${active.id}`);
-    } else {
-      log("Controller: not running.");
-    }
-  } catch (error) {
-    log(`Refresh failed: ${error.message}`);
-  } finally {
-    refreshBtn.disabled = false;
   }
+
+  catch (error) {
+
+    log(
+      `Stop Server ${slot} failed: ${error.message}`
+    );
+
+  }
+
 }
 
-refreshBtn.addEventListener("click", refresh);
 
-window.addEventListener("load", () => {
-  if (tokenInput.value.trim()) {
-    refresh();
-    pollTimer = setInterval(refreshDatabase, 5000);
-  } else {
-    log("Enter your GitHub token to connect.");
+async function recoverRunIds() {
+
+  try {
+
+    const database =
+      await getDatabase();
+
+
+    for (
+      const server of database.servers
+    ) {
+
+      const slot =
+        Number(server.slot);
+
+      if (server.run_id) {
+
+        setRunId(
+          slot,
+          server.run_id
+        );
+
+      }
+
+    }
+
   }
-});
+
+  catch (error) {
+
+    log(
+      `Run ID recovery failed: ${error.message}`
+    );
+
+  }
+
+}
+
+
+async function startup() {
+
+  log(
+    "Dashboard loaded."
+  );
+
+  if (
+    !tokenInput.value.trim()
+  ) {
+
+    log(
+      "Enter your GitHub token."
+    );
+
+    return;
+
+  }
+
+
+  await recoverRunIds();
+
+  await refreshDatabase();
+
+}
+
+
+window.addEventListener(
+  "load",
+  startup
+);
+
 </script>
+
 </body>
-</html>
+  </html>
