@@ -1,3 +1,20 @@
+const GITHUB_OWNER = "LACServer";
+const GITHUB_REPO = "Dashboard";
+
+/*
+
+* TEST ONLY
+* 
+* Put your temporary GitHub token here.
+* 
+* IMPORTANT:
+* This token is visible to anyone who can inspect
+* the deployed GitHub Pages JavaScript.
+* 
+* DELETE/REVOKE THE TOKEN AFTER TESTING.
+  */
+  const GITHUB_TOKEN = "PASTE_YOUR_TEMPORARY_TOKEN_HERE";
+
 const GIST_URL =
 "https://gist.githubusercontent.com/LACServer/a6bd68866931ce5999003aa4f59d50b5/raw/servers.json";
 
@@ -10,17 +27,13 @@ document.getElementById("usageCount");
 const toast =
 document.getElementById("toast");
 
+/* ==========================================
+LOAD SERVERS FROM GIST
+========================================== */
+
 async function loadServers() {
 
 try {
-
-    serverGrid.innerHTML = `
-        <div class="loading-card">
-            <div class="loading-spinner"></div>
-            <span>Loading servers...</span>
-        </div>
-    `;
-
 
     const response =
         await fetch(
@@ -32,9 +45,8 @@ try {
 
 
     if (!response.ok) {
-
         throw new Error(
-            `Gist returned HTTP ${response.status}`
+            `Gist HTTP ${response.status}`
         );
     }
 
@@ -47,7 +59,6 @@ try {
         !data ||
         !Array.isArray(data.servers)
     ) {
-
         throw new Error(
             "Invalid servers.json"
         );
@@ -62,15 +73,13 @@ try {
 } catch (error) {
 
     console.error(
-        "Dashboard error:",
+        "Failed to load servers:",
         error
     );
 
 
     serverGrid.innerHTML = `
-        <div
-            class="loading-card error-card"
-        >
+        <div class="loading-card error-card">
 
             <strong>
                 Backend Error
@@ -91,12 +100,15 @@ try {
         </div>
     `;
 
-
     usageCount.textContent =
         "0 / 4";
 }
 
 }
+
+/* ==========================================
+RENDER SERVERS
+========================================== */
 
 function renderServers(
 servers
@@ -113,7 +125,10 @@ const sorted =
 const used =
     sorted.filter(
         server =>
-            server.status !==
+            String(
+                server.status ||
+                "available"
+            ).toLowerCase() !==
             "available"
     ).length;
 
@@ -133,6 +148,10 @@ serverGrid.innerHTML =
         .join("");
 
 }
+
+/* ==========================================
+CREATE SERVER CARD
+========================================== */
 
 function createServerCard(
 server
@@ -165,77 +184,53 @@ if (status === "offline") {
 const endpoint =
     server.endpoint
         ? `
-            <span
-                class="endpoint"
-            >
+            <div class="endpoint">
                 ${escapeHTML(
                     server.endpoint
                 )}
-            </span>
+            </div>
         `
         : "";
 
 
-let actions;
+let button;
 
 
-if (
-    status === "available"
-) {
+if (status === "available") {
 
-    actions = `
-        <div
-            class="server-actions"
+    button = `
+        <button
+            class="primary"
+            type="button"
+            onclick="createServer(${Number(server.slot)})"
         >
+            Create Server
+        </button>
+    `;
 
-            <button
-                class="primary"
-                type="button"
-                onclick="showComingSoon()"
-            >
-                Create Server
-            </button>
+} else if (server.endpoint) {
 
-        </div>
+    button = `
+        <button
+            type="button"
+            onclick="copyEndpoint('${escapeAttribute(server.endpoint)}')"
+        >
+            Copy Address
+        </button>
     `;
 
 } else {
 
-    actions = `
-        <div
-            class="server-actions"
-        >
-
-            ${
-                server.endpoint
-                    ? `
-                        <button
-                            type="button"
-                            onclick="copyEndpoint('${escapeAttribute(server.endpoint)}')"
-                        >
-                            Copy Address
-                        </button>
-                      `
-                    : ""
-            }
-
-        </div>
-    `;
+    button = "";
 }
 
 
 return `
-    <article
-        class="server-card"
-    >
+    <article class="server-card">
 
-        <div
-            class="server-header"
-        >
+        <div class="server-header">
 
-            <div
-                class="server-name"
-            >
+            <div class="server-name">
                 ${escapeHTML(
                     server.name ||
                     `Server ${server.slot}`
@@ -251,9 +246,7 @@ return `
         </div>
 
 
-        <div
-            class="server-info"
-        >
+        <div class="server-info">
 
             ${
                 status === "available"
@@ -266,20 +259,180 @@ return `
         </div>
 
 
-        ${actions}
+        <div class="server-actions">
+
+            ${button}
+
+        </div>
 
     </article>
 `;
 
 }
 
-function showComingSoon() {
+/* ==========================================
+CREATE SERVER
+========================================== */
+
+async function createServer(
+slot
+) {
+
+slot =
+    Number(slot);
+
+
+if (
+    ![1, 2, 3, 4].includes(slot)
+) {
+
+    showToast(
+        "Invalid server slot."
+    );
+
+    return;
+}
+
+
+if (
+    !GITHUB_TOKEN ||
+    GITHUB_TOKEN ===
+    "PASTE_YOUR_TEMPORARY_TOKEN_HERE"
+) {
+
+    showToast(
+        "GitHub token has not been configured."
+    );
+
+    console.error(
+        "Set GITHUB_TOKEN in app.js for this test."
+    );
+
+    return;
+}
+
+
+const confirmed =
+    confirm(
+        `Start L.A. Crimes Server ${slot}?`
+    );
+
+
+if (!confirmed) {
+    return;
+}
+
 
 showToast(
-    "Server creation will be connected next."
+    `Starting Server ${slot}...`
 );
 
+
+try {
+
+    const response =
+        await fetch(
+            `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/dispatches`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Accept":
+                        "application/vnd.github+json",
+
+                    "Authorization":
+                        `Bearer ${GITHUB_TOKEN}`,
+
+                    "X-GitHub-Api-Version":
+                        "2022-11-28",
+
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    event_type:
+                        "create-server",
+
+                    client_payload: {
+
+                        slot:
+                            String(slot)
+
+                    }
+
+                })
+            }
+        );
+
+
+    if (
+        response.status !== 204
+    ) {
+
+        let details = "";
+
+        try {
+            details =
+                await response.text();
+        } catch {
+            details = "";
+        }
+
+
+        throw new Error(
+            `GitHub HTTP ${response.status} ${details}`
+        );
+    }
+
+
+    showToast(
+        `Server ${slot} is starting!`
+    );
+
+
+    /*
+     * Give GitHub Actions a moment to start,
+     * then refresh the status.
+     */
+
+    setTimeout(
+        loadServers,
+        5000
+    );
+
+
+    setTimeout(
+        loadServers,
+        15000
+    );
+
+
+    setTimeout(
+        loadServers,
+        30000
+    );
+
+
+} catch (error) {
+
+    console.error(
+        "Failed to start server:",
+        error
+    );
+
+
+    showToast(
+        "Failed to start server."
+    );
 }
+
+}
+
+/* ==========================================
+COPY ADDRESS
+========================================== */
 
 async function copyEndpoint(
 endpoint
@@ -303,12 +456,23 @@ try {
 
 }
 
+/* ==========================================
+TOAST
+========================================== */
+
 function showToast(
 message
 ) {
 
+if (!toast) {
+    console.log(message);
+    return;
+}
+
+
 toast.textContent =
     message;
+
 
 toast.classList.add(
     "show"
@@ -329,32 +493,41 @@ showToast.timeout =
             );
 
         },
-        2500
+        3000
     );
 
 }
+
+/* ==========================================
+HTML ESCAPING
+========================================== */
 
 function escapeHTML(
 value
 ) {
 
 return String(value)
+
     .replaceAll(
         "&",
         "&amp;"
     )
+
     .replaceAll(
         "<",
         "&lt;"
     )
+
     .replaceAll(
         ">",
         "&gt;"
     )
+
     .replaceAll(
         '"',
         "&quot;"
     )
+
     .replaceAll(
         "'",
         "&#039;"
@@ -367,10 +540,12 @@ value
 ) {
 
 return String(value)
+
     .replaceAll(
         "\\",
         "\\\\"
     )
+
     .replaceAll(
         "'",
         "\\'"
@@ -378,11 +553,15 @@ return String(value)
 
 }
 
-/* Initial load */
+/* ==========================================
+INITIAL LOAD
+========================================== */
 
 loadServers();
 
-/* Refresh server status every 15 seconds */
+/* ==========================================
+AUTOMATIC REFRESH
+========================================== */
 
 setInterval(
 loadServers,
