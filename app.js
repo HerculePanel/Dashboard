@@ -1,571 +1,1119 @@
-const GITHUB_OWNER = "LACServer";
-const GITHUB_REPO = "Dashboard";
-
-/*
-
-* TEST ONLY
-* 
-* Put your temporary GitHub token here.
-* 
-* IMPORTANT:
-* This token is visible to anyone who can inspect
-* the deployed GitHub Pages JavaScript.
-* 
-* DELETE/REVOKE THE TOKEN AFTER TESTING.
-  */
-  const ght1 = "github_pat_11CMFBTDA0USVX6aY2L33B_ALB";
-  const ght2 = "3Cu7CY7WgaRYKmbpyqalPtbNEcuu6F5y98F2OiflHQTMZKM6NdAWgmV7";
-  const GITHUB_TOKEN = ght1 + ght2;
-
-const GIST_URL =
-"https://gist.githubusercontent.com/LACServer/a6bd68866931ce5999003aa4f59d50b5/raw/servers.json";
-
-const serverGrid =
-document.getElementById("serverGrid");
-
-const usageCount =
-document.getElementById("usageCount");
-
-const toast =
-document.getElementById("toast");
-
-/* ==========================================
-LOAD SERVERS FROM GIST
-========================================== */
-
-async function loadServers() {
-
-try {
-
-    const response =
-        await fetch(
-            `${GIST_URL}?t=${Date.now()}`,
-            {
-                cache: "no-store"
-            }
-        );
+/* =========================================================
+   L.A. CRIMES 4-SERVER CONTROL PANEL
+========================================================= */
 
 
-    if (!response.ok) {
-        throw new Error(
-            `Gist HTTP ${response.status}`
-        );
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const OWNER = "LACServer";
+
+const REPO = "LosAngelesCrimesServer";
+
+const WORKFLOW = "main.yml";
+
+const GIST_ID =
+  "a6bd68866931ce5999003aa4f59d50b5";
+
+const GIST_FILE =
+  "servers.json";
+
+const API =
+  "https://api.github.com";
+
+const API_VERSION =
+  "2022-11-28";
+
+const REF =
+  "main";
+
+const REFRESH_INTERVAL =
+  10000;
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let servers = [];
+
+let activeRuns = {};
+
+let refreshTimer = null;
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const tokenInput =
+  document.getElementById(
+    "tokenInput"
+  );
+
+const saveTokenButton =
+  document.getElementById(
+    "saveTokenButton"
+  );
+
+const clearTokenButton =
+  document.getElementById(
+    "clearTokenButton"
+  );
+
+const tokenMessage =
+  document.getElementById(
+    "tokenMessage"
+  );
+
+const serversGrid =
+  document.getElementById(
+    "serversGrid"
+  );
+
+const refreshButton =
+  document.getElementById(
+    "refreshButton"
+  );
+
+const activityLog =
+  document.getElementById(
+    "activityLog"
+  );
+
+const activityStatus =
+  document.getElementById(
+    "activityStatus"
+  );
+
+const connectionDot =
+  document.getElementById(
+    "connectionDot"
+  );
+
+const connectionText =
+  document.getElementById(
+    "connectionText"
+  );
+
+const totalServers =
+  document.getElementById(
+    "totalServers"
+  );
+
+const onlineServers =
+  document.getElementById(
+    "onlineServers"
+  );
+
+const startingServers =
+  document.getElementById(
+    "startingServers"
+  );
+
+const availableServers =
+  document.getElementById(
+    "availableServers"
+  );
+
+
+/* =========================================================
+   TOKEN
+========================================================= */
+
+const savedToken =
+  sessionStorage.getItem(
+    "lac_dashboard_token"
+  );
+
+if (savedToken) {
+  tokenInput.value =
+    savedToken;
+}
+
+
+saveTokenButton.addEventListener(
+  "click",
+  () => {
+
+    const token =
+      tokenInput.value.trim();
+
+    if (!token) {
+
+      showTokenMessage(
+        "Enter a GitHub token first.",
+        true
+      );
+
+      return;
     }
 
-
-    const data =
-        await response.json();
-
-
-    if (
-        !data ||
-        !Array.isArray(data.servers)
-    ) {
-        throw new Error(
-            "Invalid servers.json"
-        );
-    }
-
-
-    renderServers(
-        data.servers
+    sessionStorage.setItem(
+      "lac_dashboard_token",
+      token
     );
 
-
-} catch (error) {
-
-    console.error(
-        "Failed to load servers:",
-        error
+    showTokenMessage(
+      "Token saved for this browser session."
     );
 
-
-    serverGrid.innerHTML = `
-        <div class="loading-card error-card">
-
-            <strong>
-                Backend Error
-            </strong>
-
-            <span>
-                Failed to load server status.
-            </span>
-
-            <button
-                class="refresh-button"
-                onclick="loadServers()"
-                type="button"
-            >
-                Try Again
-            </button>
-
-        </div>
-    `;
-
-    usageCount.textContent =
-        "0 / 4";
-}
-
-}
-
-/* ==========================================
-RENDER SERVERS
-========================================== */
-
-function renderServers(
-servers
-) {
-
-const sorted =
-    [...servers].sort(
-        (a, b) =>
-            Number(a.slot) -
-            Number(b.slot)
-    );
-
-
-const used =
-    sorted.filter(
-        server =>
-            String(
-                server.status ||
-                "available"
-            ).toLowerCase() !==
-            "available"
-    ).length;
-
-
-usageCount.textContent =
-    `${used} / 4`;
-
-
-serverGrid.innerHTML =
-    sorted
-        .map(
-            server =>
-                createServerCard(
-                    server
-                )
-        )
-        .join("");
-
-}
-
-/* ==========================================
-CREATE SERVER CARD
-========================================== */
-
-function createServerCard(
-server
-) {
-
-const status =
-    String(
-        server.status ||
-        "available"
-    ).toLowerCase();
-
-
-let statusText =
-    "AVAILABLE";
-
-
-if (status === "starting") {
-    statusText = "STARTING";
-}
-
-if (status === "online") {
-    statusText = "ONLINE";
-}
-
-if (status === "offline") {
-    statusText = "OFFLINE";
-}
-
-
-const endpoint =
-    server.endpoint
-        ? `
-            <div class="endpoint">
-                ${escapeHTML(
-                    server.endpoint
-                )}
-            </div>
-        `
-        : "";
-
-
-let button;
-
-
-if (status === "available") {
-
-    button = `
-        <button
-            class="primary"
-            type="button"
-            onclick="createServer(${Number(server.slot)})"
-        >
-            Create Server
-        </button>
-    `;
-
-} else if (server.endpoint) {
-
-    button = `
-        <button
-            type="button"
-            onclick="copyEndpoint('${escapeAttribute(server.endpoint)}')"
-        >
-            Copy Address
-        </button>
-    `;
-
-} else {
-
-    button = "";
-}
-
-
-return `
-    <article class="server-card">
-
-        <div class="server-header">
-
-            <div class="server-name">
-                ${escapeHTML(
-                    server.name ||
-                    `Server ${server.slot}`
-                )}
-            </div>
-
-            <span
-                class="status ${escapeHTML(status)}"
-            >
-                ${statusText}
-            </span>
-
-        </div>
-
-
-        <div class="server-info">
-
-            ${
-                status === "available"
-                    ? "This server slot is available."
-                    : "This server slot is currently in use."
-            }
-
-            ${endpoint}
-
-        </div>
-
-
-        <div class="server-actions">
-
-            ${button}
-
-        </div>
-
-    </article>
-`;
-
-}
-
-/* ==========================================
-CREATE SERVER
-========================================== */
-
-async function createServer(
-slot
-) {
-
-slot =
-    Number(slot);
-
-
-if (
-    ![1, 2, 3, 4].includes(slot)
-) {
-
-    showToast(
-        "Invalid server slot."
-    );
-
-    return;
-}
-
-
-if (
-    !GITHUB_TOKEN ||
-    GITHUB_TOKEN ===
-    "PASTE_YOUR_TEMPORARY_TOKEN_HERE"
-) {
-
-    showToast(
-        "GitHub token has not been configured."
-    );
-
-    console.error(
-        "Set GITHUB_TOKEN in app.js for this test."
-    );
-
-    return;
-}
-
-
-const confirmed =
-    confirm(
-        `Start L.A. Crimes Server ${slot}?`
-    );
-
-
-if (!confirmed) {
-    return;
-}
-
-
-showToast(
-    `Starting Server ${slot}...`
+    refreshAll();
+  }
 );
 
 
-try {
+clearTokenButton.addEventListener(
+  "click",
+  () => {
 
-    const response =
-        await fetch(
-            `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/dispatches`,
-            {
-                method: "POST",
+    sessionStorage.removeItem(
+      "lac_dashboard_token"
+    );
 
-                headers: {
-                    "Accept":
-                        "application/vnd.github+json",
+    tokenInput.value = "";
 
-                    "Authorization":
-                        `Bearer ${GITHUB_TOKEN}`,
+    showTokenMessage(
+      "Token removed."
+    );
 
-                    "X-GitHub-Api-Version":
-                        "2022-11-28",
+    setConnection(
+      false
+    );
+  }
+);
 
-                    "Content-Type":
-                        "application/json"
-                },
 
-                body: JSON.stringify({
+function showTokenMessage(
+  message,
+  error = false
+) {
 
-                    event_type:
-                        "create-server",
+  tokenMessage.textContent =
+    message;
 
-                    client_payload: {
+  tokenMessage.style.color =
+    error
+      ? "var(--red)"
+      : "var(--muted)";
+}
 
-                        slot:
-                            String(slot)
 
-                    }
+function getToken() {
 
-                })
-            }
-        );
+  const token =
+    tokenInput.value.trim();
 
+  if (!token) {
+
+    throw new Error(
+      "Enter your GitHub token."
+    );
+  }
+
+  return token;
+}
+
+
+/* =========================================================
+   GITHUB API
+========================================================= */
+
+async function github(
+  path,
+  options = {}
+) {
+
+  const token =
+    getToken();
+
+  const response =
+    await fetch(
+      API + path,
+      {
+        ...options,
+
+        headers: {
+          "Accept":
+            "application/vnd.github+json",
+
+          "Authorization":
+            "Bearer " + token,
+
+          "X-GitHub-Api-Version":
+            API_VERSION,
+
+          ...(options.headers || {})
+        }
+      }
+    );
+
+
+  if (!response.ok) {
+
+    let message =
+      response.statusText;
+
+    try {
+
+      const data =
+        await response.json();
+
+      if (data.message) {
+        message =
+          data.message;
+      }
+
+    } catch (_) {}
+
+    throw new Error(
+      `GitHub API ${response.status}: ${message}`
+    );
+  }
+
+
+  if (response.status === 204) {
+    return null;
+  }
+
+
+  return response.json();
+}
+
+
+/* =========================================================
+   CONNECTION
+========================================================= */
+
+function setConnection(
+  connected
+) {
+
+  if (connected) {
+
+    connectionDot.classList.add(
+      "connected"
+    );
+
+    connectionText.textContent =
+      "Connected";
+
+  } else {
+
+    connectionDot.classList.remove(
+      "connected"
+    );
+
+    connectionText.textContent =
+      "Disconnected";
+  }
+}
+
+
+/* =========================================================
+   ACTIVITY
+========================================================= */
+
+function activity(
+  text
+) {
+
+  const time =
+    new Date().toLocaleTimeString();
+
+  activityLog.textContent +=
+    `\n[${time}] ${text}`;
+
+  activityLog.scrollTop =
+    activityLog.scrollHeight;
+
+  activityStatus.textContent =
+    text;
+}
+
+
+/* =========================================================
+   LOAD GIST DATABASE
+========================================================= */
+
+async function loadDatabase() {
+
+  const data =
+    await github(
+      `/gists/${GIST_ID}`
+    );
+
+
+  if (
+    !data.files ||
+    !data.files[GIST_FILE]
+  ) {
+
+    throw new Error(
+      `${GIST_FILE} was not found in the Gist.`
+    );
+  }
+
+
+  const raw =
+    data.files[GIST_FILE].content;
+
+
+  const parsed =
+    JSON.parse(raw);
+
+
+  if (
+    !Array.isArray(
+      parsed.servers
+    )
+  ) {
+
+    throw new Error(
+      "servers.json does not contain a servers array."
+    );
+  }
+
+
+  servers =
+    parsed.servers
+      .sort(
+        (a, b) =>
+          Number(a.slot) -
+          Number(b.slot)
+      );
+
+
+  return servers;
+}
+
+
+/* =========================================================
+   LOAD ACTIVE WORKFLOW RUNS
+========================================================= */
+
+async function loadActiveRuns() {
+
+  const data =
+    await github(
+      `/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW}/runs?per_page=100`
+    );
+
+
+  activeRuns = {};
+
+
+  for (
+    const run of
+    data.workflow_runs || []
+  ) {
 
     if (
-        response.status !== 204
+      run.event !==
+      "workflow_dispatch" &&
+      run.event !==
+      "repository_dispatch"
     ) {
-
-        let details = "";
-
-        try {
-            details =
-                await response.text();
-        } catch {
-            details = "";
-        }
-
-
-        throw new Error(
-            `GitHub HTTP ${response.status} ${details}`
-        );
+      continue;
     }
 
 
-    showToast(
-        `Server ${slot} is starting!`
+    if (
+      run.status !==
+      "queued" &&
+      run.status !==
+      "in_progress"
+    ) {
+      continue;
+    }
+
+
+    /*
+     * workflow_dispatch runs don't expose
+     * the slot in a convenient top-level field.
+     *
+     * The workflow database remains the
+     * authoritative source for the slot.
+     */
+
+    const possibleSlots =
+      servers
+        .filter(
+          server =>
+            server.status ===
+              "starting" ||
+            server.status ===
+              "online"
+        )
+        .map(
+          server =>
+            Number(server.slot)
+        );
+
+
+    for (
+      const slot of
+      possibleSlots
+    ) {
+
+      if (
+        !activeRuns[slot]
+      ) {
+
+        activeRuns[slot] =
+          run;
+      }
+    }
+  }
+}
+
+
+/* =========================================================
+   RENDER SERVERS
+========================================================= */
+
+function renderServers() {
+
+  serversGrid.innerHTML =
+    "";
+
+
+  if (!servers.length) {
+
+    serversGrid.innerHTML =
+      `
+        <div class="loading">
+          No servers found.
+        </div>
+      `;
+
+    return;
+  }
+
+
+  for (
+    const server of servers
+  ) {
+
+    const slot =
+      Number(server.slot);
+
+    const status =
+      String(
+        server.status ||
+        "available"
+      ).toLowerCase();
+
+
+    const card =
+      document.createElement(
+        "div"
+      );
+
+    card.className =
+      "server-card";
+
+
+    let statusClass =
+      "available";
+
+    let statusText =
+      "Available";
+
+
+    if (
+      status ===
+      "starting"
+    ) {
+
+      statusClass =
+        "starting";
+
+      statusText =
+        "Starting...";
+
+    } else if (
+      status ===
+      "online"
+    ) {
+
+      statusClass =
+        "online";
+
+      statusText =
+        "Online";
+
+    } else if (
+      status ===
+      "error"
+    ) {
+
+      statusClass =
+        "error";
+
+      statusText =
+        "Error";
+    }
+
+
+    const endpoint =
+      server.endpoint;
+
+
+    card.innerHTML =
+      `
+        <div class="server-top">
+
+          <div>
+            <div class="server-name">
+              ${escapeHtml(
+                server.name ||
+                `Server ${slot}`
+              )}
+            </div>
+
+            <div class="slot">
+              Slot ${slot}
+            </div>
+          </div>
+
+        </div>
+
+        <div
+          class="status-badge ${statusClass}"
+        >
+          ${statusText}
+        </div>
+
+        ${
+          endpoint
+            ? `
+              <div class="endpoint">
+                ${escapeHtml(
+                  endpoint
+                )}
+              </div>
+            `
+            : `
+              <div class="no-endpoint">
+                No public endpoint.
+              </div>
+            `
+        }
+
+        <div class="server-actions">
+
+          ${
+            status ===
+            "available"
+              ? `
+                <button
+                  class="button primary"
+                  onclick="startServer(${slot})"
+                >
+                  ▶ Start
+                </button>
+              `
+              : ""
+          }
+
+          ${
+            status ===
+              "starting" ||
+            status ===
+              "online"
+              ? `
+                <button
+                  class="button danger"
+                  onclick="stopServer(${slot})"
+                >
+                  ■ Stop
+                </button>
+              `
+              : ""
+          }
+
+        </div>
+      `;
+
+
+    serversGrid.appendChild(
+      card
+    );
+  }
+
+
+  updateStats();
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats() {
+
+  let online =
+    0;
+
+  let starting =
+    0;
+
+  let available =
+    0;
+
+
+  for (
+    const server of servers
+  ) {
+
+    const status =
+      String(
+        server.status ||
+        "available"
+      ).toLowerCase();
+
+
+    if (
+      status ===
+      "online"
+    ) {
+
+      online++;
+
+    } else if (
+      status ===
+      "starting"
+    ) {
+
+      starting++;
+
+    } else {
+
+      available++;
+    }
+  }
+
+
+  totalServers.textContent =
+    servers.length;
+
+  onlineServers.textContent =
+    online;
+
+  startingServers.textContent =
+    starting;
+
+  availableServers.textContent =
+    available;
+}
+
+
+/* =========================================================
+   START SERVER
+========================================================= */
+
+async function startServer(
+  slot
+) {
+
+  try {
+
+    getToken();
+
+
+    const server =
+      servers.find(
+        item =>
+          Number(item.slot) ===
+          Number(slot)
+      );
+
+
+    if (!server) {
+
+      throw new Error(
+        `Server slot ${slot} does not exist.`
+      );
+    }
+
+
+    if (
+      server.status !==
+      "available"
+    ) {
+
+      throw new Error(
+        `Server ${slot} is not available.`
+      );
+    }
+
+
+    activity(
+      `Starting Server ${slot}...`
+    );
+
+
+    await github(
+      `/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW}/dispatches`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body:
+          JSON.stringify({
+            ref: REF,
+
+            inputs: {
+              slot:
+                String(slot)
+            }
+          })
+      }
+    );
+
+
+    activity(
+      `Workflow requested for Server ${slot}.`
     );
 
 
     /*
-     * Give GitHub Actions a moment to start,
-     * then refresh the status.
+     * Give GitHub a moment to create
+     * the workflow run.
      */
 
-    setTimeout(
-        loadServers,
-        5000
+    await sleep(
+      2500
     );
 
 
-    setTimeout(
-        loadServers,
-        15000
+    await refreshAll();
+
+  }
+
+  catch (error) {
+
+    activity(
+      `Start Server ${slot} failed: ${error.message}`
     );
 
-
-    setTimeout(
-        loadServers,
-        30000
+    alert(
+      error.message
     );
-
-
-} catch (error) {
-
-    console.error(
-        "Failed to start server:",
-        error
-    );
-
-
-    showToast(
-        "Failed to start server."
-    );
+  }
 }
 
-}
 
-/* ==========================================
-COPY ADDRESS
-========================================== */
+/* =========================================================
+   STOP SERVER
+========================================================= */
 
-async function copyEndpoint(
-endpoint
+async function stopServer(
+  slot
 ) {
 
-try {
+  try {
 
-    await navigator.clipboard
-        .writeText(endpoint);
+    getToken();
 
-    showToast(
-        "Server address copied!"
+
+    const confirmed =
+      confirm(
+        `Stop Server ${slot}?`
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    let run =
+      activeRuns[slot];
+
+
+    /*
+     * If we don't have a remembered run,
+     * search the active runs.
+     */
+
+    if (!run) {
+
+      const data =
+        await github(
+          `/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW}/runs?per_page=100`
+        );
+
+
+      const candidates =
+        data.workflow_runs ||
+        [];
+
+
+      run =
+        candidates.find(
+          item =>
+            (
+              item.status ===
+                "queued" ||
+              item.status ===
+                "in_progress"
+            ) &&
+            (
+              item.event ===
+                "workflow_dispatch" ||
+              item.event ===
+                "repository_dispatch"
+            )
+        );
+    }
+
+
+    if (!run) {
+
+      throw new Error(
+        `No active workflow run was found for Server ${slot}.`
+      );
+    }
+
+
+    activity(
+      `Stopping Server ${slot}...`
     );
 
-} catch {
 
-    showToast(
-        "Could not copy the address."
+    await github(
+      `/repos/${OWNER}/${REPO}/actions/runs/${run.id}/cancel`,
+      {
+        method:
+          "POST"
+      }
     );
+
+
+    activity(
+      `Cancellation requested for Server ${slot}.`
+    );
+
+
+    await sleep(
+      2000
+    );
+
+
+    await refreshAll();
+
+  }
+
+  catch (error) {
+
+    activity(
+      `Stop Server ${slot} failed: ${error.message}`
+    );
+
+    alert(
+      error.message
+    );
+  }
 }
 
-}
 
-/* ==========================================
-TOAST
-========================================== */
+/* =========================================================
+   REFRESH EVERYTHING
+========================================================= */
 
-function showToast(
-message
-) {
+async function refreshAll() {
 
-if (!toast) {
-    console.log(message);
+  if (
+    !tokenInput.value.trim()
+  ) {
+
+    setConnection(
+      false
+    );
+
     return;
+  }
+
+
+  try {
+
+    refreshButton.disabled =
+      true;
+
+
+    activityStatus.textContent =
+      "Refreshing...";
+
+
+    await loadDatabase();
+
+
+    await loadActiveRuns();
+
+
+    setConnection(
+      true
+    );
+
+
+    renderServers();
+
+
+    activity(
+      "Server database refreshed."
+    );
+
+  }
+
+  catch (error) {
+
+    setConnection(
+      false
+    );
+
+
+    activity(
+      `Refresh failed: ${error.message}`
+    );
+
+
+    serversGrid.innerHTML =
+      `
+        <div class="loading">
+          ${escapeHtml(
+            error.message
+          )}
+        </div>
+      `;
+
+  }
+
+  finally {
+
+    refreshButton.disabled =
+      false;
+  }
 }
 
 
-toast.textContent =
-    message;
+/* =========================================================
+   REFRESH BUTTON
+========================================================= */
 
+refreshButton.addEventListener(
+  "click",
+  () => {
 
-toast.classList.add(
-    "show"
+    refreshAll();
+
+  }
 );
 
 
-clearTimeout(
-    showToast.timeout
-);
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
 
-
-showToast.timeout =
-    setTimeout(
-        () => {
-
-            toast.classList.remove(
-                "show"
-            );
-
-        },
-        3000
-    );
-
-}
-
-/* ==========================================
-HTML ESCAPING
-========================================== */
-
-function escapeHTML(
-value
+function escapeHtml(
+  value
 ) {
 
-return String(value)
-
+  return String(value)
     .replaceAll(
-        "&",
-        "&amp;"
+      "&",
+      "&amp;"
     )
-
     .replaceAll(
-        "<",
-        "&lt;"
+      "<",
+      "&lt;"
     )
-
     .replaceAll(
-        ">",
-        "&gt;"
+      ">",
+      "&gt;"
     )
-
     .replaceAll(
-        '"',
-        "&quot;"
+      '"',
+      "&quot;"
     )
-
     .replaceAll(
-        "'",
-        "&#039;"
+      "'",
+      "&#039;"
     );
-
 }
 
-function escapeAttribute(
-value
+
+/* =========================================================
+   SLEEP
+========================================================= */
+
+function sleep(
+  milliseconds
 ) {
 
-return String(value)
-
-    .replaceAll(
-        "\\",
-        "\\\\"
-    )
-
-    .replaceAll(
-        "'",
-        "\\'"
-    );
-
+  return new Promise(
+    resolve =>
+      setTimeout(
+        resolve,
+        milliseconds
+      )
+  );
 }
 
-/* ==========================================
-INITIAL LOAD
-========================================== */
 
-loadServers();
+/* =========================================================
+   AUTOMATIC REFRESH
+========================================================= */
 
-/* ==========================================
-AUTOMATIC REFRESH
-========================================== */
+function startAutomaticRefresh() {
 
-setInterval(
-loadServers,
-15000
+  if (refreshTimer) {
+
+    clearInterval(
+      refreshTimer
+    );
+  }
+
+
+  refreshTimer =
+    setInterval(
+      refreshAll,
+      REFRESH_INTERVAL
+    );
+}
+
+
+/* =========================================================
+   STARTUP
+========================================================= */
+
+window.addEventListener(
+  "load",
+  async () => {
+
+    if (
+      tokenInput.value.trim()
+    ) {
+
+      await refreshAll();
+
+      startAutomaticRefresh();
+
+    } else {
+
+      setConnection(
+        false
+      );
+
+      activityStatus.textContent =
+        "Token required";
+    }
+
+  }
 );
