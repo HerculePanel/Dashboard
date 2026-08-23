@@ -1,553 +1,169 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-  <title>L.A. Crimes Server</title>
+<meta
+    name="description"
+    content="LACServer free game server dashboard"
+>
 
-  <style>
-    :root {
-      --bg: #111318;
-      --card: #1b1e26;
-      --card2: #222631;
-      --text: #f5f7ff;
-      --muted: #aeb5c7;
-      --accent: #9d8cff;
-      --green: #76e0a5;
-      --red: #ff7f9f;
-      --yellow: #ffd37a;
-      --border: #303543;
-    }
+<meta name="theme-color" content="#0b0d12">
 
-    * {
-      box-sizing: border-box;
-    }
+<title>LACServer Dashboard</title>
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
+<link rel="stylesheet" href="style.css">
 
-    .container {
-      width: min(900px, 92%);
-      margin: auto;
-      padding: 50px 0;
-    }
+</head><body><div class="background-glow"></div>
 
-    h1 {
-      margin-bottom: 5px;
-      font-size: 36px;
-    }
+<header class="topbar">
 
-    .subtitle {
-      color: var(--muted);
-      margin-bottom: 30px;
-    }
+    <a
+        class="brand"
+        href="./"
+        aria-label="LACServer Dashboard"
+    >
+        <div class="brand-icon">L</div>
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 24px;
-      margin-bottom: 18px;
-    }
+        <div class="brand-text">
+            <strong>LACServer</strong>
+            <span>Game Server Hosting</span>
+        </div>
+    </a>
 
-    .status {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: bold;
-    }
+    <div class="usage">
 
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--red);
-    }
+        <span class="usage-label">
+            SERVER SLOTS
+        </span>
 
-    .online .dot {
-      background: var(--green);
-    }
+        <strong id="usageCount">
+            0 / 4
+        </strong>
 
-    .starting .dot {
-      background: var(--yellow);
-    }
-
-    button {
-      border: 0;
-      border-radius: 12px;
-      padding: 13px 20px;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-right: 8px;
-    }
-
-    #startBtn {
-      background: var(--accent);
-      color: white;
-    }
-
-    #stopBtn {
-      background: var(--red);
-      color: white;
-    }
-
-    button:disabled {
-      opacity: .45;
-      cursor: not-allowed;
-    }
-
-    .info {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .infoBox {
-      background: var(--card2);
-      border-radius: 12px;
-      padding: 15px;
-    }
-
-    .label {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .value {
-      margin-top: 5px;
-      font-weight: bold;
-      word-break: break-all;
-    }
-
-    pre {
-      height: 350px;
-      overflow: auto;
-      background: #0b0d12;
-      border-radius: 12px;
-      padding: 16px;
-      color: #dfe4f2;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .error {
-      color: var(--red);
-      margin-top: 12px;
-    }
-
-    @media (max-width: 600px) {
-      .info {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-  <main class="container">
-
-    <h1>🎮 L.A. Crimes Server</h1>
-    <div class="subtitle">
-      Free GitHub Actions + Rustunnel server
     </div>
 
-    <section class="card">
+</header>
 
-      <div id="status" class="status">
-        <span class="dot"></span>
-        <span id="statusText">Checking server...</span>
-      </div>
 
-      <div style="margin-top:20px;">
-        <button id="startBtn" onclick="startServer()">
-          ▶ Start Server
-        </button>
+<main>
 
-        <button id="stopBtn" onclick="stopServer()" disabled>
-          ■ Stop Server
-        </button>
-      </div>
+    <section class="hero">
 
-      <div id="error" class="error"></div>
-
-      <div class="info">
-
-        <div class="infoBox">
-          <div class="label">Map</div>
-          <div class="value" id="map">—</div>
+        <div class="hero-badge">
+            <span class="status-dot"></span>
+            LACSERVER HOSTING
         </div>
 
-        <div class="infoBox">
-          <div class="label">Local UDP</div>
-          <div class="value" id="localPort">—</div>
-        </div>
+        <h1>
+            Your game server,
+            <span>your way.</span>
+        </h1>
 
-        <div class="infoBox">
-          <div class="label">Public Address</div>
-          <div class="value" id="endpoint">—</div>
-        </div>
-
-        <div class="infoBox">
-          <div class="label">Workflow</div>
-          <div class="value" id="workflow">—</div>
-        </div>
-
-      </div>
+        <p>
+            Create and manage free game servers
+            from one simple dashboard.
+        </p>
 
     </section>
 
-    <section class="card">
 
-      <h2>Server Log</h2>
+    <section class="section-header">
 
-      <pre id="logs">Loading...</pre>
+        <div>
+            <h2>Game Servers</h2>
+
+            <p>
+                Choose an available server slot
+                to get started.
+            </p>
+        </div>
+
+        <button
+            class="refresh-button"
+            onclick="loadServers()"
+            title="Refresh servers"
+            type="button"
+        >
+            ↻
+            <span>Refresh</span>
+        </button>
 
     </section>
 
-  </main>
 
-<script>
-/*
-==================================================
-CONFIGURATION
-==================================================
-*/
+    <section
+        id="serverGrid"
+        class="server-grid"
+        aria-live="polite"
+    >
 
-const OWNER = "YOUR_GITHUB_USERNAME";
-const REPO = "YOUR_REPOSITORY_NAME";
-const WORKFLOW_FILE = "main.yml";
+        <div class="loading-card">
 
-/*
-IMPORTANT:
+            <div class="loading-spinner"></div>
 
-Do NOT put a GitHub personal access token here.
+            <span>
+                Loading servers...
+            </span>
 
-A static GitHub Pages website cannot safely hide
-a GitHub token from visitors.
+        </div>
 
-For a private personal dashboard, use a backend or
-another authenticated mechanism instead.
-*/
+    </section>
 
-/*
-==================================================
-ELEMENTS
-==================================================
-*/
 
-const statusBox = document.getElementById("status");
-const statusText = document.getElementById("statusText");
+    <section class="info-panel">
 
-const startBtn = document.getElementById("startBtn");
-const stopBtn = document.getElementById("stopBtn");
+        <div class="info-icon">
+            i
+        </div>
 
-const logs = document.getElementById("logs");
-const errorBox = document.getElementById("error");
+        <div>
+            <strong>
+                How does this work?
+            </strong>
 
-const mapBox = document.getElementById("map");
-const localPortBox = document.getElementById("localPort");
-const endpointBox = document.getElementById("endpoint");
-const workflowBox = document.getElementById("workflow");
+            <p>
+                Choose an available slot and
+                create your server. Once it is
+                online, you'll receive a public
+                address that your friends can use
+                to connect.
+            </p>
+        </div>
 
-/*
-==================================================
-GITHUB API HELPER
-==================================================
-*/
+    </section>
 
-async function github(path, options = {}) {
+</main>
 
-  const response = await fetch(
-    `https://api.github.com${path}`,
-    {
-      ...options,
 
-      headers: {
-        "Accept": "application/vnd.github+json",
-        ...options.headers
-      }
-    }
-  );
+<footer>
 
-  if (!response.ok) {
+    <span>
+        © 2026 LACServer
+    </span>
 
-    let message = response.statusText;
+    <span class="footer-separator">
+        •
+    </span>
 
-    try {
-      const data = await response.json();
+    <span>
+        Free game server hosting
+    </span>
 
-      if (data.message) {
-        message = data.message;
-      }
-    } catch (_) {}
+</footer>
 
-    throw new Error(
-      `GitHub API ${response.status}: ${message}`
-    );
-  }
 
-  if (response.status === 204) {
-    return null;
-  }
+<div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+></div>
 
-  return response.json();
-}
 
-/*
-==================================================
-NOTE ABOUT AUTHENTICATION
-==================================================
-
-Starting/stopping workflows requires GitHub API
-authentication.
-
-Do NOT put your PAT into this public HTML.
-
-The clean production design is:
-
-GitHub Pages
-      ↓
-small backend / serverless function
-      ↓
-GitHub API
-
-The backend stores the GitHub token securely.
-
-The code below expects the backend endpoints:
-
-POST /api/start
-POST /api/stop
-GET  /api/status
-
-Change API_BASE to your backend.
-*/
-
-const API_BASE = "";
-
-/*
-==================================================
-LOAD STATUS
-==================================================
-*/
-
-async function loadStatus() {
-
-  try {
-
-    const response = await fetch(
-      `${API_BASE}/api/status`,
-      {
-        cache: "no-store"
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Status API unavailable");
-    }
-
-    const data = await response.json();
-
-    updateStatus(data);
-
-  } catch (error) {
-
-    /*
-      If no backend is configured yet, don't make
-      the whole dashboard crash.
-    */
-
-    statusText.textContent = "Backend not configured";
-
-    statusBox.className = "status";
-
-    startBtn.disabled = true;
-    stopBtn.disabled = true;
-
-    logs.textContent =
-      "Connect the dashboard to your GitHub API backend.";
-  }
-}
-
-/*
-==================================================
-UPDATE UI
-==================================================
-*/
-
-function updateStatus(data) {
-
-  const state = data.state || "offline";
-
-  statusBox.className = "status";
-
-  if (state === "starting") {
-
-    statusBox.classList.add("starting");
-
-    statusText.textContent =
-      "Starting server...";
-
-    startBtn.disabled = true;
-    stopBtn.disabled = true;
-
-  } else if (state === "online") {
-
-    statusBox.classList.add("online");
-
-    statusText.textContent =
-      "Server Online";
-
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-
-  } else {
-
-    statusText.textContent =
-      "Server Offline";
-
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-  }
-
-  mapBox.textContent =
-    data.map || "City";
-
-  localPortBox.textContent =
-    data.localPort || "7777";
-
-  endpointBox.textContent =
-    data.publicEndpoint || "—";
-
-  workflowBox.textContent =
-    data.workflow || "—";
-
-  logs.textContent =
-    data.logs || "No logs yet.";
-
-  logs.scrollTop =
-    logs.scrollHeight;
-}
-
-/*
-==================================================
-START SERVER
-==================================================
-*/
-
-async function startServer() {
-
-  errorBox.textContent = "";
-
-  startBtn.disabled = true;
-  stopBtn.disabled = true;
-
-  statusBox.className =
-    "status starting";
-
-  statusText.textContent =
-    "Starting server...";
-
-  logs.textContent =
-    "Starting GitHub Actions workflow...";
-
-  try {
-
-    const response = await fetch(
-      `${API_BASE}/api/start`,
-      {
-        method: "POST"
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(
-        `Start request failed: ${response.status}`
-      );
-    }
-
-    await loadStatus();
-
-  } catch (error) {
-
-    errorBox.textContent =
-      error.message;
-
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-
-    statusBox.className =
-      "status";
-  }
-}
-
-/*
-==================================================
-STOP SERVER
-==================================================
-*/
-
-async function stopServer() {
-
-  errorBox.textContent = "";
-
-  stopBtn.disabled = true;
-
-  try {
-
-    const response = await fetch(
-      `${API_BASE}/api/stop`,
-      {
-        method: "POST"
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(
-        `Stop request failed: ${response.status}`
-      );
-    }
-
-    statusText.textContent =
-      "Stopping server...";
-
-    await loadStatus();
-
-  } catch (error) {
-
-    errorBox.textContent =
-      error.message;
-
-    stopBtn.disabled = false;
-  }
-}
-
-/*
-==================================================
-AUTO REFRESH
-
-This means refreshing the webpage does NOT lose
-the server state. The dashboard asks the backend
-which workflow is currently running.
-==================================================
-*/
-
-loadStatus();
-
-setInterval(
-  loadStatus,
-  5000
-);
-
-</script>
+<script src="app.js"></script>
 
 </body>
-</html>
+          </html>
