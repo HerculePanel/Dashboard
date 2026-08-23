@@ -1,43 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>L.A. Crimes Server Control Panel</title>
 
 <style>
-
 * {
     box-sizing: border-box;
 }
 
 :root {
-    --bg: #0b0d14;
+    --bg: #090b11;
     --card: #151925;
-    --card2: #1b1f2d;
-
-    --text: #f2f3f8;
-    --muted: #8e94a8;
-
+    --card2: #1b2030;
+    --text: #f3f4f8;
+    --muted: #8f96aa;
     --purple: #b8a5ff;
     --blue: #91c7ff;
     --green: #8ff0b5;
     --yellow: #f5d67e;
     --red: #ff9cad;
-
     --border: rgba(255,255,255,.09);
 }
 
 body {
     margin: 0;
     min-height: 100vh;
+    padding: 20px;
 
     font-family:
         system-ui,
@@ -60,12 +51,10 @@ body {
             transparent 30%
         ),
         var(--bg);
-
-    padding: 20px;
 }
 
 .container {
-    width: min(950px, 100%);
+    width: min(1000px, 100%);
     margin: auto;
 }
 
@@ -77,13 +66,9 @@ body {
             rgba(255,255,255,.025)
         );
 
-    border:
-        1px solid var(--border);
-
+    border: 1px solid var(--border);
     border-radius: 20px;
-
-    padding: 22px;
-
+    padding: 20px;
     margin-bottom: 16px;
 
     backdrop-filter: blur(14px);
@@ -99,8 +84,8 @@ body {
 }
 
 .logo {
-    width: 54px;
-    height: 54px;
+    width: 55px;
+    height: 55px;
 
     display: grid;
     place-items: center;
@@ -111,17 +96,14 @@ body {
         rgba(184,165,255,.13);
 
     border:
-        1px solid
-        rgba(184,165,255,.2);
+        1px solid rgba(184,165,255,.2);
 
-    font-size: 26px;
+    font-size: 27px;
 }
 
 h1 {
     margin: 0;
-
-    font-size:
-        clamp(25px, 6vw, 34px);
+    font-size: clamp(24px, 6vw, 34px);
 }
 
 .subtitle {
@@ -132,17 +114,13 @@ h1 {
 
 label {
     display: block;
-
-    font-weight: 800;
-
     font-size: 13px;
-
+    font-weight: 800;
     margin-bottom: 8px;
 }
 
 input {
     width: 100%;
-
     height: 48px;
 
     padding: 0 14px;
@@ -150,8 +128,7 @@ input {
     border-radius: 13px;
 
     border:
-        1px solid
-        rgba(255,255,255,.1);
+        1px solid rgba(255,255,255,.1);
 
     outline: none;
 
@@ -168,142 +145,20 @@ input:focus {
 
 .small {
     color: var(--muted);
-
     font-size: 11px;
-
     margin-top: 6px;
 }
 
-.dashboard-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(260px, 1fr)
-        );
-
-    gap: 16px;
-}
-
-.server-card {
-    margin: 0;
-}
-
-.server-header {
+.top-buttons {
     display: flex;
-
-    justify-content:
-        space-between;
-
-    align-items:
-        center;
-
-    margin-bottom: 16px;
-}
-
-.server-name {
-    font-size: 19px;
-
-    font-weight: 850;
-}
-
-.slot {
-    color: var(--muted);
-
-    font-size: 11px;
-}
-
-.status {
-    display: flex;
-
-    align-items: center;
-
-    gap: 9px;
-
-    margin-bottom: 12px;
-}
-
-.dot {
-    width: 11px;
-    height: 11px;
-
-    border-radius: 50%;
-
-    background: #666;
-
-    flex-shrink: 0;
-}
-
-.dot.online {
-    background: var(--green);
-
-    box-shadow:
-        0 0 15px
-        rgba(143,240,181,.65);
-}
-
-.dot.warning {
-    background: var(--yellow);
-
-    box-shadow:
-        0 0 15px
-        rgba(245,214,126,.5);
-}
-
-.dot.error {
-    background: var(--red);
-
-    box-shadow:
-        0 0 15px
-        rgba(255,156,173,.5);
-}
-
-.status-text {
-    font-weight: 800;
-}
-
-.endpoint {
-    padding: 12px;
-
-    border-radius: 12px;
-
-    background:
-        rgba(0,0,0,.28);
-
-    color: var(--blue);
-
-    font-family:
-        Consolas,
-        monospace;
-
-    font-size: 13px;
-
-    font-weight: 800;
-
-    word-break: break-all;
-
-    margin-bottom: 12px;
-}
-
-.endpoint.hidden {
-    display: none;
-}
-
-.server-buttons {
-    display: flex;
-
-    gap: 9px;
+    gap: 10px;
+    margin-top: 15px;
 }
 
 button {
-    flex: 1;
-
     border: 0;
-
-    border-radius: 12px;
-
-    padding: 12px;
+    border-radius: 13px;
+    padding: 13px 16px;
 
     font-weight: 850;
 
@@ -315,104 +170,197 @@ button {
 }
 
 button:hover:not(:disabled) {
-    transform:
-        translateY(-2px);
+    transform: translateY(-2px);
 }
 
 button:active:not(:disabled) {
-    transform:
-        translateY(1px);
+    transform: translateY(1px);
 }
 
 button:disabled {
     opacity: .35;
-
     cursor: not-allowed;
 }
 
-.start {
-    background: var(--green);
-
-    color: #183a29;
-}
-
-.stop {
-    background: var(--red);
-
-    color: #492631;
-}
-
 .refresh {
-    background:
-        rgba(184,165,255,.15);
-
-    color:
-        var(--purple);
+    background: var(--purple);
+    color: #28203f;
 }
 
-.log {
-    height: 280px;
+.servers {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
 
-    overflow-y: auto;
+    gap: 15px;
+}
 
-    padding: 15px;
-
-    border-radius: 14px;
-
+.server-card {
     background:
-        #080a10;
+        rgba(0,0,0,.16);
 
     border:
-        1px solid
-        rgba(255,255,255,.06);
+        1px solid var(--border);
 
-    color: #dfe2ed;
+    border-radius: 17px;
 
-    font-family:
-        Consolas,
-        monospace;
-
-    font-size: 12px;
-
-    line-height: 1.5;
-
-    white-space: pre-wrap;
-
-    word-break: break-word;
+    padding: 18px;
 }
 
-.log-title {
+.server-header {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-    justify-content:
-        space-between;
-
-    align-items:
-        center;
-
-    margin-bottom: 12px;
+    gap: 10px;
 }
 
-.badge {
-    padding: 5px 9px;
+.server-name {
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.status-badge {
+    padding: 5px 10px;
 
     border-radius: 999px;
 
     font-size: 10px;
+    font-weight: 900;
 
+    background:
+        rgba(255,255,255,.07);
+
+    color: var(--muted);
+}
+
+.status-badge.online {
+    color: #183a29;
+    background: var(--green);
+}
+
+.status-badge.starting {
+    color: #4a3d18;
+    background: var(--yellow);
+}
+
+.status-badge.error {
+    color: #492631;
+    background: var(--red);
+}
+
+.server-info {
+    margin-top: 15px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+
+    padding: 8px 0;
+
+    border-bottom:
+        1px solid rgba(255,255,255,.05);
+}
+
+.info-row:last-child {
+    border-bottom: 0;
+}
+
+.info-label {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.info-value {
+    font-size: 12px;
+    font-weight: 750;
+    text-align: right;
+    word-break: break-all;
+}
+
+.endpoint {
+    margin-top: 12px;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    background:
+        rgba(145,199,255,.08);
+
+    color: var(--blue);
+
+    font-family: Consolas, monospace;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    word-break: break-all;
+}
+
+.server-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.start {
+    flex: 1;
+    background: var(--green);
+    color: #183a29;
+}
+
+.stop {
+    flex: 1;
+    background: var(--red);
+    color: #492631;
+}
+
+.log-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge {
+    padding: 5px 9px;
+    border-radius: 999px;
+
+    font-size: 10px;
     font-weight: 850;
 
     background:
         rgba(184,165,255,.1);
 
-    color:
-        var(--purple);
+    color: var(--purple);
 }
 
-.global-buttons {
-    display: flex;
+.log {
+    height: 300px;
 
-    gap: 10px;
+    overflow-y: auto;
+
+    margin-top: 12px;
+    padding: 15px;
+
+    border-radius: 14px;
+
+    background: #080a10;
+
+    border:
+        1px solid rgba(255,255,255,.06);
+
+    color: #dfe2ed;
+
+    font-family: Consolas, monospace;
+
+    font-size: 12px;
+    line-height: 1.5;
+
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .footer {
@@ -422,145 +370,121 @@ button:disabled {
         rgba(255,255,255,.25);
 
     font-size: 10px;
+
+    padding: 10px;
 }
 
-@media (max-width: 600px) {
-
+@media (max-width: 700px) {
     body {
         padding: 10px;
     }
 
-    .global-buttons {
-        flex-direction: column;
+    .servers {
+        grid-template-columns: 1fr;
     }
 
-    .server-buttons {
+    .top-buttons {
         flex-direction: column;
     }
 }
-
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
 
+    <div class="card header">
+        <div class="logo">🎮</div>
 
-<!-- ==========================================
-     HEADER
-========================================== -->
+        <div>
+            <h1>L.A. Crimes Server</h1>
 
-<div class="card header">
-
-    <div class="logo">
-        🎮
+            <div class="subtitle">
+                4-server GitHub Actions control panel
+            </div>
+        </div>
     </div>
 
-    <div>
 
-        <h1>
-            L.A. Crimes
-        </h1>
+    <div class="card">
 
-        <div class="subtitle">
-            Four-server GitHub Actions control panel
+        <label for="token">
+            GitHub Personal Access Token
+        </label>
+
+        <input
+            id="token"
+            type="password"
+            placeholder="github_pat_..."
+            autocomplete="off"
+        >
+
+        <div class="small">
+            The token is stored only in this browser's session storage.
+            Never put a token directly into this HTML/JS file.
+        </div>
+
+        <div class="top-buttons">
+
+            <button
+                id="refreshButton"
+                class="refresh"
+                onclick="refreshDatabase()"
+            >
+                ↻ Refresh Servers
+            </button>
+
         </div>
 
     </div>
 
-</div>
 
+    <div class="card">
 
-<!-- ==========================================
-     TOKEN
-========================================== -->
+        <div class="log-title">
+            <strong>Servers</strong>
 
-<div class="card">
+            <span class="badge">
+                4 SLOTS
+            </span>
+        </div>
 
-    <label>
-        GitHub Personal Access Token
-    </label>
-
-    <input
-        id="token"
-        type="password"
-        placeholder="github_pat_..."
-        autocomplete="off"
-    >
-
-    <div class="small">
-        Stored only in this browser session.
-    </div>
-
-</div>
-
-
-<!-- ==========================================
-     GLOBAL CONTROLS
-========================================== -->
-
-<div class="card">
-
-    <div class="global-buttons">
-
-        <button
-            id="refreshButton"
-            class="refresh"
-            onclick="refreshAll()"
+        <div
+            id="servers"
+            class="servers"
+            style="margin-top:15px;"
         >
-            ↻ Refresh Servers
-        </button>
+        </div>
 
     </div>
 
-</div>
 
+    <div class="card">
 
-<!-- ==========================================
-     SERVERS
-========================================== -->
+        <div class="log-title">
 
-<div
-    id="servers"
-    class="dashboard-grid"
->
-</div>
+            <strong>
+                Dashboard Log
+            </strong>
 
+            <span class="badge">
+                LIVE
+            </span>
 
-<!-- ==========================================
-     LOG
-========================================== -->
+        </div>
 
-<div class="card">
-
-    <div class="log-title">
-
-        <strong>
-            Dashboard Log
-        </strong>
-
-        <span class="badge">
-            LIVE
-        </span>
+        <div
+            id="log"
+            class="log"
+        >Dashboard starting...</div>
 
     </div>
 
-    <div
-        id="log"
-        class="log"
-    >
-Dashboard starting...
+
+    <div class="footer">
+        L.A. Crimes Server Dashboard
     </div>
-
-</div>
-
-
-<div class="footer">
-    L.A. Crimes Server Dashboard
-</div>
-
 
 </div>
 
@@ -568,17 +492,32 @@ Dashboard starting...
 <script>
 
 /* =====================================================
-   CONFIG
+   CONFIGURATION
 ===================================================== */
 
 const OWNER =
     "LACServer";
 
 const REPO =
-    "Dashboard";
+    "LosAngelesCrimesServer";
 
 const WORKFLOW =
     "main.yml";
+
+/*
+ * PUT YOUR NEW GIST ID HERE.
+ *
+ * Example:
+ *
+ * const GIST_ID =
+ *     "a6bd68866931ce5999003aa4f59d50b5";
+ */
+
+const GIST_ID =
+    "PUT_YOUR_NEW_GIST_ID_HERE";
+
+const GIST_FILE =
+    "servers.json";
 
 const API =
     "https://api.github.com";
@@ -586,26 +525,18 @@ const API =
 const API_VERSION =
     "2022-11-28";
 
-const GIST_ID =
-    "a6bd68866931ce5999003aa4f59d50b5";
-
-const GIST_FILE =
-    "servers.json";
-
 
 /* =====================================================
    STATE
 ===================================================== */
 
-let servers =
-    [];
+let servers = [];
 
-let pollTimer =
-    null;
+let pollTimer = null;
 
 
 /* =====================================================
-   TOKEN
+   ELEMENTS
 ===================================================== */
 
 const tokenInput =
@@ -613,9 +544,29 @@ const tokenInput =
         "token"
     );
 
+const serversElement =
+    document.getElementById(
+        "servers"
+    );
+
+const logElement =
+    document.getElementById(
+        "log"
+    );
+
+const refreshButton =
+    document.getElementById(
+        "refreshButton"
+    );
+
+
+/* =====================================================
+   TOKEN STORAGE
+===================================================== */
+
 const savedToken =
     sessionStorage.getItem(
-        "lac_token"
+        "lac_dashboard_token"
     );
 
 if (savedToken) {
@@ -628,20 +579,20 @@ tokenInput.addEventListener(
     "input",
     () => {
 
-        const token =
+        const value =
             tokenInput.value.trim();
 
-        if (token) {
+        if (value) {
 
             sessionStorage.setItem(
-                "lac_token",
-                token
+                "lac_dashboard_token",
+                value
             );
 
         } else {
 
             sessionStorage.removeItem(
-                "lac_token"
+                "lac_dashboard_token"
             );
         }
     }
@@ -654,9 +605,8 @@ function getToken() {
         tokenInput.value.trim();
 
     if (!token) {
-
         throw new Error(
-            "Enter your GitHub token."
+            "Enter your GitHub token first."
         );
     }
 
@@ -665,20 +615,13 @@ function getToken() {
 
 
 /* =====================================================
-   LOG
+   LOGGING
 ===================================================== */
-
-const logElement =
-    document.getElementById(
-        "log"
-    );
-
 
 function log(message) {
 
     const time =
-        new Date()
-            .toLocaleTimeString();
+        new Date().toLocaleTimeString();
 
     logElement.textContent +=
         `\n[${time}] ${message}`;
@@ -704,7 +647,6 @@ async function github(
                 ...options,
 
                 headers: {
-
                     "Accept":
                         "application/vnd.github+json",
 
@@ -753,10 +695,22 @@ async function github(
 
 
 /* =====================================================
-   LOAD GIST
+   GIST
 ===================================================== */
 
-async function loadDatabase() {
+async function getDatabase() {
+
+    if (
+        !GIST_ID ||
+        GIST_ID ===
+        "PUT_YOUR_NEW_GIST_ID_HERE"
+    ) {
+
+        throw new Error(
+            "GIST_ID has not been configured in the JavaScript."
+        );
+    }
+
 
     const data =
         await github(
@@ -764,179 +718,148 @@ async function loadDatabase() {
         );
 
 
-    const file =
-        data.files?.[GIST_FILE];
-
-
-    if (!file) {
+    if (
+        !data.files ||
+        !data.files[GIST_FILE]
+    ) {
 
         throw new Error(
-            `Gist file "${GIST_FILE}" was not found.`
+            `Gist does not contain ${GIST_FILE}.`
         );
     }
 
 
     let content =
-        file.content;
+        data.files[GIST_FILE].content;
 
+
+    /*
+     * GitHub may return truncated file
+     * information for larger files.
+     *
+     * Our servers.json is tiny, but this
+     * handles it anyway.
+     */
 
     if (
-        file.truncated &&
-        file.raw_url
+        data.files[GIST_FILE].truncated &&
+        data.files[GIST_FILE].raw_url
     ) {
 
         const response =
             await fetch(
-                file.raw_url
+                data.files[GIST_FILE].raw_url
             );
+
+        if (!response.ok) {
+            throw new Error(
+                "Could not download raw servers.json."
+            );
+        }
 
         content =
             await response.text();
     }
 
 
-    const database =
-        JSON.parse(content);
+    try {
 
+        return JSON.parse(
+            content
+        );
+
+    } catch (error) {
+
+        throw new Error(
+            "servers.json contains invalid JSON."
+        );
+    }
+}
+
+
+/* =====================================================
+   UPDATE GIST
+===================================================== */
+
+async function updateDatabase(
+    database
+) {
+
+    const content =
+        JSON.stringify(
+            database,
+            null,
+            2
+        );
+
+
+    const payload = {
+
+        files: {
+
+            [GIST_FILE]: {
+
+                content:
+                    content
+            }
+        }
+    };
+
+
+    await github(
+        `/gists/${GIST_ID}`,
+        {
+            method: "PATCH",
+
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+
+            body:
+                JSON.stringify(
+                    payload
+                )
+        }
+    );
+}
+
+
+/* =====================================================
+   VALIDATE DATABASE
+===================================================== */
+
+function validateDatabase(
+    database
+) {
 
     if (
-        !database.servers ||
+        !database ||
         !Array.isArray(
             database.servers
         )
     ) {
 
         throw new Error(
-            "Invalid servers.json format."
+            "Invalid servers.json: servers array is missing."
         );
     }
 
 
-    servers =
-        database.servers;
-
-
-    return servers;
-}
-
-
-/* =====================================================
-   GET EXACT WORKFLOW RUN
-===================================================== */
-
-async function getRun(
-    runId
-) {
-
-    if (!runId) {
-        return null;
-    }
-
-
-    try {
-
-        return await github(
-            `/repos/${OWNER}/${REPO}/actions/runs/${runId}`
-        );
-
-    } catch (error) {
-
-        /*
-         * 404 means the run no longer exists.
-         * Treat it as offline.
-         */
-
-        if (
-            error.message.includes(
-                "GitHub API 404"
-            )
-        ) {
-
-            return null;
-        }
-
-        throw error;
-    }
-}
-
-
-/* =====================================================
-   DETERMINE REAL SERVER STATE
-===================================================== */
-
-async function getRealServerState(
-    server
-) {
-
-    const runId =
-        server.run_id;
-
-
-    /*
-     * No run ID means the server cannot
-     * currently be considered online.
-     */
-
-    if (!runId) {
-
-        return {
-            state: "offline",
-            run: null
-        };
-    }
-
-
-    const run =
-        await getRun(
-            runId
-        );
-
-
-    /*
-     * Missing run = offline.
-     */
-
-    if (!run) {
-
-        return {
-            state: "offline",
-            run: null
-        };
-    }
-
-
-    /*
-     * Only queued/in_progress are considered
-     * active.
-     */
-
-    if (
-        run.status === "queued" ||
-        run.status === "in_progress"
+    for (
+        const server of database.servers
     ) {
 
-        return {
-            state: "active",
-            run
-        };
+        if (
+            !server.slot ||
+            !server.name
+        ) {
+
+            throw new Error(
+                "Invalid server entry in servers.json."
+            );
+        }
     }
-
-
-    /*
-     * Anything completed is offline.
-     *
-     * This includes:
-     *
-     * success
-     * failure
-     * cancelled
-     * timed_out
-     */
-
-    return {
-        state: "offline",
-        run
-    };
 }
 
 
@@ -944,110 +867,125 @@ async function getRealServerState(
    RENDER SERVERS
 ===================================================== */
 
-function renderServers(
-    states = {}
-) {
+function renderServers() {
 
-    const container =
-        document.getElementById(
-            "servers"
-        );
-
-
-    container.innerHTML = "";
+    serversElement.innerHTML = "";
 
 
     for (
         const server of servers
     ) {
 
-        const slot =
-            Number(
-                server.slot
-            );
-
-
-        const real =
-            states[slot] ||
-            {
-                state: "offline",
-                run: null
-            };
-
-
-        const active =
-            real.state ===
-            "active";
-
-
-        const run =
-            real.run;
-
-
-        let statusText =
-            "Offline";
-
-        let statusClass =
-            "";
-
-
-        if (active) {
-
-            if (
-                run.status ===
-                "queued"
-            ) {
-
-                statusText =
-                    "🟡 Starting...";
-
-                statusClass =
-                    "warning";
-
-            } else {
-
-                statusText =
-                    "🟢 Online";
-
-                statusClass =
-                    "online";
-            }
-
-        }
-
-
-        const endpoint =
-            active &&
-            server.endpoint
-                ? server.endpoint
-                : "";
-
-
         const card =
             document.createElement(
                 "div"
             );
 
-
         card.className =
-            "card server-card";
+            "server-card";
+
+
+        const status =
+            String(
+                server.status ||
+                "available"
+            ).toLowerCase();
+
+
+        let badgeClass = "";
+
+        if (
+            status === "online"
+        ) {
+
+            badgeClass =
+                "online";
+
+        } else if (
+            status === "starting"
+        ) {
+
+            badgeClass =
+                "starting";
+
+        } else if (
+            status === "error"
+        ) {
+
+            badgeClass =
+                "error";
+        }
+
+
+        const endpoint =
+            server.endpoint ||
+            "—";
+
+
+        const runId =
+            server.run_id ||
+            "—";
 
 
         card.innerHTML = `
 
             <div class="server-header">
 
-                <div>
+                <div class="server-name">
+                    ${escapeHtml(
+                        server.name
+                    )}
+                </div>
 
-                    <div class="server-name">
+                <div class="status-badge ${badgeClass}">
+                    ${escapeHtml(
+                        status.toUpperCase()
+                    )}
+                </div>
+
+            </div>
+
+
+            <div class="server-info">
+
+                <div class="info-row">
+
+                    <div class="info-label">
+                        Slot
+                    </div>
+
+                    <div class="info-value">
                         ${escapeHtml(
-                            server.name ||
-                            `Server ${slot}`
+                            String(server.slot)
                         )}
                     </div>
 
-                    <div class="slot">
-                        Slot ${slot}
+                </div>
+
+
+                <div class="info-row">
+
+                    <div class="info-label">
+                        Run ID
+                    </div>
+
+                    <div class="info-value">
+                        ${escapeHtml(
+                            String(runId)
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <div class="info-label">
+                        Local UDP
+                    </div>
+
+                    <div class="info-value">
+                        7777
                     </div>
 
                 </div>
@@ -1055,98 +993,55 @@ function renderServers(
             </div>
 
 
-            <div class="status">
-
-                <div class="dot ${statusClass}"></div>
-
-                <div class="status-text">
-                    ${statusText}
+            ${
+                server.endpoint
+                ?
+                `
+                <div class="endpoint">
+                    ${escapeHtml(
+                        server.endpoint
+                    )}
                 </div>
-
-            </div>
-
-
-            <div
-                class="endpoint ${
-                    endpoint
-                        ? ""
-                        : "hidden"
-                }"
-            >
-                ${escapeHtml(
-                    endpoint ||
-                    "—"
-                )}
-            </div>
-
-
-            <div class="small">
-
-                ${
-                    active
-                        ? `Run ID: ${run.id}`
-                        : "No active workflow"
-                }
-
-            </div>
+                `
+                :
+                ""
+            }
 
 
             <div class="server-buttons">
 
                 <button
                     class="start"
-                    data-slot="${slot}"
-                    ${active ? "disabled" : ""}
+                    ${(
+                        status === "online" ||
+                        status === "starting"
+                    ) ? "disabled" : ""}
+                    onclick="startServer(
+                        ${Number(server.slot)}
+                    )"
                 >
                     ▶ Start
                 </button>
 
+
                 <button
                     class="stop"
-                    data-slot="${slot}"
-                    ${active ? "" : "disabled"}
+                    ${(
+                        !server.run_id ||
+                        status === "available"
+                    ) ? "disabled" : ""}
+                    onclick="stopServer(
+                        ${Number(server.slot)}
+                    )"
                 >
                     ■ Stop
                 </button>
 
             </div>
-
         `;
 
 
-        const start =
-            card.querySelector(
-                ".start"
-            );
-
-
-        const stop =
-            card.querySelector(
-                ".stop"
-            );
-
-
-        start.addEventListener(
-            "click",
-            () =>
-                startServer(
-                    slot
-                )
-        );
-
-
-        stop.addEventListener(
-            "click",
-            () =>
-                stopServer(
-                    slot,
-                    run?.id ||
-                    server.run_id
-                )
-        );
-
-
-        container.appendChild(
+        serversElement.appendChild(
             card
         );
     }
@@ -1154,114 +1049,279 @@ function renderServers(
 
 
 /* =====================================================
-   ESCAPE HTML
+   HTML ESCAPE
 ===================================================== */
 
 function escapeHtml(
     value
 ) {
 
-    return String(
-        value
-    )
-        .replace(
-            /&/g,
+    return String(value)
+        .replaceAll(
+            "&",
             "&amp;"
         )
-        .replace(
-            /</g,
+        .replaceAll(
+            "<",
             "&lt;"
         )
-        .replace(
-            />/g,
+        .replaceAll(
+            ">",
             "&gt;"
         )
-        .replace(
-            /"/g,
+        .replaceAll(
+            '"',
             "&quot;"
         )
-        .replace(
-            /'/g,
+        .replaceAll(
+            "'",
             "&#039;"
         );
 }
 
 
 /* =====================================================
-   REFRESH
+   GET RUN
 ===================================================== */
 
-async function refreshAll() {
+async function getRun(
+    runId
+) {
+
+    return github(
+        `/repos/${OWNER}/${REPO}/actions/runs/${runId}`
+    );
+}
+
+
+/* =====================================================
+   CHECK WHETHER RUN IS REALLY ACTIVE
+===================================================== */
+
+async function isRunActive(
+    runId
+) {
+
+    if (!runId) {
+        return false;
+    }
+
 
     try {
+
+        const run =
+            await getRun(
+                runId
+            );
+
+
+        return (
+            run.status === "queued" ||
+            run.status === "in_progress" ||
+            run.status === "waiting" ||
+            run.status === "requested" ||
+            run.status === "pending"
+        );
+
+    } catch (error) {
+
+        /*
+         * A missing run should not leave
+         * a server permanently marked online.
+         */
+
+        return false;
+    }
+}
+
+
+/* =====================================================
+   RECONCILE DATABASE
+===================================================== */
+
+async function reconcileDatabase(
+    database
+) {
+
+    let changed = false;
+
+
+    for (
+        const server of database.servers
+    ) {
+
+        /*
+         * AVAILABLE servers should never
+         * retain a run ID or endpoint.
+         */
+
+        if (
+            server.status === "available"
+        ) {
+
+            if (
+                server.run_id !== null ||
+                server.endpoint !== null
+            ) {
+
+                server.run_id =
+                    null;
+
+                server.endpoint =
+                    null;
+
+                changed = true;
+            }
+
+            continue;
+        }
+
+
+        /*
+         * If a server says STARTING or ONLINE
+         * but has no run_id, it cannot be
+         * reliably associated with a workflow.
+         */
+
+        if (!server.run_id) {
+
+            server.status =
+                "available";
+
+            server.endpoint =
+                null;
+
+            changed = true;
+
+            continue;
+        }
+
+
+        /*
+         * Verify the actual GitHub Actions run.
+         */
+
+        const active =
+            await isRunActive(
+                server.run_id
+            );
+
+
+        if (!active) {
+
+            log(
+                `Server ${server.slot}: stale run ${server.run_id} detected. Marking AVAILABLE.`
+            );
+
+
+            server.status =
+                "available";
+
+            server.endpoint =
+                null;
+
+            server.run_id =
+                null;
+
+            changed = true;
+        }
+    }
+
+
+    return changed;
+}
+
+
+/* =====================================================
+   REFRESH DATABASE
+===================================================== */
+
+async function refreshDatabase() {
+
+    try {
+
+        refreshButton.disabled =
+            true;
+
 
         log(
             "Refreshing server database..."
         );
 
 
-        await loadDatabase();
+        let database =
+            await getDatabase();
 
 
-        const states =
-            {};
-
-
-        for (
-            const server of servers
-        ) {
-
-            const slot =
-                Number(
-                    server.slot
-                );
-
-
-            try {
-
-                states[slot] =
-                    await getRealServerState(
-                        server
-                    );
-
-            } catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                states[slot] =
-                    {
-                        state: "offline",
-                        run: null
-                    };
-            }
-        }
+        validateDatabase(
+            database
+        );
 
 
         /*
          * IMPORTANT:
          *
-         * We render using GitHub's actual
-         * workflow state, NOT only the Gist
-         * status field.
+         * This checks every stored run_id
+         * against GitHub Actions.
+         *
+         * This prevents stale Gist data
+         * from making a dead server appear
+         * online forever.
          */
 
-        renderServers(
-            states
-        );
+        const changed =
+            await reconcileDatabase(
+                database
+            );
+
+
+        if (changed) {
+
+            log(
+                "Database contained stale server state. Updating Gist..."
+            );
+
+
+            await updateDatabase(
+                database
+            );
+
+
+            /*
+             * Reload after updating so the UI
+             * displays exactly what GitHub has.
+             */
+
+            database =
+                await getDatabase();
+        }
+
+
+        servers =
+            database.servers;
+
+
+        renderServers();
 
 
         log(
             "Server database refreshed."
         );
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         log(
             `Refresh failed: ${error.message}`
         );
+
+    }
+
+    finally {
+
+        refreshButton.disabled =
+            false;
     }
 }
 
@@ -1282,70 +1342,110 @@ async function startServer(
 
 
         /*
-         * Prevent starting a server that
-         * already has an active run.
+         * Refresh first so we don't start
+         * a slot that is actually occupied.
          */
 
-        await loadDatabase();
+        const database =
+            await getDatabase();
+
+
+        validateDatabase(
+            database
+        );
 
 
         const server =
-            servers.find(
+            database.servers.find(
                 item =>
-                    Number(
-                        item.slot
-                    ) === slot
+                    Number(item.slot) ===
+                    Number(slot)
             );
 
 
         if (!server) {
 
             throw new Error(
-                `Server slot ${slot} not found.`
+                `Server slot ${slot} does not exist.`
             );
         }
 
 
+        /*
+         * If it has a run_id, verify it.
+         */
+
         if (server.run_id) {
 
-            const existing =
-                await getRun(
+            const active =
+                await isRunActive(
                     server.run_id
                 );
 
 
-            if (
-                existing &&
-                (
-                    existing.status ===
-                    "queued" ||
-                    existing.status ===
-                    "in_progress"
-                )
-            ) {
+            if (active) {
 
                 log(
-                    `Server ${slot} already has active run ${existing.id}.`
+                    `Server ${slot} already has active run ${server.run_id}.`
                 );
 
-                await refreshAll();
+                await refreshDatabase();
 
                 return;
             }
+
+
+            /*
+             * Stale state.
+             */
+
+            server.status =
+                "available";
+
+            server.endpoint =
+                null;
+
+            server.run_id =
+                null;
+
+            await updateDatabase(
+                database
+            );
         }
 
 
         /*
+         * Mark STARTING before dispatch.
+         */
+
+        server.status =
+            "starting";
+
+        server.endpoint =
+            null;
+
+        server.run_id =
+            null;
+
+
+        await updateDatabase(
+            database
+        );
+
+
+        /*
          * Dispatch workflow.
-         *
-         * The workflow itself determines the
-         * requested slot through workflow_dispatch.
          */
 
         await github(
             `/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW}/dispatches`,
             {
                 method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
 
                 body:
                     JSON.stringify({
@@ -1361,13 +1461,13 @@ async function startServer(
 
 
         log(
-            `Server ${slot} workflow dispatched.`
+            `Server ${slot}: workflow dispatched.`
         );
 
 
         /*
-         * GitHub may take a few seconds to
-         * create the workflow run.
+         * GitHub can take a moment to create
+         * the workflow run.
          */
 
         let foundRun =
@@ -1375,10 +1475,15 @@ async function startServer(
 
 
         for (
-            let attempt = 0;
-            attempt < 30;
+            let attempt = 1;
+            attempt <= 30;
             attempt++
         ) {
+
+            log(
+                `Looking for workflow run... ${attempt}/30`
+            );
+
 
             const data =
                 await github(
@@ -1387,47 +1492,28 @@ async function startServer(
 
 
             const candidates =
-                data.workflow_runs ||
-                [];
+                data.workflow_runs || [];
 
 
             /*
-             * Find the newest active run.
-             *
-             * The workflow run's creation time
-             * is used so an old run isn't selected.
+             * Find a recent run that is active.
              */
 
-            const active =
-                candidates
-                    .filter(
-                        run =>
+            foundRun =
+                candidates.find(
+                    run =>
+                        (
                             run.status ===
                             "queued" ||
                             run.status ===
                             "in_progress"
-                    )
-                    .sort(
-                        (
-                            a,
-                            b
-                        ) =>
-                            new Date(
-                                b.created_at
-                            ) -
-                            new Date(
-                                a.created_at
-                            )
-                    );
+                        ) &&
+                        run.event ===
+                            "workflow_dispatch"
+                );
 
 
-            if (
-                active.length > 0
-            ) {
-
-                foundRun =
-                    active[0];
-
+            if (foundRun) {
                 break;
             }
 
@@ -1441,28 +1527,66 @@ async function startServer(
         if (!foundRun) {
 
             throw new Error(
-                "Workflow started, but no active run was found yet."
+                "Workflow was dispatched, but no active run could be found."
             );
         }
 
 
-        log(
-            `Server ${slot} is using workflow run ${foundRun.id}.`
+        /*
+         * Store the real run ID.
+         */
+
+        database =
+            await getDatabase();
+
+
+        const updatedServer =
+            database.servers.find(
+                item =>
+                    Number(item.slot) ===
+                    Number(slot)
+            );
+
+
+        if (!updatedServer) {
+
+            throw new Error(
+                "Server disappeared from database."
+            );
+        }
+
+
+        updatedServer.status =
+            "starting";
+
+        updatedServer.endpoint =
+            null;
+
+        updatedServer.run_id =
+            foundRun.id;
+
+
+        await updateDatabase(
+            database
         );
 
 
-        /*
-         * The workflow will write this run_id
-         * into the Gist itself.
-         */
+        log(
+            `Server ${slot}: Run ID ${foundRun.id} assigned.`
+        );
 
-        await refreshAll();
 
-    } catch (error) {
+        await refreshDatabase();
+
+    }
+
+    catch (error) {
 
         log(
             `Start Server ${slot} failed: ${error.message}`
         );
+
+        await refreshDatabase();
     }
 }
 
@@ -1472,68 +1596,106 @@ async function startServer(
 ===================================================== */
 
 async function stopServer(
-    slot,
-    runId
+    slot
 ) {
 
     try {
 
-        if (!runId) {
+        const database =
+            await getDatabase();
 
-            log(
-                `Stop Server ${slot}: no workflow run ID.`
+
+        validateDatabase(
+            database
+        );
+
+
+        const server =
+            database.servers.find(
+                item =>
+                    Number(item.slot) ===
+                    Number(slot)
             );
 
-            await refreshAll();
+
+        if (!server) {
+
+            throw new Error(
+                `Server ${slot} does not exist.`
+            );
+        }
+
+
+        if (!server.run_id) {
+
+            /*
+             * No run_id means there is no
+             * workflow we can safely cancel.
+             *
+             * Clean stale database state.
+             */
+
+            server.status =
+                "available";
+
+            server.endpoint =
+                null;
+
+            server.run_id =
+                null;
+
+
+            await updateDatabase(
+                database
+            );
+
+
+            log(
+                `Server ${slot} had no run ID. Database cleaned.`
+            );
+
+
+            await refreshDatabase();
 
             return;
         }
 
 
-        if (
-            !confirm(
-                `Stop Server ${slot}?`
-            )
-        ) {
-
-            return;
-        }
+        const runId =
+            server.run_id;
 
 
         log(
-            `Stopping Server ${slot}, run ${runId}...`
+            `Stopping Server ${slot} (Run ${runId})...`
         );
 
 
         /*
-         * Cancel the EXACT workflow run.
+         * Cancel the EXACT workflow run
+         * associated with this server.
          */
 
         await github(
             `/repos/${OWNER}/${REPO}/actions/runs/${runId}/cancel`,
             {
-                method:
-                    "POST"
+                method: "POST"
             }
         );
 
 
         log(
-            `Stop request sent for Server ${slot}.`
+            `Cancellation requested for Server ${slot}.`
         );
 
 
         /*
-         * Keep checking the exact run until
-         * GitHub reports that it has finished.
-         *
-         * This prevents the dashboard from
-         * immediately trusting stale Gist data.
+         * Wait for the workflow to actually
+         * finish before declaring it available.
          */
 
         for (
-            let attempt = 0;
-            attempt < 30;
+            let attempt = 1;
+            attempt <= 30;
             attempt++
         ) {
 
@@ -1543,15 +1705,15 @@ async function stopServer(
                 );
 
 
+            log(
+                `Waiting for run ${runId} to finish... ${attempt}/30`
+            );
+
+
             if (
-                !run ||
                 run.status ===
                 "completed"
             ) {
-
-                log(
-                    `Server ${slot} workflow is no longer active.`
-                );
 
                 break;
             }
@@ -1563,16 +1725,64 @@ async function stopServer(
         }
 
 
-        await refreshAll();
+        /*
+         * Clear the server's database entry.
+         */
 
-    } catch (error) {
+        const finalDatabase =
+            await getDatabase();
+
+
+        const finalServer =
+            finalDatabase.servers.find(
+                item =>
+                    Number(item.slot) ===
+                    Number(slot)
+            );
+
+
+        if (finalServer) {
+
+            finalServer.status =
+                "available";
+
+            finalServer.endpoint =
+                null;
+
+            finalServer.run_id =
+                null;
+        }
+
+
+        await updateDatabase(
+            finalDatabase
+        );
+
+
+        log(
+            `Server ${slot} is now AVAILABLE.`
+        );
+
+
+        await refreshDatabase();
+
+    }
+
+    catch (error) {
 
         log(
             `Stop Server ${slot} failed: ${error.message}`
         );
 
 
-        await refreshAll();
+        /*
+         * Refresh after an error because the
+         * workflow may have stopped even if
+         * the cancellation request returned
+         * an error.
+         */
+
+        await refreshDatabase();
     }
 }
 
@@ -1596,21 +1806,28 @@ function sleep(
 
 
 /* =====================================================
-   AUTOMATIC POLLING
+   AUTOMATIC REFRESH
 ===================================================== */
 
-async function poll() {
+function startPolling() {
 
-    try {
+    if (pollTimer) {
 
-        await refreshAll();
-
-    } catch (error) {
-
-        console.error(
-            error
+        clearInterval(
+            pollTimer
         );
     }
+
+
+    pollTimer =
+        setInterval(
+            () => {
+
+                refreshDatabase();
+
+            },
+            10000
+        );
 }
 
 
@@ -1623,33 +1840,24 @@ window.addEventListener(
     async () => {
 
         if (
-            tokenInput.value.trim()
+            !tokenInput.value.trim()
         ) {
 
-            await refreshAll();
-
-        } else {
-
             log(
-                "Enter your GitHub token to control the servers."
+                "Enter your GitHub token to connect."
             );
+
+            return;
         }
 
 
-        /*
-         * Refresh every 10 seconds.
-         */
+        await refreshDatabase();
 
-        pollTimer =
-            setInterval(
-                poll,
-                10000
-            );
+        startPolling();
     }
 );
 
 </script>
 
 </body>
-
-  </html>
+    </html>
