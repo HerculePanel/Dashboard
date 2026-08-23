@@ -194,6 +194,11 @@ button:disabled {
   color: #17304a;
 }
 
+.clear-token {
+  background: rgba(255,255,255,.08);
+  color: var(--text);
+}
+
 .server-grid {
   display: grid;
 
@@ -427,7 +432,7 @@ button:disabled {
   <div class="card header">
 
     <div class="logo">
-      🎮
+      ðŸŽ®
     </div>
 
     <div>
@@ -455,7 +460,11 @@ button:disabled {
     >
 
     <div class="small">
-      The token is stored only in this browser session.
+      Use a fine-grained PAT scoped to ONLY: this repo's Actions
+      (read + write, for workflow_dispatch) and the single Gist
+      above (read + write). Do not reuse a broad-scope token here â€”
+      it is kept only in this browser tab's sessionStorage and is
+      cleared when the tab closes or you press Clear below.
     </div>
 
     <div class="top-buttons">
@@ -465,7 +474,15 @@ button:disabled {
         class="refresh"
         onclick="refreshDatabase()"
       >
-        ↻ Refresh
+        â†» Refresh
+      </button>
+
+      <button
+        id="clearToken"
+        class="clear-token"
+        onclick="clearToken()"
+      >
+        Clear Token
       </button>
 
     </div>
@@ -521,37 +538,12 @@ const API_VERSION =
   "2022-11-28";
 
 
-const SERVERS = {
-
-  1: {
-    domain: "irvine-util.tun.ply.gg",
-    ip: "147.185.221.231",
-    port: 54710,
-    localPort: 7777
-  },
-
-  2: {
-    domain: "drake-expansion.tun.ply.gg",
-    ip: "147.185.221.18",
-    port: 20718,
-    localPort: 7778
-  },
-
-  3: {
-    domain: "drake-drama.tun.ply.gg",
-    ip: "147.185.221.231",
-    port: 58951,
-    localPort: 7779
-  },
-
-  4: {
-    domain: "drake-muscle.tun.ply.gg",
-    ip: "147.185.221.231",
-    port: 58968,
-    localPort: 7780
-  }
-
-};
+// NOTE: domain / ip / port / local_port are no longer duplicated
+// here. servers.json already carries all four per slot (it's the
+// same object the workflow writes back to), so the dashboard now
+// reads them straight from the gist. This was previously
+// hardcoded in three places (servers.json, the workflow's Python
+// "addresses" dict, and this file) which could silently drift.
 
 
 const tokenInput =
@@ -599,6 +591,21 @@ tokenInput.addEventListener(
 
   }
 );
+
+
+function clearToken() {
+
+  tokenInput.value = "";
+
+  sessionStorage.removeItem(
+    "lac_dashboard_token"
+  );
+
+  log(
+    "Token cleared from this tab."
+  );
+
+}
 
 
 function getToken() {
@@ -807,6 +814,60 @@ async function updateDatabase(
 }
 
 
+// Serializes every "read gist, modify one server, write gist"
+// operation triggered by a button click. Without this, clicking
+// Start/Stop on multiple servers in quick succession can race:
+// click B's read can happen before click A's write lands, so
+// click B's write silently overwrites click A's change (a lost
+// update). Chaining all mutations onto one promise queue makes
+// each click wait for the previous one to fully land in the
+// Gist before it reads its own copy.
+let writeQueue = Promise.resolve();
+
+function queueServerUpdate(slot, mutate) {
+
+  const result =
+    writeQueue.then(
+      async () => {
+
+        const database =
+          await getDatabase();
+
+        const server =
+          database.servers.find(
+            item =>
+              Number(item.slot) === slot
+          );
+
+        if (!server) {
+
+          throw new Error(
+            `Server ${slot} does not exist in servers.json.`
+          );
+
+        }
+
+        mutate(server);
+
+        await updateDatabase(
+          database
+        );
+
+        return database;
+
+      }
+    );
+
+  // Keep the queue alive even if this step throws, so a failed
+  // click doesn't permanently jam later clicks.
+  writeQueue =
+    result.catch(() => {});
+
+  return result;
+
+}
+
+
 function statusClass(
   status
 ) {
@@ -836,22 +897,22 @@ function statusText(
 ) {
 
   if (server.status === "online") {
-    return "🟢 Online";
+    return "ðŸŸ¢ Online";
   }
 
   if (server.status === "starting") {
-    return "🟡 Starting...";
+    return "ðŸŸ¡ Starting...";
   }
 
   if (server.status === "stopping") {
-    return "🟡 Stopping...";
+    return "ðŸŸ¡ Stopping...";
   }
 
   if (server.status === "error") {
-    return "🔴 Error";
+    return "ðŸ”´ Error";
   }
 
-  return "⚪ Offline";
+  return "âšª Offline";
 
 }
 
@@ -870,11 +931,21 @@ function renderDatabase(
     const slot =
       Number(server.slot);
 
+    // Read address/port info straight from servers.json
+    // instead of a second hardcoded copy.
+    const domain = server.domain || "â€”";
+    const port = server.port || "â€”";
+    const localPort = server.local_port || "â€”";
+
     const address =
-      `${SERVERS[slot].domain}:${SERVERS[slot].port}`;
+      (server.domain && server.port)
+        ? `${domain}:${port}`
+        : "Not yet assigned";
 
     const ip =
-      `${SERVERS[slot].ip}:${SERVERS[slot].port}`;
+      (server.ip && server.port)
+        ? `${server.ip}:${port}`
+        : "Not yet assigned";
 
     const card =
       document.createElement("div");
@@ -926,7 +997,7 @@ function renderDatabase(
           </div>
 
           <div class="meta-value">
-            ${SERVERS[slot].localPort}
+            ${localPort}
           </div>
 
         </div>
@@ -939,7 +1010,7 @@ function renderDatabase(
           </div>
 
           <div class="meta-value">
-            ${server.run_id || "—"}
+            ${server.run_id || "â€”"}
           </div>
 
         </div>
@@ -954,7 +1025,7 @@ function renderDatabase(
           onclick="startServer(${slot})"
           ${server.desired === "online" ? "disabled" : ""}
         >
-          ▶ Start Server ${slot}
+          â–¶ Start Server ${slot}
         </button>
 
         <button
@@ -962,7 +1033,7 @@ function renderDatabase(
           onclick="stopServer(${slot})"
           ${server.desired !== "online" ? "disabled" : ""}
         >
-          ■ End Server ${slot}
+          â–  End Server ${slot}
         </button>
 
       </div>
@@ -1125,46 +1196,28 @@ async function startServer(
       `Starting Server ${slot}...`
     );
 
+    // Immediate visual feedback: the click registered even
+    // though the actual write may be queued behind another
+    // in-flight click.
+    disableSlotButtons(slot);
 
-    const database =
-      await getDatabase();
+    await queueServerUpdate(
+      slot,
+      server => {
 
+        server.desired =
+          "online";
 
-    const server =
-      database.servers.find(
-        item =>
-          Number(item.slot) === slot
-      );
+        server.status =
+          "starting";
 
+        // domain / ip / port are intentionally left untouched
+        // here. The workflow (which owns the authoritative
+        // playit mapping) fills those in once the server is
+        // actually up, instead of the dashboard guessing at
+        // them ahead of time.
 
-    if (!server) {
-
-      throw new Error(
-        `Server ${slot} does not exist in servers.json.`
-      );
-
-    }
-
-
-    server.desired =
-      "online";
-
-    server.status =
-      "starting";
-
-
-    server.domain =
-      SERVERS[slot].domain;
-
-    server.ip =
-      SERVERS[slot].ip;
-
-    server.port =
-      SERVERS[slot].port;
-
-
-    await updateDatabase(
-      database
+      }
     );
 
 
@@ -1186,6 +1239,8 @@ async function startServer(
       `Start Server ${slot} failed: ${error.message}`
     );
 
+    await refreshDatabase();
+
   }
 
 }
@@ -1201,36 +1256,19 @@ async function stopServer(
       `Stopping Server ${slot}...`
     );
 
+    disableSlotButtons(slot);
 
-    const database =
-      await getDatabase();
+    await queueServerUpdate(
+      slot,
+      server => {
 
+        server.desired =
+          "offline";
 
-    const server =
-      database.servers.find(
-        item =>
-          Number(item.slot) === slot
-      );
+        server.status =
+          "stopping";
 
-
-    if (!server) {
-
-      throw new Error(
-        `Server ${slot} does not exist.`
-      );
-
-    }
-
-
-    server.desired =
-      "offline";
-
-    server.status =
-      "stopping";
-
-
-    await updateDatabase(
-      database
+      }
     );
 
 
@@ -1249,7 +1287,27 @@ async function stopServer(
       `Stop Server ${slot} failed: ${error.message}`
     );
 
+    await refreshDatabase();
+
   }
+
+}
+
+
+function disableSlotButtons(slot) {
+
+  const card =
+    serverGrid.children[slot - 1];
+
+  if (!card) {
+    return;
+  }
+
+  card.querySelectorAll(
+    "button"
+  ).forEach(
+    btn => btn.disabled = true
+  );
 
 }
 
@@ -1327,4 +1385,4 @@ window.addEventListener(
 </script>
 
 </body>
-  </html>
+</html>
