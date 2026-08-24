@@ -1,4 +1,6 @@
-name: L.A. Crimes 4 Server Network
+L.A. Crimes — Single Server Controller
+
+name: L.A. Crimes Server
 
 on:
   workflow_dispatch:
@@ -6,7 +8,6 @@ on:
       slot:
         description: "Server slot to start"
         required: true
-        default: "1"
         type: choice
         options:
           - "1"
@@ -26,19 +27,60 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 350
 
-    strategy:
-      fail-fast: false
-      matrix:
-        slot: ["1", "2", "3", "4"]
-
     env:
-      SLOT: ${{ matrix.slot }}
-      LOCAL_UDP: ${{ matrix.slot == '1' && '7777' || matrix.slot == '2' && '7778' || matrix.slot == '3' && '7779' || '7780' }}
+      SLOT: ${{ inputs.slot }}
 
     steps:
 
       # ==========================================
-      # CHECK TOKENS
+      # DETERMINE PORT AND ENDPOINT
+      # ==========================================
+
+      - name: Configure server slot
+        id: config
+        run: |
+          set -e
+
+          case "$SLOT" in
+            1)
+              PORT="7777"
+              DOMAIN="irvine-util.tun.ply.gg:54710"
+              IP="147.185.221.231:54710"
+              ;;
+            2)
+              PORT="7778"
+              DOMAIN="drake-expansion.tun.ply.gg:20718"
+              IP="147.185.221.18:20718"
+              ;;
+            3)
+              PORT="7779"
+              DOMAIN="drake-drama.tun.ply.gg:58951"
+              IP="147.185.221.231:58951"
+              ;;
+            4)
+              PORT="7780"
+              DOMAIN="drake-muscle.tun.ply.gg:58968"
+              IP="147.185.221.231:58968"
+              ;;
+            *)
+              echo "ERROR: Invalid server slot: $SLOT"
+              exit 1
+              ;;
+          esac
+
+          echo "PORT=$PORT" >> "$GITHUB_OUTPUT"
+          echo "DOMAIN=$DOMAIN" >> "$GITHUB_OUTPUT"
+          echo "IP=$IP" >> "$GITHUB_OUTPUT"
+
+          echo "======================================"
+          echo "SERVER SLOT: $SLOT"
+          echo "LOCAL PORT: $PORT"
+          echo "DOMAIN: $DOMAIN"
+          echo "IP: $IP"
+          echo "======================================"
+
+      # ==========================================
+      # CHECK SECRETS
       # ==========================================
 
       - name: Check required secrets
@@ -47,11 +89,6 @@ jobs:
           PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
         run: |
           set -e
-
-          echo "======================================"
-          echo "SERVER SLOT $SLOT"
-          echo "LOCAL UDP $LOCAL_UDP"
-          echo "======================================"
 
           if [ -z "$DASHBOARD_TOKEN" ]; then
             echo "ERROR: DASHBOARD_TOKEN is missing."
@@ -73,7 +110,7 @@ jobs:
         uses: actions/checkout@v4
 
       # ==========================================
-      # DEPENDENCIES
+      # INSTALL DEPENDENCIES
       # ==========================================
 
       - name: Install dependencies
@@ -92,7 +129,7 @@ jobs:
             python3
 
       # ==========================================
-      # DOWNLOAD DATABASE
+      # DOWNLOAD GIST DATABASE
       # ==========================================
 
       - name: Download server database
@@ -100,8 +137,6 @@ jobs:
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
         run: |
           set -e
-
-          echo "Downloading server database..."
 
           curl \
             --fail \
@@ -126,25 +161,40 @@ jobs:
             "$GITHUB_WORKSPACE/gist-response.json" \
             > "$GITHUB_WORKSPACE/servers.json"
 
-          cat "$GITHUB_WORKSPACE/servers.json"
+          jq empty "$GITHUB_WORKSPACE/servers.json"
+
+          echo "Database loaded."
 
       # ==========================================
-      # MARK STARTING
+      # MARK SERVER STARTING
       # ==========================================
 
       - name: Mark server STARTING
         env:
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
+          PORT: ${{ steps.config.outputs.PORT }}
+          DOMAIN: ${{ steps.config.outputs.DOMAIN }}
+          IP: ${{ steps.config.outputs.IP }}
         run: |
           set -e
 
-          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$LOCAL_UDP" <<'PY'
+          python3 \
+            "$GITHUB_WORKSPACE/servers.json" \
+            "$SLOT" \
+            "$GITHUB_RUN_ID" \
+            "$PORT" \
+            "$DOMAIN" \
+            "$IP" <<'PY'
+
           import json
           import sys
 
           path = sys.argv[1]
           slot = int(sys.argv[2])
-          port = int(sys.argv[3])
+          run_id = sys.argv[3]
+          port = int(sys.argv[4])
+          domain = sys.argv[5]
+          ip = sys.argv[6]
 
           with open(path, "r", encoding="utf-8") as f:
               data = json.load(f)
@@ -154,14 +204,17 @@ jobs:
           for server in data["servers"]:
               if int(server["slot"]) == slot:
                   server["status"] = "starting"
-                  server["endpoint"] = None
+                  server["endpoint"] = domain
+                  server["ip"] = ip
                   server["port"] = port
-                  server["run_id"] = None
+                  server["run_id"] = run_id
                   found = True
                   break
 
           if not found:
-              raise SystemExit(f"Server slot {slot} was not found.")
+              raise SystemExit(
+                  f"Server slot {slot} was not found."
+              )
 
           with open(path, "w", encoding="utf-8") as f:
               json.dump(data, f, indent=2)
@@ -195,6 +248,7 @@ jobs:
             > /dev/null
 
           echo "Server $SLOT marked STARTING."
+          echo "RUN_ID=$GITHUB_RUN_ID"
 
       # ==========================================
       # DOWNLOAD L.A. CRIMES
@@ -227,19 +281,28 @@ jobs:
 
           if [ -z "$SERVER" ]; then
             echo "ERROR: L.A. Crimes executable not found."
-            find "$GITHUB_WORKSPACE/lac" -maxdepth 5 -type f -print
+
+            find \
+              "$GITHUB_WORKSPACE/lac" \
+              -maxdepth 5 \
+              -type f \
+              -print
+
             exit 1
           fi
 
           chmod +x "$SERVER"
 
-          echo "$SERVER" > "$GITHUB_WORKSPACE/server-path.txt"
+          echo "$SERVER" \
+            > "$GITHUB_WORKSPACE/server-path.txt"
 
       # ==========================================
-      # CREATE SLOT CONFIG
+      # CREATE SERVER CONFIG
       # ==========================================
 
       - name: Create ServerConfig.txt
+        env:
+          PORT: ${{ steps.config.outputs.PORT }}
         run: |
           set -e
 
@@ -256,7 +319,7 @@ jobs:
           restart timer=never
           max players=16
           map name=City
-          starting port=$LOCAL_UDP
+          starting port=$PORT
 
           (Server List)
           share to community=true
@@ -268,11 +331,11 @@ jobs:
           password=0000
           EOF
 
-          echo "Server $SLOT configuration:"
+          echo "ServerConfig:"
           cat "$GITHUB_WORKSPACE/ServerConfig.txt"
 
       # ==========================================
-      # INSTALL CONFIG
+      # INSTALL SERVER CONFIG
       # ==========================================
 
       - name: Install ServerConfig.txt
@@ -295,10 +358,15 @@ jobs:
       # ==========================================
 
       - name: Start L.A. Crimes
+        env:
+          PORT: ${{ steps.config.outputs.PORT }}
         run: |
           set -e
 
-          SERVER=$(cat "$GITHUB_WORKSPACE/server-path.txt")
+          SERVER=$(
+            cat "$GITHUB_WORKSPACE/server-path.txt"
+          )
+
           SERVER_DIR=$(dirname "$SERVER")
 
           cd "$SERVER_DIR"
@@ -306,7 +374,7 @@ jobs:
           echo "======================================"
           echo "STARTING L.A. CRIMES"
           echo "SERVER SLOT: $SLOT"
-          echo "LOCAL UDP: $LOCAL_UDP"
+          echo "LOCAL UDP: $PORT"
           echo "======================================"
 
           ./LAC_Linux_v1.9.6.x86_64 \
@@ -316,7 +384,8 @@ jobs:
 
           LAC_PID=$!
 
-          echo "$LAC_PID" > "$GITHUB_WORKSPACE/lac.pid"
+          echo "$LAC_PID" \
+            > "$GITHUB_WORKSPACE/lac.pid"
 
           sleep 10
 
@@ -334,7 +403,7 @@ jobs:
           echo "LAC_PID=$LAC_PID"
 
           ss -lunp |
-            grep ":$LOCAL_UDP" ||
+            grep ":$PORT" ||
             true
 
       # ==========================================
@@ -386,7 +455,6 @@ jobs:
           echo "======================================"
           echo "STARTING PLAYIT"
           echo "SERVER SLOT: $SLOT"
-          echo "LOCAL UDP: $LOCAL_UDP"
           echo "======================================"
 
           export PLAYIT_HOME="/run/playit"
@@ -401,7 +469,9 @@ jobs:
             > "$GITHUB_WORKSPACE/playit.pid"
 
           for i in $(seq 1 60); do
+
             if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
+
               echo "ERROR: Playit stopped."
 
               cat \
@@ -416,57 +486,18 @@ jobs:
             sleep 1
           done
 
-          echo "Playit is running."
+          echo "Playit agent is running."
 
       # ==========================================
-      # DETECT ENDPOINT
+      # MARK SERVER ONLINE
       # ==========================================
 
-      - name: Detect Playit endpoint
-        id: endpoint
-        run: |
-          set -e
-
-          LOG="$GITHUB_WORKSPACE/playit.log"
-
-          ENDPOINT=""
-
-          for i in $(seq 1 30); do
-
-            ENDPOINT=$(
-              grep -Eo \
-                '([A-Za-z0-9.-]+\.(playit\.gg|playit\.cloud):[0-9]+|[0-9]{1,3}(\.[0-9]{1,3}){3}:[0-9]+)' \
-                "$LOG" |
-              head -1 ||
-              true
-            )
-
-            if [ -n "$ENDPOINT" ]; then
-              break
-            fi
-
-            sleep 2
-          done
-
-          if [ -z "$ENDPOINT" ]; then
-            echo "WARNING: Public endpoint not detected yet."
-
-            echo "ENDPOINT=" >> "$GITHUB_OUTPUT"
-          else
-            echo "PUBLIC_ENDPOINT=$ENDPOINT"
-
-            echo "ENDPOINT=$ENDPOINT" \
-              >> "$GITHUB_OUTPUT"
-          fi
-
-      # ==========================================
-      # SAVE RUN ID
-      # ==========================================
-
-      - name: Save run information
+      - name: Mark server ONLINE
         env:
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
-          ENDPOINT: ${{ steps.endpoint.outputs.ENDPOINT }}
+          PORT: ${{ steps.config.outputs.PORT }}
+          DOMAIN: ${{ steps.config.outputs.DOMAIN }}
+          IP: ${{ steps.config.outputs.IP }}
         run: |
           set -e
 
@@ -474,8 +505,9 @@ jobs:
             "$GITHUB_WORKSPACE/servers.json" \
             "$SLOT" \
             "$GITHUB_RUN_ID" \
-            "$LOCAL_UDP" \
-            "$ENDPOINT" <<'PY'
+            "$PORT" \
+            "$DOMAIN" \
+            "$IP" <<'PY'
 
           import json
           import sys
@@ -484,20 +516,28 @@ jobs:
           slot = int(sys.argv[2])
           run_id = sys.argv[3]
           port = int(sys.argv[4])
-          endpoint = sys.argv[5]
+          domain = sys.argv[5]
+          ip = sys.argv[6]
 
           with open(path, "r", encoding="utf-8") as f:
               data = json.load(f)
 
           for server in data["servers"]:
+
               if int(server["slot"]) == slot:
+
                   server["status"] = "online"
                   server["run_id"] = run_id
+                  server["endpoint"] = domain
+                  server["ip"] = ip
                   server["port"] = port
-                  server["endpoint"] = endpoint or None
+
                   break
+
           else:
-              raise SystemExit(f"Server slot {slot} was not found.")
+              raise SystemExit(
+                  f"Server slot {slot} was not found."
+              )
 
           with open(path, "w", encoding="utf-8") as f:
               json.dump(data, f, indent=2)
@@ -530,35 +570,29 @@ jobs:
             --data "$PAYLOAD" \
             > /dev/null
 
-          echo "Server $SLOT marked ONLINE."
-
-      # ==========================================
-      # SERVER READY
-      # ==========================================
-
-      - name: Server ready
-        env:
-          ENDPOINT: ${{ steps.endpoint.outputs.ENDPOINT }}
-        run: |
           echo "======================================"
-          echo "L.A. CRIMES SERVER READY"
+          echo "SERVER ONLINE"
+          echo "SLOT: $SLOT"
+          echo "DOMAIN: $DOMAIN"
+          echo "IP: $IP"
+          echo "PORT: $PORT"
+          echo "RUN ID: $GITHUB_RUN_ID"
           echo "======================================"
 
-          echo "SERVER_SLOT=$SLOT"
-          echo "SERVER_STATUS=ONLINE"
-          echo "SERVER_READY=true"
-          echo "LOCAL_UDP=$LOCAL_UDP"
-          echo "PUBLIC_ENDPOINT=$ENDPOINT"
-
       # ==========================================
-      # KEEP ALIVE
+      # KEEP SERVER ALIVE
       # ==========================================
 
       - name: Keep server alive
+        env:
+          PORT: ${{ steps.config.outputs.PORT }}
+          DOMAIN: ${{ steps.config.outputs.DOMAIN }}
         run: |
           set -e
 
-          echo "Server $SLOT is staying online."
+          echo "Server $SLOT is online."
+          echo "Endpoint: $DOMAIN"
+          echo "Port: $PORT"
 
           while true; do
 
@@ -569,12 +603,24 @@ jobs:
               "$GITHUB_WORKSPACE/playit.pid")
 
             if ! kill -0 "$LAC_PID" 2>/dev/null; then
-              echo "L.A. Crimes stopped."
+
+              echo "ERROR: L.A. Crimes stopped."
+
+              tail -250 \
+                "$GITHUB_WORKSPACE/lac-server.log" \
+                || true
+
               exit 1
             fi
 
             if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
-              echo "Playit stopped."
+
+              echo "ERROR: Playit stopped."
+
+              cat \
+                "$GITHUB_WORKSPACE/playit.log" \
+                || true
+
               exit 1
             fi
 
@@ -582,7 +628,8 @@ jobs:
             echo "[$(date '+%H:%M:%S')]"
             echo "SERVER_SLOT=$SLOT"
             echo "SERVER_STATUS=ONLINE"
-            echo "LOCAL_UDP=$LOCAL_UDP"
+            echo "LOCAL_UDP=$PORT"
+            echo "PUBLIC_ENDPOINT=$DOMAIN"
 
             sleep 10
           done
@@ -608,22 +655,41 @@ jobs:
 
           python3 \
             "$GITHUB_WORKSPACE/servers.json" \
-            "$SLOT" <<'PY'
+            "$SLOT" \
+            "$GITHUB_RUN_ID" <<'PY'
 
           import json
           import sys
 
           path = sys.argv[1]
           slot = int(sys.argv[2])
+          run_id = str(sys.argv[3])
 
           with open(path, "r", encoding="utf-8") as f:
               data = json.load(f)
 
           for server in data["servers"]:
+
               if int(server["slot"]) == slot:
+
+                  current_run = server.get("run_id")
+
+                  # Never allow an old workflow to erase
+                  # the state belonging to a newer workflow.
+                  if current_run is not None and str(current_run) != run_id:
+                      print(
+                          f"Server {slot} belongs to run "
+                          f"{current_run}, not {run_id}."
+                      )
+                      sys.exit(0)
+
                   server["status"] = "available"
-                  server["endpoint"] = None
                   server["run_id"] = None
+
+                  # IMPORTANT:
+                  # Keep endpoint, IP and port because the
+                  # Playit tunnel itself still exists.
+
                   break
 
           with open(path, "w", encoding="utf-8") as f:
@@ -665,6 +731,9 @@ jobs:
 
       - name: Final status
         if: always()
+        env:
+          PORT: ${{ steps.config.outputs.PORT }}
+          DOMAIN: ${{ steps.config.outputs.DOMAIN }}
         run: |
           echo
           echo "======================================"
@@ -672,7 +741,9 @@ jobs:
           echo "======================================"
 
           echo "SERVER_SLOT=$SLOT"
-          echo "LOCAL_UDP=$LOCAL_UDP"
+          echo "LOCAL_UDP=$PORT"
+          echo "PUBLIC_ENDPOINT=$DOMAIN"
           echo "WORKFLOW_STATUS=${{ job.status }}"
+          echo "RUN_ID=${{ github.run_id }}"
 
           echo "======================================"
