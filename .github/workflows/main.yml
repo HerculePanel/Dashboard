@@ -178,13 +178,12 @@ jobs:
             # Create a directory for the agent
             mkdir -p "$GITHUB_WORKSPACE/agent-$SLOT"
 
-            # Run the agent to generate claim link
             echo "Generating claim link for agent $SLOT..."
             
             cd "$GITHUB_WORKSPACE/agent-$SLOT"
 
-            # Run the agent in the background to get the claim link
-            $PLAYIT run \
+            # Run the agent without any subcommands - it auto-generates claim URL on first run
+            $PLAYIT \
               > "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" 2>&1 &
 
             AGENT_PID=$!
@@ -193,18 +192,20 @@ jobs:
 
             # Wait for claim link to appear
             CLAIM_URL=""
-            for i in $(seq 1 30); do
+            for i in $(seq 1 60); do
               sleep 2
               CLAIM_URL=$(grep -o 'https://playit.gg/claim/[a-zA-Z0-9]*' "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" | head -1)
               if [ -n "$CLAIM_URL" ]; then
                 break
               fi
-              echo "Waiting for claim link... $i/30"
+              echo "Waiting for claim link... $i/60"
             done
 
             if [ -z "$CLAIM_URL" ]; then
               echo "ERROR: Failed to get claim URL from agent."
+              echo "Agent log contents:"
               cat "$GITHUB_WORKSPACE/agent-$SLOT/agent.log"
+              kill "$AGENT_PID" 2>/dev/null || true
               return 1
             fi
 
@@ -243,7 +244,7 @@ jobs:
             for i in $(seq 1 60); do
               sleep 2
               
-              # Check if the agent got a secret (it will write it to the log)
+              # Check if the agent got a secret
               if grep -q "Secret provisioned" "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" 2>/dev/null; then
                 echo "✅ Agent $SLOT successfully claimed!"
                 SECRET_FOUND=true
@@ -274,6 +275,7 @@ jobs:
 
               if [ -z "$SECRET" ]; then
                 echo "ERROR: Could not extract secret from agent."
+                echo "Agent log contents:"
                 cat "$GITHUB_WORKSPACE/agent-$SLOT/agent.log"
                 return 1
               fi
