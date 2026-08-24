@@ -39,6 +39,10 @@ jobs:
         run: |
           set -e
 
+          # IMPORTANT:
+          # The L.A. Crimes Linux binary only works reliably on port 7777.
+          # We keep unique Playit domains/IPs for each of your 4 tunnels,
+          # but the local listening port is always forced to 7777.
           case "$SLOT" in
             1)
               PORT="7777"
@@ -46,17 +50,17 @@ jobs:
               IP="147.185.221.231:54710"
               ;;
             2)
-              PORT="7778"
+              PORT="7777"
               DOMAIN="drake-expansion.tun.ply.gg:20718"
               IP="147.185.221.18:20718"
               ;;
             3)
-              PORT="7779"
+              PORT="7777"
               DOMAIN="drake-drama.tun.ply.gg:58951"
               IP="147.185.221.231:58951"
               ;;
             4)
-              PORT="7780"
+              PORT="7777"
               DOMAIN="drake-muscle.tun.ply.gg:58968"
               IP="147.185.221.231:58968"
               ;;
@@ -72,7 +76,7 @@ jobs:
 
           echo "======================================"
           echo "SERVER SLOT: $SLOT"
-          echo "LOCAL PORT: $PORT"
+          echo "LOCAL PORT: $PORT  (forced to 7777)"
           echo "DOMAIN: $DOMAIN"
           echo "IP: $IP"
           echo "======================================"
@@ -313,7 +317,7 @@ jobs:
           restart timer=never
           max players=16
           map name=City
-          starting port=$PORT
+          starting port=7777
 
           (Server List)
           share to community=true
