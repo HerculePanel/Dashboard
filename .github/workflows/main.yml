@@ -309,22 +309,22 @@ jobs:
           #Maps (ZombieSurvival, NewTerrainRamps, Island, CarSoccer)
           #Editor Maps (editor:myMap)
 
-          (Moderator)
+          
           admin code=YOUR-NUM-CODE
           lock down=true
 
-          (Basic)
+          
           restart timer=never
           max players=16
           map name=City
           starting port=7777
 
-          (Server List)
+          
           share to community=true
           server language=English
           server password=none
 
-          (Roleplay)
+          
           username=HOST
           password=0000
           EOF
