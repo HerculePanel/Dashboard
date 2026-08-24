@@ -129,8 +129,7 @@ jobs:
             wget \
             curl \
             ca-certificates \
-            jq \
-            net-tools
+            jq
 
       - name: Download Playit agent
         if: steps.check_secrets.outputs.MISSING_AGENTS != ''
@@ -149,7 +148,7 @@ jobs:
 
           "$GITHUB_WORKSPACE/playit" --version || true
 
-      - name: Create missing Playit agents
+      - name: Generate Playit agent secrets
         if: steps.check_secrets.outputs.MISSING_AGENTS != ''
         env:
           MISSING_AGENTS: ${{ steps.check_secrets.outputs.MISSING_AGENTS }}
@@ -158,7 +157,7 @@ jobs:
 
           PLAYIT="$GITHUB_WORKSPACE/playit"
 
-          create_agent() {
+          generate_agent_secret() {
 
             SLOT="$1"
             SECRET_NAME="$2"
@@ -176,42 +175,60 @@ jobs:
             # Kill any existing Playit processes
             pkill -f "playit" || true
 
-            # Create directories for the agent
-            mkdir -p "$GITHUB_WORKSPACE/agent-$SLOT"
+            echo "Generating agent secret for slot $SLOT..."
+
+            # Create a directory for the agent config
             mkdir -p "$GITHUB_WORKSPACE/agent-$SLOT/.config/playit_gg"
-            mkdir -p "$GITHUB_WORKSPACE/agent-$SLOT/sockets"
 
-            echo "Generating claim link for agent $SLOT..."
-            
-            cd "$GITHUB_WORKSPACE/agent-$SLOT"
+            # Create the config directory in the standard location too
+            mkdir -p "$HOME/.config/playit_gg"
 
-            # Run the agent with socket path specified
-            $PLAYIT \
-              --socket-path "$GITHUB_WORKSPACE/agent-$SLOT/sockets/playit.sock" \
-              > "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" 2>&1 &
+            # Generate a claim code
+            CLAIM_CODE=$("$PLAYIT" claim generate --stdout 2>/dev/null | grep -o '[a-zA-Z0-9]\{8,\}' | head -1)
 
-            AGENT_PID=$!
-
-            echo "Agent PID: $AGENT_PID"
-
-            # Wait for claim link to appear
-            CLAIM_URL=""
-            for i in $(seq 1 60); do
-              sleep 2
+            if [ -z "$CLAIM_CODE" ]; then
+              echo "ERROR: Failed to generate claim code."
+              echo "Trying alternative method..."
+              
+              # Alternative: run the agent and capture the claim URL
+              "$PLAYIT" --socket-path "$GITHUB_WORKSPACE/agent-$SLOT/playit.sock" \
+                > "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" 2>&1 &
+              
+              AGENT_PID=$!
+              sleep 10
+              
               CLAIM_URL=$(grep -o 'https://playit.gg/claim/[a-zA-Z0-9]*' "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" | head -1)
-              if [ -n "$CLAIM_URL" ]; then
-                break
-              fi
-              echo "Waiting for claim link... $i/60"
-            done
-
-            if [ -z "$CLAIM_URL" ]; then
-              echo "ERROR: Failed to get claim URL from agent."
-              echo "Agent log contents:"
-              cat "$GITHUB_WORKSPACE/agent-$SLOT/agent.log"
               kill "$AGENT_PID" 2>/dev/null || true
-              return 1
+              
+              if [ -z "$CLAIM_URL" ]; then
+                echo "ERROR: Failed to get claim URL from agent."
+                cat "$GITHUB_WORKSPACE/agent-$SLOT/agent.log"
+                return 1
+              fi
+              
+              echo
+              echo "**************************************************"
+              echo
+              echo "CLAIM AGENT $SLOT (Manual Method)"
+              echo
+              echo "Open this URL in your browser:"
+              echo
+              echo "$CLAIM_URL"
+              echo
+              echo "**************************************************"
+              echo
+              echo "IMPORTANT: After claiming in browser,"
+              echo "add the secret from the Playit dashboard as:"
+              echo "$SECRET_NAME"
+              echo
+              echo "Go to: https://playit.gg/account/agents"
+              echo "Find the agent and copy its secret."
+              echo "=============================================="
+              return 0
             fi
+
+            # Generate the claim URL
+            CLAIM_URL="https://playit.gg/claim/$CLAIM_CODE"
 
             echo
             echo "**************************************************"
@@ -233,111 +250,64 @@ jobs:
             echo "3. Claim the agent and name it:"
             echo "   $AGENT_NAME"
             echo
-            echo "⚠️  DO NOT CLOSE THIS WORKFLOW YET!"
-            echo "The agent needs to stay running to receive the secret."
-            echo
-            echo "After claiming in browser, the agent will automatically"
-            echo "receive and store the permanent secret."
-            echo
 
-            echo "Waiting for agent to be claimed in browser..."
-            echo "The agent will automatically detect when claimed."
+            echo "Now exchanging claim code for permanent secret..."
 
-            # Wait for the agent to be claimed (it will store the secret)
-            SECRET_FOUND=false
-            for i in $(seq 1 60); do
-              sleep 2
-              
-              # Check if the agent got a secret
-              if grep -q "Secret provisioned" "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" 2>/dev/null; then
-                echo "✅ Agent $SLOT successfully claimed!"
-                SECRET_FOUND=true
-                break
-              fi
-              
-              # Also check if the secret file was created
-              if [ -f "$GITHUB_WORKSPACE/agent-$SLOT/.config/playit_gg/playit.toml" ]; then
-                echo "✅ Agent $SLOT successfully claimed! (secret file found)"
-                SECRET_FOUND=true
-                break
-              fi
-              
-              echo "Waiting for agent to be claimed... $i/60"
-            done
+            # Exchange the claim code for a permanent secret
+            SECRET=$("$PLAYIT" claim exchange --stdout "$CLAIM_CODE" 2>/dev/null | grep -o '[a-f0-9]\{64\}' | head -1)
 
-            # Kill the agent process
-            kill "$AGENT_PID" 2>/dev/null || true
-
-            if [ "$SECRET_FOUND" = true ]; then
-              # Extract the secret from the config file
-              if [ -f "$GITHUB_WORKSPACE/agent-$SLOT/.config/playit_gg/playit.toml" ]; then
-                SECRET=$(cat "$GITHUB_WORKSPACE/agent-$SLOT/.config/playit_gg/playit.toml" | grep -o '[a-f0-9]\{64\}' | head -1)
-              else
-                # Try to get it from the log
-                SECRET=$(grep -o '[a-f0-9]\{64\}' "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" | head -1)
-              fi
-
-              if [ -z "$SECRET" ]; then
-                echo "ERROR: Could not extract secret from agent."
-                echo "Agent log contents:"
-                cat "$GITHUB_WORKSPACE/agent-$SLOT/agent.log"
-                return 1
-              fi
-
+            if [ -z "$SECRET" ]; then
+              echo "ERROR: Failed to exchange claim code for secret."
+              echo "The agent may need to be claimed in the browser first."
               echo
-              echo "=============================================="
-              echo "AGENT SECRET FOR $SECRET_NAME"
-              echo "=============================================="
+              echo "After claiming in browser, get the secret from:"
+              echo "https://playit.gg/account/agents"
               echo
-              echo "Copy this secret value:"
-              echo
-              echo "$SECRET"
-              echo
-              echo "=============================================="
-              echo
-              echo "NEXT STEPS:"
-              echo "1. Go to: https://github.com/LACServer/Dashboard/settings/secrets/actions"
-              echo "2. Click 'New repository secret'"
-              echo "3. Name: $SECRET_NAME"
-              echo "4. Value: (paste the secret above)"
-              echo "5. Click 'Add secret'"
-              echo
-              echo "After adding the secret, run this workflow again"
-              echo "with mode=start to launch your server."
-              echo "=============================================="
-            else
-              echo
-              echo "⚠️  Agent was not claimed within the time limit."
-              echo
-              echo "You can still claim it manually:"
-              echo "1. Open: $CLAIM_URL"
-              echo "2. Log in and claim the agent"
-              echo "3. Then get the secret from the Playit dashboard"
-              echo "4. Add it as a GitHub secret: $SECRET_NAME"
-              echo
-              echo "The agent will continue to run in the background."
+              echo "Then add it as a GitHub secret: $SECRET_NAME"
               echo "=============================================="
               return 1
             fi
+
+            echo
+            echo "=============================================="
+            echo "AGENT SECRET FOR $SECRET_NAME"
+            echo "=============================================="
+            echo
+            echo "Copy this secret value:"
+            echo
+            echo "$SECRET"
+            echo
+            echo "=============================================="
+            echo
+            echo "NEXT STEPS:"
+            echo "1. Go to: https://github.com/LACServer/Dashboard/settings/secrets/actions"
+            echo "2. Click 'New repository secret'"
+            echo "3. Name: $SECRET_NAME"
+            echo "4. Value: (paste the secret above)"
+            echo "5. Click 'Add secret'"
+            echo
+            echo "After adding the secret, run this workflow again"
+            echo "with mode=start to launch your server."
+            echo "=============================================="
           }
 
           # Loop through missing agents
           MISSING="$MISSING_AGENTS"
           
           if [[ "$MISSING" == *"1"* ]]; then
-            create_agent "1" "PLAYIT_SECRET_1" "LAC Server Agent 1"
+            generate_agent_secret "1" "PLAYIT_SECRET_1" "LAC Server Agent 1"
           fi
 
           if [[ "$MISSING" == *"2"* ]]; then
-            create_agent "2" "PLAYIT_SECRET_2" "LAC Server Agent 2"
+            generate_agent_secret "2" "PLAYIT_SECRET_2" "LAC Server Agent 2"
           fi
 
           if [[ "$MISSING" == *"3"* ]]; then
-            create_agent "3" "PLAYIT_SECRET_3" "LAC Server Agent 3"
+            generate_agent_secret "3" "PLAYIT_SECRET_3" "LAC Server Agent 3"
           fi
 
           if [[ "$MISSING" == *"4"* ]]; then
-            create_agent "4" "PLAYIT_SECRET_4" "LAC Server Agent 4"
+            generate_agent_secret "4" "PLAYIT_SECRET_4" "LAC Server Agent 4"
           fi
 
           echo
