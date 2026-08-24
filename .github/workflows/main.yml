@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Choose server operation or Playit agent setup"
+        description: "Choose normal server operation or Playit agent setup"
         required: true
         type: choice
         default: start
@@ -32,31 +32,94 @@ env:
 
   PLAYIT_VERSION: "1.0.10"
   PLAYIT_AGENT_URL: "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-linux-amd64"
-  PLAYIT_CLI_URL: "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-cli-linux-amd64"
-
-
-# ============================================================
-# ============================================================
-# PLAYIT AGENT SETUP
-# ============================================================
-# ============================================================
 
 jobs:
 
   setup:
     if: ${{ inputs.mode == 'setup' }}
-
     runs-on: ubuntu-latest
-
-    timeout-minutes: 60
+    timeout-minutes: 30
 
     steps:
+      - name: Check setup token
+        env:
+          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
+        run: |
+          set -e
 
-      # --------------------------------------------------------
-      # INSTALL DEPENDENCIES
-      # --------------------------------------------------------
+          echo "======================================"
+          echo "PLAYIT AGENT SETUP"
+          echo "======================================"
+
+          if [ -z "$DASHBOARD_TOKEN" ]; then
+            echo "ERROR: DASHBOARD_TOKEN is missing."
+            exit 1
+          fi
+
+          echo "DASHBOARD_TOKEN found."
+
+      - name: Check which secrets exist
+        id: check_secrets
+        env:
+          PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET_1 }}
+          PLAYIT_SECRET_2: ${{ secrets.PLAYIT_SECRET_2 }}
+          PLAYIT_SECRET_3: ${{ secrets.PLAYIT_SECRET_3 }}
+          PLAYIT_SECRET_4: ${{ secrets.PLAYIT_SECRET_4 }}
+        run: |
+          set -e
+
+          echo "======================================"
+          echo "CHECKING EXISTING SECRETS"
+          echo "======================================"
+
+          MISSING_AGENTS=""
+
+          if [ -z "$PLAYIT_SECRET_1" ]; then
+            echo "❌ PLAYIT_SECRET_1 is MISSING"
+            MISSING_AGENTS="${MISSING_AGENTS}1"
+          else
+            echo "✅ PLAYIT_SECRET_1 exists"
+          fi
+
+          if [ -z "$PLAYIT_SECRET_2" ]; then
+            echo "❌ PLAYIT_SECRET_2 is MISSING"
+            MISSING_AGENTS="${MISSING_AGENTS}2"
+          else
+            echo "✅ PLAYIT_SECRET_2 exists"
+          fi
+
+          if [ -z "$PLAYIT_SECRET_3" ]; then
+            echo "❌ PLAYIT_SECRET_3 is MISSING"
+            MISSING_AGENTS="${MISSING_AGENTS}3"
+          else
+            echo "✅ PLAYIT_SECRET_3 exists"
+          fi
+
+          if [ -z "$PLAYIT_SECRET_4" ]; then
+            echo "❌ PLAYIT_SECRET_4 is MISSING"
+            MISSING_AGENTS="${MISSING_AGENTS}4"
+          else
+            echo "✅ PLAYIT_SECRET_4 exists"
+          fi
+
+          echo "MISSING_AGENTS=$MISSING_AGENTS" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$MISSING_AGENTS" ]; then
+            echo
+            echo "======================================"
+            echo "✅ ALL SECRETS EXIST!"
+            echo "======================================"
+            echo "No setup needed. Run with mode=start."
+          else
+            echo
+            echo "======================================"
+            echo "⚠️  MISSING AGENTS: $MISSING_AGENTS"
+            echo "======================================"
+            echo "Will create secrets for agents: $MISSING_AGENTS"
+          fi
 
       - name: Install setup dependencies
+        if: steps.check_secrets.outputs.MISSING_AGENTS != ''
         run: |
           set -e
 
@@ -65,337 +128,255 @@ jobs:
           sudo apt-get install -y \
             wget \
             curl \
-            ca-certificates
+            ca-certificates \
+            jq
 
-      # --------------------------------------------------------
-      # DOWNLOAD PLAYIT CLI
-      # --------------------------------------------------------
-
-      - name: Download Playit CLI
+      - name: Download Playit agent
+        if: steps.check_secrets.outputs.MISSING_AGENTS != ''
         run: |
           set -e
-
-          echo "=============================================="
-          echo "DOWNLOADING PLAYIT CLI"
-          echo "=============================================="
 
           wget \
             --timeout=60 \
             --tries=5 \
-            -O "$GITHUB_WORKSPACE/playit-cli" \
-            "$PLAYIT_CLI_URL"
+            -O "$GITHUB_WORKSPACE/playit" \
+            "$PLAYIT_AGENT_URL"
 
-          chmod +x "$GITHUB_WORKSPACE/playit-cli"
+          chmod +x "$GITHUB_WORKSPACE/playit"
 
-          echo
-          echo "Playit CLI version:"
-          "$GITHUB_WORKSPACE/playit-cli" version || true
+          echo "Playit agent downloaded."
 
-      # --------------------------------------------------------
-      # CREATE ASSIGNABLE AGENTS
-      # --------------------------------------------------------
+          "$GITHUB_WORKSPACE/playit" --version || true
 
-      - name: Create Playit agents
+      - name: Create missing Playit agents
+        if: steps.check_secrets.outputs.MISSING_AGENTS != ''
+        env:
+          MISSING_AGENTS: ${{ steps.check_secrets.outputs.MISSING_AGENTS }}
         run: |
           set -e
 
-          PLAYIT_CLI="$GITHUB_WORKSPACE/playit-cli"
-
-          echo
-          echo "=================================================="
-          echo "PLAYIT AGENT SETUP"
-          echo "=================================================="
-          echo
-          echo "IMPORTANT:"
-          echo
-          echo "This workflow creates ASSIGNABLE agents."
-          echo "That means they can later be selected"
-          echo "when creating a Playit tunnel."
-          echo
-          echo "You have two Playit accounts."
-          echo
-          echo "Account 1:"
-          echo "  Agent 1"
-          echo "  Agent 2"
-          echo
-          echo "Account 2:"
-          echo "  Agent 3"
-          echo "  Agent 4"
-          echo
-          echo "=================================================="
+          PLAYIT="$GITHUB_WORKSPACE/playit"
 
           create_agent() {
 
             SLOT="$1"
-            AGENT_NAME="$2"
-            ACCOUNT_NAME="$3"
+            SECRET_NAME="$2"
+            AGENT_NAME="$3"
 
             echo
             echo
-            echo "=================================================="
-            echo "CREATING PLAYIT AGENT $SLOT"
-            echo "=================================================="
-            echo
-            echo "Agent:"
-            echo "$AGENT_NAME"
-            echo
-            echo "Account:"
-            echo "$ACCOUNT_NAME"
-            echo
-            echo "Agent type:"
-            echo "assignable"
-            echo
+            echo "=============================================="
+            echo "PLAYIT AGENT SETUP"
+            echo "AGENT: $AGENT_NAME"
+            echo "SLOT: $SLOT"
+            echo "SECRET: $SECRET_NAME"
+            echo "=============================================="
 
-            # ------------------------------------------------
-            # GENERATE CLAIM CODE
-            # ------------------------------------------------
+            # Kill any existing Playit processes
+            pkill -f "playit" || true
 
-            CLAIM_CODE="$(
-              "$PLAYIT_CLI" \
-                --stdout \
-                claim generate
-            )"
+            # Create a directory for the agent
+            mkdir -p "$GITHUB_WORKSPACE/agent-$SLOT"
 
-            if [ -z "$CLAIM_CODE" ]; then
-              echo
-              echo "ERROR:"
-              echo "Playit did not return a claim code."
-              return 1
-            fi
+            # Run the agent to generate claim link
+            echo "Generating claim link for agent $SLOT..."
+            
+            cd "$GITHUB_WORKSPACE/agent-$SLOT"
 
-            echo "Claim code generated."
+            # Run the agent in the background to get the claim link
+            $PLAYIT run \
+              > "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" 2>&1 &
 
-            # ------------------------------------------------
-            # CREATE ASSIGNABLE CLAIM URL
-            #
-            # THIS IS THE IMPORTANT FIX.
-            #
-            # --type assignable
-            # makes the agent assignable to tunnels.
-            # ------------------------------------------------
+            AGENT_PID=$!
 
-            CLAIM_URL="$(
-              "$PLAYIT_CLI" \
-                --stdout \
-                claim url \
-                "$CLAIM_CODE" \
-                --name "$AGENT_NAME" \
-                --type assignable
-            )"
+            echo "Agent PID: $AGENT_PID"
+
+            # Wait for claim link to appear
+            CLAIM_URL=""
+            for i in $(seq 1 30); do
+              sleep 2
+              CLAIM_URL=$(grep -o 'https://playit.gg/claim/[a-zA-Z0-9]*' "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" | head -1)
+              if [ -n "$CLAIM_URL" ]; then
+                break
+              fi
+              echo "Waiting for claim link... $i/30"
+            done
 
             if [ -z "$CLAIM_URL" ]; then
-              echo
-              echo "ERROR:"
-              echo "Playit did not return a claim URL."
+              echo "ERROR: Failed to get claim URL from agent."
+              cat "$GITHUB_WORKSPACE/agent-$SLOT/agent.log"
               return 1
             fi
 
             echo
             echo "**************************************************"
             echo
-            echo "PLAYIT AGENT $SLOT"
+            echo "CLAIM AGENT $SLOT"
             echo
-            echo "Agent name:"
+            echo "Agent name to use in Playit dashboard:"
             echo "$AGENT_NAME"
             echo
-            echo "Agent type:"
-            echo "ASSIGNABLE"
-            echo
-            echo "Account:"
-            echo "$ACCOUNT_NAME"
-            echo
-            echo "OPEN THIS URL:"
+            echo "Open this URL in your browser:"
             echo
             echo "$CLAIM_URL"
             echo
             echo "**************************************************"
             echo
-            echo "Instructions:"
-            echo
-            echo "1. Open the URL above."
-            echo
-            echo "2. Log into the correct Playit account."
-            echo
-            echo "3. Claim the agent."
-            echo
-            echo "4. Make sure it appears as:"
+            echo "IMPORTANT:"
+            echo "1. Open the URL above in your browser."
+            echo "2. Log in to your Playit account."
+            echo "3. Claim the agent and name it:"
             echo "   $AGENT_NAME"
             echo
-            echo "5. Make sure it is an ASSIGNABLE agent."
+            echo "⚠️  DO NOT CLOSE THIS WORKFLOW YET!"
+            echo "The agent needs to stay running to receive the secret."
             echo
-            echo "The workflow will wait for approval."
+            echo "After claiming in browser, the agent will automatically"
+            echo "receive and store the permanent secret."
             echo
 
-            # ------------------------------------------------
-            # WAIT FOR APPROVAL
-            # ------------------------------------------------
+            echo "Waiting for agent to be claimed in browser..."
+            echo "The agent will automatically detect when claimed."
 
-            SECRET_OUTPUT="$(
-              "$PLAYIT_CLI" \
-                --stdout \
-                claim exchange \
-                --wait 0 \
-                "$CLAIM_CODE" 2>&1
-            )"
+            # Wait for the agent to be claimed (it will store the secret)
+            SECRET_FOUND=false
+            for i in $(seq 1 60); do
+              sleep 2
+              
+              # Check if the agent got a secret (it will write it to the log)
+              if grep -q "Secret provisioned" "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" 2>/dev/null; then
+                echo "✅ Agent $SLOT successfully claimed!"
+                SECRET_FOUND=true
+                break
+              fi
+              
+              # Also check if the secret file was created
+              if [ -f "$GITHUB_WORKSPACE/agent-$SLOT/playit.toml" ]; then
+                echo "✅ Agent $SLOT successfully claimed! (secret file found)"
+                SECRET_FOUND=true
+                break
+              fi
+              
+              echo "Waiting for agent to be claimed... $i/60"
+            done
 
-            # ------------------------------------------------
-            # EXTRACT SECRET
-            # ------------------------------------------------
+            # Kill the agent process
+            kill "$AGENT_PID" 2>/dev/null || true
 
-            SECRET="$(
-              echo "$SECRET_OUTPUT" |
-              grep -E '^[a-f0-9]{64}$' |
-              head -1
-            )"
+            if [ "$SECRET_FOUND" = true ]; then
+              # Extract the secret from the config file
+              if [ -f "$GITHUB_WORKSPACE/agent-$SLOT/playit.toml" ]; then
+                SECRET=$(cat "$GITHUB_WORKSPACE/agent-$SLOT/playit.toml" | grep -o '[a-f0-9]\{64\}' | head -1)
+              else
+                # Try to get it from the log
+                SECRET=$(grep -o '[a-f0-9]\{64\}' "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" | head -1)
+              fi
 
-            if [ -z "$SECRET" ]; then
+              if [ -z "$SECRET" ]; then
+                echo "ERROR: Could not extract secret from agent."
+                cat "$GITHUB_WORKSPACE/agent-$SLOT/agent.log"
+                return 1
+              fi
 
               echo
-              echo "ERROR:"
-              echo "Playit did not return a valid agent secret."
+              echo "=============================================="
+              echo "AGENT SECRET FOR $SECRET_NAME"
+              echo "=============================================="
               echo
-              echo "CLI output:"
-              echo "$SECRET_OUTPUT"
-
+              echo "Copy this secret value:"
+              echo
+              echo "$SECRET"
+              echo
+              echo "=============================================="
+              echo
+              echo "NEXT STEPS:"
+              echo "1. Go to: https://github.com/LACServer/Dashboard/settings/secrets/actions"
+              echo "2. Click 'New repository secret'"
+              echo "3. Name: $SECRET_NAME"
+              echo "4. Value: (paste the secret above)"
+              echo "5. Click 'Add secret'"
+              echo
+              echo "After adding the secret, run this workflow again"
+              echo "with mode=start to launch your server."
+              echo "=============================================="
+            else
+              echo
+              echo "⚠️  Agent was not claimed within the time limit."
+              echo
+              echo "You can still claim it manually:"
+              echo "1. Open: $CLAIM_URL"
+              echo "2. Log in and claim the agent"
+              echo "3. Then get the secret from the Playit dashboard"
+              echo "4. Add it as a GitHub secret: $SECRET_NAME"
+              echo
+              echo "The agent will continue to run in the background."
+              echo "=============================================="
               return 1
             fi
-
-            echo "::add-mask::$SECRET"
-
-            # ------------------------------------------------
-            # DISPLAY SECRET
-            # ------------------------------------------------
-
-            echo
-            echo
-            echo "=================================================="
-            echo "AGENT $SLOT SUCCESSFULLY CLAIMED"
-            echo "=================================================="
-            echo
-            echo "Agent:"
-            echo "$AGENT_NAME"
-            echo
-            echo "Type:"
-            echo "ASSIGNABLE"
-            echo
-            echo "GitHub secret name:"
-            echo "PLAYIT_SECRET_$SLOT"
-            echo
-            echo "SECRET:"
-            echo
-            echo "$SECRET"
-            echo
-            echo "=================================================="
-            echo
-            echo "ADD THIS TO GITHUB:"
-            echo
-            echo "Repository Settings"
-            echo "  -> Secrets and variables"
-            echo "  -> Actions"
-            echo "  -> New repository secret"
-            echo
-            echo "Name:"
-            echo "PLAYIT_SECRET_$SLOT"
-            echo
-            echo "Value:"
-            echo "Paste the secret above."
-            echo
-            echo "=================================================="
-
           }
 
+          # Loop through missing agents
+          MISSING="$MISSING_AGENTS"
+          
+          if [[ "$MISSING" == *"1"* ]]; then
+            create_agent "1" "PLAYIT_SECRET_1" "LAC Server Agent 1"
+          fi
 
-          # ==================================================
-          # ACCOUNT 1
-          # ==================================================
+          if [[ "$MISSING" == *"2"* ]]; then
+            create_agent "2" "PLAYIT_SECRET_2" "LAC Server Agent 2"
+          fi
 
-          create_agent \
-            "1" \
-            "LAC Server Agent 1" \
-            "Playit Account 1"
+          if [[ "$MISSING" == *"3"* ]]; then
+            create_agent "3" "PLAYIT_SECRET_3" "LAC Server Agent 3"
+          fi
 
-          create_agent \
-            "2" \
-            "LAC Server Agent 2" \
-            "Playit Account 1"
-
-
-          # ==================================================
-          # ACCOUNT 2
-          # ==================================================
-
-          create_agent \
-            "3" \
-            "LAC Server Agent 3" \
-            "Playit Account 2"
-
-          create_agent \
-            "4" \
-            "LAC Server Agent 4" \
-            "Playit Account 2"
-
+          if [[ "$MISSING" == *"4"* ]]; then
+            create_agent "4" "PLAYIT_SECRET_4" "LAC Server Agent 4"
+          fi
 
           echo
+          echo "=============================================="
+          echo "MISSING AGENTS HAVE BEEN CONFIGURED"
+          echo "=============================================="
           echo
-          echo "=================================================="
-          echo "PLAYIT SETUP COMPLETE"
-          echo "=================================================="
+          echo "Agents created: $MISSING_AGENTS"
           echo
-          echo "Four ASSIGNABLE Playit agents were created."
-          echo
-          echo "Required GitHub secrets:"
-          echo
-          echo "PLAYIT_SECRET_1"
-          echo "PLAYIT_SECRET_2"
-          echo "PLAYIT_SECRET_3"
-          echo "PLAYIT_SECRET_4"
-          echo
-          echo "After adding all four secrets,"
-          echo "run this workflow with mode=start."
-          echo
-          echo "=================================================="
+          echo "Add the secrets above to GitHub Secrets,"
+          echo "then run this workflow with mode=start to launch your server."
 
-      # --------------------------------------------------------
-      # FINAL SETUP STATUS
-      # --------------------------------------------------------
+      - name: No setup needed
+        if: steps.check_secrets.outputs.MISSING_AGENTS == ''
+        run: |
+          echo
+          echo "======================================"
+          echo "✅ ALL SECRETS EXIST - NO SETUP NEEDED"
+          echo "======================================"
+          echo
+          echo "All 4 Playit agent secrets are already configured."
+          echo "Run this workflow with mode=start to launch your server."
 
       - name: Setup final status
         if: always()
         run: |
           echo
-          echo "=============================================="
+          echo "======================================"
           echo "PLAYIT SETUP FINISHED"
-          echo "=============================================="
+          echo "======================================"
 
           echo "WORKFLOW_STATUS=${{ job.status }}"
           echo "RUN_ID=${{ github.run_id }}"
 
-          echo "=============================================="
-
-
-# ============================================================
-# ============================================================
-# L.A. CRIMES SERVER
-# ============================================================
-# ============================================================
+          echo "======================================"
 
   server:
-
     if: ${{ inputs.mode == 'start' }}
-
     runs-on: ubuntu-latest
-
     timeout-minutes: 350
 
     env:
       SLOT: ${{ inputs.slot }}
 
     steps:
-
-      # --------------------------------------------------------
-      # CONFIGURE SLOT
-      # --------------------------------------------------------
-
       - name: Configure server slot
         id: config
         run: |
@@ -440,34 +421,25 @@ jobs:
 
           esac
 
-          ENDPOINT="${DOMAIN}:${PUBLIC_PORT}"
-
           echo "PORT=$PORT" >> "$GITHUB_OUTPUT"
           echo "SECRET_NAME=$SECRET_NAME" >> "$GITHUB_OUTPUT"
           echo "DOMAIN=$DOMAIN" >> "$GITHUB_OUTPUT"
           echo "IP=$IP" >> "$GITHUB_OUTPUT"
           echo "PUBLIC_PORT=$PUBLIC_PORT" >> "$GITHUB_OUTPUT"
-          echo "ENDPOINT=$ENDPOINT" >> "$GITHUB_OUTPUT"
+          echo "ENDPOINT=${DOMAIN}:${PUBLIC_PORT}" >> "$GITHUB_OUTPUT"
 
           echo
           echo "======================================"
           echo "L.A. CRIMES SERVER CONFIGURATION"
           echo "======================================"
-
           echo "SERVER SLOT: $SLOT"
           echo "LOCAL UDP: $PORT"
           echo "PLAYIT SECRET: $SECRET_NAME"
           echo "PUBLIC DOMAIN: $DOMAIN"
           echo "PUBLIC IP: $IP"
           echo "PUBLIC PORT: $PUBLIC_PORT"
-          echo "ENDPOINT: $ENDPOINT"
-
+          echo "ENDPOINT: ${DOMAIN}:${PUBLIC_PORT}"
           echo "======================================"
-
-
-      # --------------------------------------------------------
-      # CHECK SECRETS
-      # --------------------------------------------------------
 
       - name: Check required secrets
         env:
@@ -485,57 +457,38 @@ jobs:
           fi
 
           case "$SLOT" in
-
             1)
-              PLAYIT_SECRET="$PLAYIT_SECRET_1"
+              SECRET="$PLAYIT_SECRET_1"
               ;;
 
             2)
-              PLAYIT_SECRET="$PLAYIT_SECRET_2"
+              SECRET="$PLAYIT_SECRET_2"
               ;;
 
             3)
-              PLAYIT_SECRET="$PLAYIT_SECRET_3"
+              SECRET="$PLAYIT_SECRET_3"
               ;;
 
             4)
-              PLAYIT_SECRET="$PLAYIT_SECRET_4"
+              SECRET="$PLAYIT_SECRET_4"
               ;;
-
-            *)
-              echo "ERROR: Invalid slot."
-              exit 1
-              ;;
-
           esac
 
-          if [ -z "$PLAYIT_SECRET" ]; then
-
+          if [ -z "$SECRET" ]; then
             echo
-            echo "ERROR:"
-            echo "PLAYIT_SECRET_$SLOT is missing."
+            echo "ERROR: Playit secret for Server $SLOT is missing."
             echo
-            echo "Run setup first and add the secret."
+            echo "Run this workflow with:"
+            echo "mode = setup"
+            echo
+            echo "first, then add the secret to GitHub Secrets."
             exit 1
-
           fi
 
-          echo "::add-mask::$PLAYIT_SECRET"
-
-          echo "Required secrets found."
-
-
-      # --------------------------------------------------------
-      # CHECKOUT
-      # --------------------------------------------------------
+          echo "✅ Required secrets found."
 
       - name: Checkout repository
         uses: actions/checkout@v4
-
-
-      # --------------------------------------------------------
-      # INSTALL DEPENDENCIES
-      # --------------------------------------------------------
 
       - name: Install dependencies
         run: |
@@ -551,11 +504,6 @@ jobs:
             iproute2 \
             jq \
             python3
-
-
-      # --------------------------------------------------------
-      # DOWNLOAD DATABASE
-      # --------------------------------------------------------
 
       - name: Download server database
         env:
@@ -590,11 +538,6 @@ jobs:
             "$GITHUB_WORKSPACE/servers.json"
 
           echo "Database loaded."
-
-
-      # --------------------------------------------------------
-      # MARK STARTING
-      # --------------------------------------------------------
 
       - name: Mark server STARTING
         env:
@@ -685,11 +628,6 @@ jobs:
 
           echo "Server $SLOT marked STARTING."
 
-
-      # --------------------------------------------------------
-      # DOWNLOAD L.A. CRIMES
-      # --------------------------------------------------------
-
       - name: Download L.A. Crimes
         run: |
           set -e
@@ -726,18 +664,12 @@ jobs:
               -print
 
             exit 1
-
           fi
 
           chmod +x "$SERVER"
 
           echo "$SERVER" \
             > "$GITHUB_WORKSPACE/server-path.txt"
-
-
-      # --------------------------------------------------------
-      # CREATE SERVER CONFIG
-      # --------------------------------------------------------
 
       - name: Create ServerConfig.txt
         run: |
@@ -767,11 +699,6 @@ jobs:
           echo "ServerConfig:"
           cat "$GITHUB_WORKSPACE/ServerConfig.txt"
 
-
-      # --------------------------------------------------------
-      # INSTALL SERVER CONFIG
-      # --------------------------------------------------------
-
       - name: Install ServerConfig.txt
         run: |
           set -e
@@ -786,11 +713,6 @@ jobs:
 
           sudo chmod 644 \
             "$CONFIG_DIR/ServerConfig.txt"
-
-
-      # --------------------------------------------------------
-      # START L.A. CRIMES
-      # --------------------------------------------------------
 
       - name: Start L.A. Crimes
         env:
@@ -810,10 +732,8 @@ jobs:
           echo "======================================"
           echo "STARTING L.A. CRIMES"
           echo "======================================"
-
           echo "SERVER SLOT: $SLOT"
           echo "LOCAL UDP: $PORT"
-
           echo "======================================"
 
           ./LAC_Linux_v1.9.6.x86_64 \
@@ -837,21 +757,14 @@ jobs:
               || true
 
             exit 1
-
           fi
 
           echo "L.A. Crimes is running."
-
           echo "LAC_PID=$LAC_PID"
 
           ss -lunp |
             grep ":$PORT" ||
             true
-
-
-      # --------------------------------------------------------
-      # DOWNLOAD PLAYIT AGENT
-      # --------------------------------------------------------
 
       - name: Download Playit
         run: |
@@ -866,11 +779,6 @@ jobs:
           chmod +x "$GITHUB_WORKSPACE/playit"
 
           echo "Playit agent downloaded."
-
-
-      # --------------------------------------------------------
-      # PREPARE PLAYIT
-      # --------------------------------------------------------
 
       - name: Prepare Playit runtime
         run: |
@@ -888,11 +796,6 @@ jobs:
 
           echo "Playit runtime prepared."
 
-
-      # --------------------------------------------------------
-      # START PLAYIT
-      # --------------------------------------------------------
-
       - name: Start Playit
         env:
           PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET_1 }}
@@ -903,7 +806,6 @@ jobs:
           set -e
 
           case "$SLOT" in
-
             1)
               PLAYIT_SECRET="$PLAYIT_SECRET_1"
               ;;
@@ -919,12 +821,6 @@ jobs:
             4)
               PLAYIT_SECRET="$PLAYIT_SECRET_4"
               ;;
-
-            *)
-              echo "ERROR: Invalid slot."
-              exit 1
-              ;;
-
           esac
 
           if [ -z "$PLAYIT_SECRET" ]; then
@@ -938,9 +834,7 @@ jobs:
           echo "======================================"
           echo "STARTING PLAYIT AGENT"
           echo "======================================"
-
           echo "SERVER SLOT: $SLOT"
-
           echo "======================================"
 
           export PLAYIT_HOME="/run/playit"
@@ -965,67 +859,44 @@ jobs:
                 || true
 
               exit 1
-
             fi
 
             echo "Playit running... $i/60"
 
             sleep 1
-
           done
 
           echo "Playit agent is running."
 
-
-      # --------------------------------------------------------
-      # VERIFY PLAYIT
-      # --------------------------------------------------------
-
-      - name: Verify Playit
+      - name: Verify Playit tunnel
         env:
           ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
+          IP: ${{ steps.config.outputs.IP }}
         run: |
           set -e
 
           echo
           echo "======================================"
-          echo "PLAYIT STATUS"
+          echo "PLAYIT TUNNEL"
           echo "======================================"
 
-          echo
-          echo "Expected endpoint:"
+          echo "Configured public endpoint:"
           echo "$ENDPOINT"
 
           echo
-          echo "Playit log:"
+          echo "Configured public IP:"
+          echo "$IP"
 
+          echo
+          echo "Playit log:"
           tail -100 \
             "$GITHUB_WORKSPACE/playit.log" \
             || true
 
           echo
-          echo "======================================"
-          echo "IMPORTANT"
-          echo "======================================"
-
-          echo
-          echo "The selected agent must have a tunnel"
-          echo "configured in the Playit dashboard."
-          echo
-          echo "The tunnel should point to:"
-          echo
-          echo "127.0.0.1:7777"
-          echo
-          echo "Protocol:"
-          echo "UDP"
-
-          echo
-          echo "======================================"
-
-
-      # --------------------------------------------------------
-      # MARK ONLINE
-      # --------------------------------------------------------
+          echo "NOTE:"
+          echo "The endpoint above must match the tunnel assigned"
+          echo "to this agent in your Playit dashboard."
 
       - name: Mark server ONLINE
         env:
@@ -1116,19 +987,12 @@ jobs:
           echo "======================================"
           echo "SERVER ONLINE"
           echo "======================================"
-
           echo "SLOT: $SLOT"
           echo "ENDPOINT: $ENDPOINT"
           echo "IP: $IP"
           echo "PORT: $PORT"
           echo "RUN ID: $GITHUB_RUN_ID"
-
           echo "======================================"
-
-
-      # --------------------------------------------------------
-      # KEEP ALIVE
-      # --------------------------------------------------------
 
       - name: Keep server alive
         env:
@@ -1161,7 +1025,6 @@ jobs:
                 || true
 
               exit 1
-
             fi
 
             if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
@@ -1174,12 +1037,10 @@ jobs:
                 || true
 
               exit 1
-
             fi
 
             echo
             echo "[$(date '+%H:%M:%S')]"
-
             echo "SERVER_SLOT=$SLOT"
             echo "SERVER_STATUS=ONLINE"
             echo "LOCAL_UDP=$PORT"
@@ -1187,13 +1048,7 @@ jobs:
             echo "RUN_ID=${{ github.run_id }}"
 
             sleep 10
-
           done
-
-
-      # --------------------------------------------------------
-      # CLEANUP
-      # --------------------------------------------------------
 
       - name: Cleanup server state
         if: always()
@@ -1235,7 +1090,6 @@ jobs:
               current_run = server.get("run_id")
 
               if current_run is not None:
-
                   if str(current_run) != run_id:
 
                       print(
@@ -1287,11 +1141,6 @@ jobs:
             || true
 
           echo "Cleanup finished."
-
-
-      # --------------------------------------------------------
-      # FINAL STATUS
-      # --------------------------------------------------------
 
       - name: Final status
         if: always()
