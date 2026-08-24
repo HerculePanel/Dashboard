@@ -129,7 +129,8 @@ jobs:
             wget \
             curl \
             ca-certificates \
-            jq
+            jq \
+            net-tools
 
       - name: Download Playit agent
         if: steps.check_secrets.outputs.MISSING_AGENTS != ''
@@ -175,15 +176,18 @@ jobs:
             # Kill any existing Playit processes
             pkill -f "playit" || true
 
-            # Create a directory for the agent
+            # Create directories for the agent
             mkdir -p "$GITHUB_WORKSPACE/agent-$SLOT"
+            mkdir -p "$GITHUB_WORKSPACE/agent-$SLOT/.config/playit_gg"
+            mkdir -p "$GITHUB_WORKSPACE/agent-$SLOT/sockets"
 
             echo "Generating claim link for agent $SLOT..."
             
             cd "$GITHUB_WORKSPACE/agent-$SLOT"
 
-            # Run the agent without any subcommands - it auto-generates claim URL on first run
+            # Run the agent with socket path specified
             $PLAYIT \
+              --socket-path "$GITHUB_WORKSPACE/agent-$SLOT/sockets/playit.sock" \
               > "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" 2>&1 &
 
             AGENT_PID=$!
@@ -252,7 +256,7 @@ jobs:
               fi
               
               # Also check if the secret file was created
-              if [ -f "$GITHUB_WORKSPACE/agent-$SLOT/playit.toml" ]; then
+              if [ -f "$GITHUB_WORKSPACE/agent-$SLOT/.config/playit_gg/playit.toml" ]; then
                 echo "✅ Agent $SLOT successfully claimed! (secret file found)"
                 SECRET_FOUND=true
                 break
@@ -266,8 +270,8 @@ jobs:
 
             if [ "$SECRET_FOUND" = true ]; then
               # Extract the secret from the config file
-              if [ -f "$GITHUB_WORKSPACE/agent-$SLOT/playit.toml" ]; then
-                SECRET=$(cat "$GITHUB_WORKSPACE/agent-$SLOT/playit.toml" | grep -o '[a-f0-9]\{64\}' | head -1)
+              if [ -f "$GITHUB_WORKSPACE/agent-$SLOT/.config/playit_gg/playit.toml" ]; then
+                SECRET=$(cat "$GITHUB_WORKSPACE/agent-$SLOT/.config/playit_gg/playit.toml" | grep -o '[a-f0-9]\{64\}' | head -1)
               else
                 # Try to get it from the log
                 SECRET=$(grep -o '[a-f0-9]\{64\}' "$GITHUB_WORKSPACE/agent-$SLOT/agent.log" | head -1)
