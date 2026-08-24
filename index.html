@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -660,6 +658,12 @@ async function refreshDatabase() {
       );
     }
 
+    if (file.truncated) {
+      throw new Error(
+        "Gist file is truncated. Make the Gist smaller or use a different storage method."
+      );
+    }
+
 
     const data =
       JSON.parse(file.content);
@@ -886,10 +890,6 @@ async function startServer(slot) {
     );
 
 
-    const dispatchTime =
-      Date.now();
-
-
     await github(
       `/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW}/dispatches`,
       {
@@ -913,10 +913,7 @@ async function startServer(slot) {
     );
 
 
-    await waitForServerRun(
-      slot,
-      dispatchTime
-    );
+    await waitForServerRun(slot);
 
 
   } catch (error) {
@@ -934,10 +931,7 @@ async function startServer(slot) {
    WAIT FOR EXACT RUN ID
 ========================================== */
 
-async function waitForServerRun(
-  slot,
-  dispatchTime
-) {
+async function waitForServerRun(slot) {
 
   for (
     let attempt = 0;
@@ -1191,4 +1185,4 @@ refreshTimer =
 </script>
 
 </body>
-</html>
+    </html>
