@@ -25,7 +25,6 @@ on:
 
 permissions:
   contents: read
-  secrets: write
 
 env:
   GIST_ID: cb2aaaece7a231ec707429d41e1457f4
@@ -128,8 +127,6 @@ jobs:
       # ========================================================
 
       - name: Create Playit Agents 1, 2, 3 and 4
-        env:
-          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
         run: |
           set -e
 
@@ -244,12 +241,6 @@ jobs:
             echo "After adding all agent secrets, run this workflow"
             echo "again with mode=start to launch your server."
             echo "=============================================="
-
-            # Save secret to file for later use
-            echo "$SECRET" > "$GITHUB_WORKSPACE/secret_$SLOT.txt"
-            
-            # Also save to GitHub output for masking
-            echo "::add-mask::$SECRET"
 
             echo "Agent $SLOT setup complete."
           }
