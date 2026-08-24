@@ -59,7 +59,69 @@ jobs:
 
           echo "DASHBOARD_TOKEN found."
 
+      - name: Check which secrets exist
+        id: check_secrets
+        env:
+          PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET_1 }}
+          PLAYIT_SECRET_2: ${{ secrets.PLAYIT_SECRET_2 }}
+          PLAYIT_SECRET_3: ${{ secrets.PLAYIT_SECRET_3 }}
+          PLAYIT_SECRET_4: ${{ secrets.PLAYIT_SECRET_4 }}
+        run: |
+          set -e
+
+          echo "======================================"
+          echo "CHECKING EXISTING SECRETS"
+          echo "======================================"
+
+          # Check each secret and store results
+          MISSING_AGENTS=""
+
+          if [ -z "$PLAYIT_SECRET_1" ]; then
+            echo "❌ PLAYIT_SECRET_1 is MISSING"
+            MISSING_AGENTS="${MISSING_AGENTS}1"
+          else
+            echo "✅ PLAYIT_SECRET_1 exists"
+          fi
+
+          if [ -z "$PLAYIT_SECRET_2" ]; then
+            echo "❌ PLAYIT_SECRET_2 is MISSING"
+            MISSING_AGENTS="${MISSING_AGENTS}2"
+          else
+            echo "✅ PLAYIT_SECRET_2 exists"
+          fi
+
+          if [ -z "$PLAYIT_SECRET_3" ]; then
+            echo "❌ PLAYIT_SECRET_3 is MISSING"
+            MISSING_AGENTS="${MISSING_AGENTS}3"
+          else
+            echo "✅ PLAYIT_SECRET_3 exists"
+          fi
+
+          if [ -z "$PLAYIT_SECRET_4" ]; then
+            echo "❌ PLAYIT_SECRET_4 is MISSING"
+            MISSING_AGENTS="${MISSING_AGENTS}4"
+          else
+            echo "✅ PLAYIT_SECRET_4 exists"
+          fi
+
+          echo "MISSING_AGENTS=$MISSING_AGENTS" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$MISSING_AGENTS" ]; then
+            echo
+            echo "======================================"
+            echo "✅ ALL SECRETS EXIST!"
+            echo "======================================"
+            echo "No setup needed. Run with mode=start."
+          else
+            echo
+            echo "======================================"
+            echo "⚠️  MISSING AGENTS: $MISSING_AGENTS"
+            echo "======================================"
+            echo "Will create secrets for agents: $MISSING_AGENTS"
+          fi
+
       - name: Install setup dependencies
+        if: steps.check_secrets.outputs.MISSING_AGENTS != ''
         run: |
           set -e
 
@@ -72,6 +134,7 @@ jobs:
             jq
 
       - name: Download Playit CLI
+        if: steps.check_secrets.outputs.MISSING_AGENTS != ''
         run: |
           set -e
 
@@ -87,7 +150,10 @@ jobs:
 
           "$GITHUB_WORKSPACE/playit-cli" version || true
 
-      - name: Create Playit Agents 1, 2, 3 and 4
+      - name: Create missing Playit agents
+        if: steps.check_secrets.outputs.MISSING_AGENTS != ''
+        env:
+          MISSING_AGENTS: ${{ steps.check_secrets.outputs.MISSING_AGENTS }}
         run: |
           set -e
 
@@ -192,36 +258,50 @@ jobs:
             echo "4. Value: (paste the secret above)"
             echo "5. Click 'Add secret'"
             echo
-            echo "After adding all agent secrets, run this workflow"
-            echo "again with mode=start to launch your server."
+            echo "After adding the secret, run this workflow again"
+            echo "with mode=start to launch your server."
             echo "=============================================="
           }
 
-          # AGENT 1
-          create_agent "1" "PLAYIT_SECRET_1" "LAC Server Agent 1"
+          # Loop through missing agents
+          MISSING="$MISSING_AGENTS"
+          
+          if [[ "$MISSING" == *"1"* ]]; then
+            create_agent "1" "PLAYIT_SECRET_1" "LAC Server Agent 1"
+          fi
 
-          # AGENT 2
-          create_agent "2" "PLAYIT_SECRET_2" "LAC Server Agent 2"
+          if [[ "$MISSING" == *"2"* ]]; then
+            create_agent "2" "PLAYIT_SECRET_2" "LAC Server Agent 2"
+          fi
 
-          # AGENT 3
-          create_agent "3" "PLAYIT_SECRET_3" "LAC Server Agent 3"
+          if [[ "$MISSING" == *"3"* ]]; then
+            create_agent "3" "PLAYIT_SECRET_3" "LAC Server Agent 3"
+          fi
 
-          # AGENT 4
-          create_agent "4" "PLAYIT_SECRET_4" "LAC Server Agent 4"
+          if [[ "$MISSING" == *"4"* ]]; then
+            create_agent "4" "PLAYIT_SECRET_4" "LAC Server Agent 4"
+          fi
 
           echo
           echo "=============================================="
-          echo "ALL FOUR PLAYIT AGENTS ARE CONFIGURED"
+          echo "MISSING AGENTS HAVE BEEN CONFIGURED"
           echo "=============================================="
           echo
-          echo "SECRETS TO ADD TO GITHUB:"
-          echo "-------------------------"
-          echo "PLAYIT_SECRET_1"
-          echo "PLAYIT_SECRET_2"
-          echo "PLAYIT_SECRET_3"
-          echo "PLAYIT_SECRET_4"
+          echo "Agents created: $MISSING_AGENTS"
           echo
-          echo "Then run this workflow with mode=start to launch your server."
+          echo "Add the secrets above to GitHub Secrets,"
+          echo "then run this workflow with mode=start to launch your server."
+
+      - name: No setup needed
+        if: steps.check_secrets.outputs.MISSING_AGENTS == ''
+        run: |
+          echo
+          echo "======================================"
+          echo "✅ ALL SECRETS EXIST - NO SETUP NEEDED"
+          echo "======================================"
+          echo
+          echo "All 4 Playit agent secrets are already configured."
+          echo "Run this workflow with mode=start to launch your server."
 
       - name: Setup final status
         if: always()
