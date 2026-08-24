@@ -25,6 +25,7 @@ on:
 
 permissions:
   contents: read
+  secrets: write
 
 env:
   GIST_ID: cb2aaaece7a231ec707429d41e1457f4
@@ -39,16 +40,17 @@ jobs:
   # ============================================================
   # PLAYIT SETUP
   #
-  # This job creates Agents 2, 3 and 4.
+  # This job creates Agents 1, 2, 3 and 4.
   #
   # It:
   #   1. Generates a claim code.
   #   2. Prints the Playit claim URL.
   #   3. Waits for you to open/approve it.
   #   4. Exchanges the approved claim for an agent secret.
-  #   5. Saves that secret as a GitHub Actions repository secret.
+  #   5. Prints the secret so you can manually add it to GitHub Secrets.
   #
-  # Secrets created:
+  # Secrets to create:
+  #   PLAYIT_SECRET_1
   #   PLAYIT_SECRET_2
   #   PLAYIT_SECRET_3
   #   PLAYIT_SECRET_4
@@ -125,10 +127,9 @@ jobs:
       # FUNCTION: CREATE ONE AGENT
       # ========================================================
 
-      - name: Create Playit Agents 2, 3 and 4
+      - name: Create Playit Agents 1, 2, 3 and 4
         env:
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
-          REPOSITORY: ${{ github.repository }}
         run: |
           set -e
 
@@ -187,18 +188,19 @@ jobs:
             echo "Agent name:"
             echo "$AGENT_NAME"
             echo
-            echo "Open this URL:"
+            echo "Open this URL in your browser:"
             echo
             echo "$CLAIM_URL"
             echo
             echo "**************************************************"
             echo
             echo "IMPORTANT:"
-            echo "Open the URL above in your browser."
-            echo "Claim the agent and name it:"
-            echo "$AGENT_NAME"
+            echo "1. Open the URL above in your browser."
+            echo "2. Log in to your Playit account."
+            echo "3. Claim the agent and name it:"
+            echo "   $AGENT_NAME"
             echo
-            echo "The workflow will wait for approval."
+            echo "The workflow will wait for you to approve it."
             echo
 
             # --------------------------------------------------
@@ -221,33 +223,45 @@ jobs:
             fi
 
             echo
-            echo "Agent $SLOT successfully claimed."
+            echo "✅ Agent $SLOT successfully claimed!"
+            echo
+            echo "=============================================="
+            echo "AGENT SECRET FOR $SECRET_NAME"
+            echo "=============================================="
+            echo
+            echo "Copy this secret value:"
+            echo
+            echo "$SECRET"
+            echo
+            echo "=============================================="
+            echo
+            echo "NEXT STEPS:"
+            echo "1. Go to: https://github.com/settings/secrets/actions"
+            echo "2. Add a new repository secret named: $SECRET_NAME"
+            echo "3. Paste the secret value above"
+            echo "4. Click 'Add secret'"
+            echo
+            echo "After adding all agent secrets, run this workflow"
+            echo "again with mode=start to launch your server."
+            echo "=============================================="
 
-            # --------------------------------------------------
-            # Mask the secret immediately.
-            # --------------------------------------------------
-
+            # Save secret to file for later use
+            echo "$SECRET" > "$GITHUB_WORKSPACE/secret_$SLOT.txt"
+            
+            # Also save to GitHub output for masking
             echo "::add-mask::$SECRET"
 
-            # --------------------------------------------------
-            # Save as a repository Actions secret.
-            #
-            # GH_TOKEN is never printed.
-            # --------------------------------------------------
-
-            echo "$SECRET" |
-              GH_TOKEN="$DASHBOARD_TOKEN" \
-              gh secret set "$SECRET_NAME" \
-                --repo "$REPOSITORY" \
-                --body -
-
-            echo
-            echo "GitHub Actions secret saved:"
-            echo "$SECRET_NAME"
-
-            echo
             echo "Agent $SLOT setup complete."
           }
+
+          # ====================================================
+          # AGENT 1
+          # ====================================================
+
+          create_agent \
+            "1" \
+            "PLAYIT_SECRET_1" \
+            "LAC Server Agent 1"
 
           # ====================================================
           # AGENT 2
@@ -278,20 +292,27 @@ jobs:
 
           echo
           echo "=============================================="
-          echo "ALL THREE NEW PLAYIT AGENTS ARE CONFIGURED"
+          echo "ALL FOUR PLAYIT AGENTS ARE CONFIGURED"
           echo "=============================================="
           echo
-          echo "Created secrets:"
+          echo "You have created 4 agent secrets."
+          echo
+          echo "SECRETS TO ADD TO GITHUB:"
+          echo "-------------------------"
+          echo "PLAYIT_SECRET_1"
           echo "PLAYIT_SECRET_2"
           echo "PLAYIT_SECRET_3"
           echo "PLAYIT_SECRET_4"
           echo
-          echo "Next:"
-          echo "1. Create/verify the tunnel for each agent."
-          echo "2. Make each tunnel forward UDP to local port 7777."
-          echo "3. Rerun this workflow with mode=start."
-          echo "4. Select the server slot you want."
+          echo "To add them:"
+          echo "1. Go to: https://github.com/LACServer/Dashboard/settings/secrets/actions"
+          echo "2. Click 'New repository secret'"
+          echo "3. Name: PLAYIT_SECRET_1"
+          echo "4. Value: (the secret printed above)"
+          echo "5. Click 'Add secret'"
+          echo "6. Repeat for PLAYIT_SECRET_2, 3, and 4"
           echo
+          echo "Then run this workflow with mode=start to launch your server."
 
       # ========================================================
       # SETUP FINAL STATUS
@@ -353,36 +374,31 @@ jobs:
           case "$SLOT" in
 
             1)
-              SECRET_NAME="PLAYIT_SECRET"
-              DOMAIN="irvine-util.tun.ply.gg:54710"
-              IP="147.185.221.231:54710"
+              SECRET_NAME="PLAYIT_SECRET_1"
+              DOMAIN="irvine-util.tun.ply.gg"
+              IP="147.185.221.231"
+              PUBLIC_PORT="54710"
               ;;
 
             2)
               SECRET_NAME="PLAYIT_SECRET_2"
-
-              # Replace these with the actual public
-              # address of Tunnel 2 after you create it.
-              DOMAIN="drake-expansion.tun.ply.gg:20718"
-              IP="147.185.221.18:20718"
+              DOMAIN="drake-expansion.tun.ply.gg"
+              IP="147.185.221.18"
+              PUBLIC_PORT="20718"
               ;;
 
             3)
               SECRET_NAME="PLAYIT_SECRET_3"
-
-              # Replace these with the actual public
-              # address of Tunnel 3 after you create it.
-              DOMAIN="drake-drama.tun.ply.gg:58951"
-              IP="147.185.221.231:58951"
+              DOMAIN="drake-drama.tun.ply.gg"
+              IP="147.185.221.231"
+              PUBLIC_PORT="58951"
               ;;
 
             4)
               SECRET_NAME="PLAYIT_SECRET_4"
-
-              # Replace these with the actual public
-              # address of Tunnel 4 after you create it.
-              DOMAIN="drake-muscle.tun.ply.gg:58968"
-              IP="147.185.221.231:58968"
+              DOMAIN="drake-muscle.tun.ply.gg"
+              IP="147.185.221.231"
+              PUBLIC_PORT="58968"
               ;;
 
             *)
@@ -396,6 +412,8 @@ jobs:
           echo "SECRET_NAME=$SECRET_NAME" >> "$GITHUB_OUTPUT"
           echo "DOMAIN=$DOMAIN" >> "$GITHUB_OUTPUT"
           echo "IP=$IP" >> "$GITHUB_OUTPUT"
+          echo "PUBLIC_PORT=$PUBLIC_PORT" >> "$GITHUB_OUTPUT"
+          echo "ENDPOINT=${DOMAIN}:${PUBLIC_PORT}" >> "$GITHUB_OUTPUT"
 
           echo
           echo "======================================"
@@ -406,6 +424,8 @@ jobs:
           echo "PLAYIT SECRET: $SECRET_NAME"
           echo "PUBLIC DOMAIN: $DOMAIN"
           echo "PUBLIC IP: $IP"
+          echo "PUBLIC PORT: $PUBLIC_PORT"
+          echo "ENDPOINT: ${DOMAIN}:${PUBLIC_PORT}"
           echo "======================================"
 
       # ========================================================
@@ -415,7 +435,7 @@ jobs:
       - name: Check required secrets
         env:
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
-          PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET }}
+          PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET_1 }}
           PLAYIT_SECRET_2: ${{ secrets.PLAYIT_SECRET_2 }}
           PLAYIT_SECRET_3: ${{ secrets.PLAYIT_SECRET_3 }}
           PLAYIT_SECRET_4: ${{ secrets.PLAYIT_SECRET_4 }}
@@ -452,11 +472,11 @@ jobs:
             echo "Run this workflow with:"
             echo "mode = setup"
             echo
-            echo "first."
+            echo "first, then add the secret to GitHub Secrets."
             exit 1
           fi
 
-          echo "Required secrets found."
+          echo "✅ Required secrets found."
 
       # ========================================================
       # CHECKOUT
@@ -530,7 +550,7 @@ jobs:
         env:
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
           PORT: ${{ steps.config.outputs.PORT }}
-          DOMAIN: ${{ steps.config.outputs.DOMAIN }}
+          ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
           IP: ${{ steps.config.outputs.IP }}
         run: |
           set -e
@@ -540,7 +560,7 @@ jobs:
             "$SLOT" \
             "$GITHUB_RUN_ID" \
             "$PORT" \
-            "$DOMAIN" \
+            "$ENDPOINT" \
             "$IP" <<'PY'
 
           import json
@@ -550,7 +570,7 @@ jobs:
           slot = int(sys.argv[2])
           run_id = str(sys.argv[3])
           port = int(sys.argv[4])
-          domain = sys.argv[5]
+          endpoint = sys.argv[5]
           ip = sys.argv[6]
 
           with open(path, "r", encoding="utf-8") as f:
@@ -571,7 +591,7 @@ jobs:
 
                   server["status"] = "starting"
                   server["run_id"] = run_id
-                  server["endpoint"] = domain
+                  server["endpoint"] = endpoint
                   server["ip"] = ip
                   server["port"] = port
 
@@ -814,7 +834,7 @@ jobs:
 
       - name: Start Playit
         env:
-          PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET }}
+          PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET_1 }}
           PLAYIT_SECRET_2: ${{ secrets.PLAYIT_SECRET_2 }}
           PLAYIT_SECRET_3: ${{ secrets.PLAYIT_SECRET_3 }}
           PLAYIT_SECRET_4: ${{ secrets.PLAYIT_SECRET_4 }}
@@ -890,7 +910,7 @@ jobs:
 
       - name: Verify Playit tunnel
         env:
-          DOMAIN: ${{ steps.config.outputs.DOMAIN }}
+          ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
           IP: ${{ steps.config.outputs.IP }}
         run: |
           set -e
@@ -900,8 +920,8 @@ jobs:
           echo "PLAYIT TUNNEL"
           echo "======================================"
 
-          echo "Configured public domain:"
-          echo "$DOMAIN"
+          echo "Configured public endpoint:"
+          echo "$ENDPOINT"
 
           echo
           echo "Configured public IP:"
@@ -915,9 +935,8 @@ jobs:
 
           echo
           echo "NOTE:"
-          echo "The workflow does not invent a Playit endpoint."
           echo "The endpoint above must match the tunnel assigned"
-          echo "to this agent."
+          echo "to this agent in your Playit dashboard."
 
       # ========================================================
       # MARK SERVER ONLINE
@@ -927,7 +946,7 @@ jobs:
         env:
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
           PORT: ${{ steps.config.outputs.PORT }}
-          DOMAIN: ${{ steps.config.outputs.DOMAIN }}
+          ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
           IP: ${{ steps.config.outputs.IP }}
         run: |
           set -e
@@ -937,7 +956,7 @@ jobs:
             "$SLOT" \
             "$GITHUB_RUN_ID" \
             "$PORT" \
-            "$DOMAIN" \
+            "$ENDPOINT" \
             "$IP" <<'PY'
 
           import json
@@ -947,7 +966,7 @@ jobs:
           slot = int(sys.argv[2])
           run_id = str(sys.argv[3])
           port = int(sys.argv[4])
-          domain = sys.argv[5]
+          endpoint = sys.argv[5]
           ip = sys.argv[6]
 
           with open(path, "r", encoding="utf-8") as f:
@@ -965,7 +984,7 @@ jobs:
 
                   server["status"] = "online"
                   server["run_id"] = run_id
-                  server["endpoint"] = domain
+                  server["endpoint"] = endpoint
                   server["ip"] = ip
                   server["port"] = port
 
@@ -1013,7 +1032,7 @@ jobs:
           echo "SERVER ONLINE"
           echo "======================================"
           echo "SLOT: $SLOT"
-          echo "DOMAIN: $DOMAIN"
+          echo "ENDPOINT: $ENDPOINT"
           echo "IP: $IP"
           echo "PORT: $PORT"
           echo "RUN ID: $GITHUB_RUN_ID"
@@ -1026,12 +1045,12 @@ jobs:
       - name: Keep server alive
         env:
           PORT: ${{ steps.config.outputs.PORT }}
-          DOMAIN: ${{ steps.config.outputs.DOMAIN }}
+          ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
         run: |
           set -e
 
           echo "Server $SLOT is online."
-          echo "Endpoint: $DOMAIN"
+          echo "Endpoint: $ENDPOINT"
           echo "Port: $PORT"
 
           while true; do
@@ -1081,7 +1100,7 @@ jobs:
             echo "SERVER_SLOT=$SLOT"
             echo "SERVER_STATUS=ONLINE"
             echo "LOCAL_UDP=$PORT"
-            echo "PUBLIC_ENDPOINT=$DOMAIN"
+            echo "PUBLIC_ENDPOINT=$ENDPOINT"
             echo "RUN_ID=${{ github.run_id }}"
 
             sleep 10
@@ -1212,7 +1231,7 @@ jobs:
         if: always()
         env:
           PORT: ${{ steps.config.outputs.PORT }}
-          DOMAIN: ${{ steps.config.outputs.DOMAIN }}
+          ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
         run: |
           echo
           echo "======================================"
@@ -1221,7 +1240,7 @@ jobs:
 
           echo "SERVER_SLOT=$SLOT"
           echo "LOCAL_UDP=$PORT"
-          echo "PUBLIC_ENDPOINT=$DOMAIN"
+          echo "PUBLIC_ENDPOINT=$ENDPOINT"
           echo "WORKFLOW_STATUS=${{ job.status }}"
           echo "RUN_ID=${{ github.run_id }}"
 
