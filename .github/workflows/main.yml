@@ -288,11 +288,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install dependencies (from official README)
         run: |
           set -e
           sudo apt-get update
-          sudo apt-get install -y unzip wget curl ca-certificates iproute2 jq python3
+          sudo apt-get install -y \
+            unzip wget curl ca-certificates iproute2 jq python3 \
+            screen libc6-i386 lib32stdc++6 \
+            || true
+          # optional 32-bit package (ignore if unavailable)
+          sudo apt-get install -y libncurses5:i386 2>/dev/null || true
+
+      # ----------------------------------------------------------
+      # README requirement: disable IPv6 or players cannot join
+      # ----------------------------------------------------------
+      - name: Disable IPv6 (required by LAC README)
+        run: |
+          set -e
+          echo "Disabling IPv6..."
+          sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+          sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+          sudo sysctl -w net.ipv6.conf.lo.disable_ipv6=1
+          echo "IPv6 status:"
+          ip -6 addr show || true
+          echo "IPv6 disabled."
 
       - name: Download server database
         env:
@@ -355,7 +374,7 @@ jobs:
         run: |
           set -e
           wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/LAC.zip" \
-            "https://www.lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
+            "https://lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
           rm -rf "$GITHUB_WORKSPACE/lac"
           mkdir -p "$GITHUB_WORKSPACE/lac"
           unzip -q "$GITHUB_WORKSPACE/LAC.zip" -d "$GITHUB_WORKSPACE/lac"
@@ -370,56 +389,61 @@ jobs:
           echo "Found server binary: $SERVER"
 
       # ----------------------------------------------------------
-      # USE ServerConfig.txt FROM THE REPO (do not generate it)
+      # Official path from README:
+      # /root/.config/unity3d/MA/LAC/ServerConfig.txt
+      # Game must run as root so it reads this path.
       # ----------------------------------------------------------
-      - name: Install ServerConfig.txt from repo
+      - name: Install ServerConfig.txt (official path)
         run: |
           set -e
 
           if [ ! -f "$GITHUB_WORKSPACE/ServerConfig.txt" ]; then
             echo "ERROR: ServerConfig.txt not found in the repository root."
-            echo "Put ServerConfig.txt in the root of the repo and commit it."
+            echo "Commit ServerConfig.txt to the root of the repo."
             ls -la "$GITHUB_WORKSPACE" || true
             exit 1
           fi
 
-          echo "Using ServerConfig.txt from the repository:"
+          echo "Repo ServerConfig.txt:"
           cat "$GITHUB_WORKSPACE/ServerConfig.txt"
           echo
 
-          # Game runs as the runner user, so use $HOME (not /root)
-          CONFIG_DIR="$HOME/.config/unity3d/MA/LAC"
-          mkdir -p "$CONFIG_DIR"
-          cp "$GITHUB_WORKSPACE/ServerConfig.txt" "$CONFIG_DIR/ServerConfig.txt"
-          chmod 644 "$CONFIG_DIR/ServerConfig.txt"
-
-          # Also install under /root in case the binary elevates or checks there
           sudo mkdir -p /root/.config/unity3d/MA/LAC
           sudo cp "$GITHUB_WORKSPACE/ServerConfig.txt" /root/.config/unity3d/MA/LAC/ServerConfig.txt
           sudo chmod 644 /root/.config/unity3d/MA/LAC/ServerConfig.txt
+          sudo chown root:root /root/.config/unity3d/MA/LAC/ServerConfig.txt
 
-          echo "ServerConfig.txt installed to:"
-          echo "  $CONFIG_DIR/ServerConfig.txt"
-          echo "  /root/.config/unity3d/MA/LAC/ServerConfig.txt"
+          echo "Installed to:"
+          ls -la /root/.config/unity3d/MA/LAC/ServerConfig.txt
+          echo
+          echo "Contents on disk:"
+          sudo cat /root/.config/unity3d/MA/LAC/ServerConfig.txt
 
-      - name: Start L.A. Crimes
+      - name: Start L.A. Crimes as root
         env:
           PORT: ${{ steps.config.outputs.PORT }}
         run: |
           set -e
           SERVER=$(cat "$GITHUB_WORKSPACE/server-path.txt")
           SERVER_DIR=$(dirname "$SERVER")
+
+          # Run as root so Unity uses /root/.config/unity3d/MA/LAC/
           cd "$SERVER_DIR"
-          ./LAC_Linux_v1.9.6.x86_64 -batchmode -nographics > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
+          sudo ./LAC_Linux_v1.9.6.x86_64 -batchmode -nographics > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
           LAC_PID=$!
           echo "$LAC_PID" > "$GITHUB_WORKSPACE/lac.pid"
-          sleep 12
+
+          sleep 15
+
           if ! kill -0 "$LAC_PID" 2>/dev/null; then
             echo "ERROR: L.A. Crimes stopped."
-            tail -250 "$GITHUB_WORKSPACE/lac-server.log" || true
+            echo "----- last log lines -----"
+            tail -300 "$GITHUB_WORKSPACE/lac-server.log" || true
             exit 1
           fi
-          echo "L.A. Crimes is running. PID: $LAC_PID  Local UDP: $PORT"
+
+          echo "L.A. Crimes is running as root. PID: $LAC_PID  Local UDP: $PORT"
+          echo "Config path used: /root/.config/unity3d/MA/LAC/ServerConfig.txt"
 
       - name: Download Playit agent
         run: |
@@ -509,6 +533,7 @@ jobs:
             PLAYIT_PID=$(cat "$GITHUB_WORKSPACE/playit.pid")
             if ! kill -0 "$LAC_PID" 2>/dev/null; then
               echo "L.A. Crimes stopped."
+              tail -100 "$GITHUB_WORKSPACE/lac-server.log" || true
               exit 1
             fi
             if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
