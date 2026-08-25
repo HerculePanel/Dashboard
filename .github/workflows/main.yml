@@ -419,11 +419,14 @@ jobs:
           SERVER_DIR=$(dirname "$SERVER")
 
           cd "$SERVER_DIR"
-          sudo ./LAC_Linux_v1.9.6.x86_64 -batchmode -nographics > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
+
+          # -H forces HOME=/root so Unity uses /root/.config/unity3d/MA/LAC/
+          sudo -H ./LAC_Linux_v1.9.6.x86_64 -batchmode -nographics \
+            > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
           LAC_PID=$!
           echo "$LAC_PID" > "$GITHUB_WORKSPACE/lac.pid"
 
-          sleep 15
+          sleep 20
 
           if ! kill -0 "$LAC_PID" 2>/dev/null; then
             echo "ERROR: L.A. Crimes stopped."
@@ -432,8 +435,13 @@ jobs:
             exit 1
           fi
 
-          echo "L.A. Crimes is running as root. PID: $LAC_PID  Local UDP: $PORT"
-          echo "Config path used: /root/.config/unity3d/MA/LAC/ServerConfig.txt"
+          echo "L.A. Crimes running. PID=$LAC_PID  Local UDP=$PORT"
+          echo "----- config dir after start -----"
+          sudo ls -la /root/.config/unity3d/MA/LAC/ || true
+          echo "----- ServerConfig on disk -----"
+          sudo cat /root/.config/unity3d/MA/LAC/ServerConfig.txt || true
+          echo "----- last log lines -----"
+          tail -50 "$GITHUB_WORKSPACE/lac-server.log" || true
 
       - name: Download Playit agent
         run: |
@@ -542,33 +550,4 @@ jobs:
         run: |
           set +e
           if [ ! -f "$GITHUB_WORKSPACE/servers.json" ]; then exit 0; fi
-          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" <<'PY'
-          import json, sys
-          path, slot, run_id = sys.argv[1], int(sys.argv[2]), str(sys.argv[3])
-          with open(path, "r", encoding="utf-8") as f:
-              data = json.load(f)
-          for server in data["servers"]:
-              if int(server["slot"]) != slot: continue
-              current_run = server.get("run_id")
-              if current_run is not None and str(current_run) != run_id:
-                  print(f"Cleanup ignored: server belongs to {current_run}.")
-                  sys.exit(0)
-              server["status"] = "offline"
-              server["run_id"] = None
-              server["endpoint"] = None
-              server["ip"] = None
-              server["port"] = None
-              break
-          with open(path, "w", encoding="utf-8") as f:
-              json.dump(data, f, indent=2)
-              f.write("\n")
-          PY
-          PAYLOAD=$(jq -n --arg content "$(cat "$GITHUB_WORKSPACE/servers.json")" --arg filename "$GIST_FILE" '{files:{($filename):{content:$content}}}')
-          curl --silent --show-error \
-            --request PATCH --url "https://api.github.com/gists/$GIST_ID" \
-            --header "Accept: application/vnd.github+json" \
-            --header "Authorization: Bearer $DASHBOARD_TOKEN" \
-            --header "X-GitHub-Api-Version: 2022-11-28" \
-            --header "Content-Type: application/json" \
-            --data "$PAYLOAD" > /dev/null || true
-          echo "Server cleanup complete."
+          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" 
