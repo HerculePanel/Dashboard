@@ -39,9 +39,6 @@ env:
 
 jobs:
 
-  # ================================================================
-  # SETUP – create Docker-compatible agents that support UDP
-  # ================================================================
   setup:
     if: ${{ inputs.mode == 'setup' }}
     runs-on: ubuntu-latest
@@ -68,7 +65,6 @@ jobs:
           sudo chmod 777 /run/playit
           mkdir -p "$HOME/.config/playit_gg"
           mkdir -p "$HOME/.config/playit"
-          echo "Directories ready."
 
       - name: Download Playit CLI + Agent
         run: |
@@ -76,7 +72,6 @@ jobs:
           wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/playit-cli" "$PLAYIT_CLI_URL"
           wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/playit" "$PLAYIT_AGENT_URL"
           chmod +x "$GITHUB_WORKSPACE/playit-cli" "$GITHUB_WORKSPACE/playit"
-          echo "Binaries ready."
 
       - name: Check secrets and create missing agents
         run: |
@@ -128,22 +123,18 @@ jobs:
             echo "##################################################"
             echo
 
-            # Clean previous state
             rm -rf "$HOME/.config/playit_gg" "$HOME/.config/playit" 2>/dev/null || true
             mkdir -p "$HOME/.config/playit_gg"
 
-            # Generate claim code
             CLAIM_CODE=$("$GITHUB_WORKSPACE/playit-cli" claim generate 2>/dev/null | tr -d '\r\n' || true)
 
             if [ -z "$CLAIM_CODE" ] || [ ${#CLAIM_CODE} -lt 8 ]; then
               echo "ERROR: claim generate failed"
-              "$GITHUB_WORKSPACE/playit-cli" claim generate || true
               exit 1
             fi
 
             echo "Claim code: $CLAIM_CODE"
 
-            # Force type = docker (this is the type that accepts normal UDP tunnels)
             CLAIM_URL=$("$GITHUB_WORKSPACE/playit-cli" claim url "$CLAIM_CODE" \
               --name "lac-slot-$SLOT_HINT" \
               --type "docker" 2>/dev/null | grep -oE 'https://playit\.gg/claim/[A-Za-z0-9_-]+' || true)
@@ -154,95 +145,38 @@ jobs:
 
             echo
             echo "=================================================="
-            echo " READ THIS CAREFULLY"
-            echo "=================================================="
-            echo
-            echo "1. Open this link (you must be logged into playit.gg):"
-            echo
+            echo "1. Open this link (logged into playit.gg):"
             echo "    $CLAIM_URL"
-            echo
-            echo "2. On the claim page:"
-            echo "   - Click Claim / Accept / Add Agent"
-            echo "   - Name it: lac-slot-$SLOT_HINT"
-            echo "   - Leave EVERYTHING else on default"
-            echo "   - Finish the wizard completely"
-            echo
-            echo "3. After you finish, the job will get the secret"
-            echo "   and then start the agent so you can create the"
-            echo "   UDP tunnel while the agent is ONLINE."
+            echo "2. Claim the agent, leave defaults, finish wizard"
+            echo "3. Job will wait for the secret..."
             echo "=================================================="
             echo
 
-            # Wait for secret
             SECRET=""
             for i in $(seq 1 72); do
               sleep 10
-
               SECRET=$("$GITHUB_WORKSPACE/playit-cli" claim exchange "$CLAIM_CODE" --wait 5 2>/dev/null | tail -n 15 | grep -oE '[0-9a-fA-F]{32,}' | tail -1 || true)
-
-              if [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ]; then
-                break
-              fi
-
+              if [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ]; then break; fi
               if [ -f "$HOME/.config/playit_gg/playit.toml" ]; then
                 SECRET=$(grep -oE 'secret_key\s*=\s*"[^"]+"' "$HOME/.config/playit_gg/playit.toml" 2>/dev/null || true)
                 SECRET=${SECRET#*\"}
                 SECRET=${SECRET%\"}
-                if [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ]; then
-                  break
-                fi
+                if [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ]; then break; fi
               fi
-
-              echo "  still waiting for claim... ($((i*10))s)"
+              echo "  still waiting... ($((i*10))s)"
             done
 
             if [ -z "$SECRET" ] || [ ${#SECRET} -lt 32 ]; then
-              echo
-              echo "ERROR: Timed out. Make sure you fully finished the claim wizard."
+              echo "ERROR: Timed out waiting for secret."
               exit 1
             fi
 
             echo
             echo "✅  Secret obtained!"
             echo
-            echo ">>> COPY THIS SECRET INTO GITHUB NOW <<<"
+            echo ">>> COPY THIS SECRET INTO GITHUB <<<"
             echo "Secret name : $SECRET_NAME"
             echo "Secret value: $SECRET"
-            echo
-            echo "Go to: Repository → Settings → Secrets and variables → Actions"
-            echo "Create the secret named exactly: $SECRET_NAME"
-            echo
-
-            # Start the agent so it appears ONLINE (important for tunnel creation)
-            echo "Starting agent so it shows as ONLINE on playit.gg..."
-            echo "You now have ~8 minutes to create the UDP tunnel."
-            echo
-
-            "$GITHUB_WORKSPACE/playit" --secret "$SECRET" > /tmp/playit-online.log 2>&1 &
-            AGENT_PID=$!
-            sleep 8
-
-            if kill -0 "$AGENT_PID" 2>/dev/null; then
-              echo "Agent is running (PID $AGENT_PID)."
-              echo
-              echo "NOW DO THIS:"
-              echo "1. Go to https://playit.gg/account/tunnels"
-              echo "2. Click Add Tunnel"
-              echo "3. Choose UDP (or TCP+UDP)"
-              echo "4. Local port = 7777"
-              echo "5. Assign it to the agent you just claimed (lac-slot-$SLOT_HINT)"
-              echo "6. Finish"
-              echo
-              echo "The agent will stay online for about 8 minutes..."
-              sleep 480
-              kill "$AGENT_PID" 2>/dev/null || true
-            else
-              echo "Warning: agent did not stay running, but the secret is still valid."
-              cat /tmp/playit-online.log || true
-            fi
-
-            echo
-            echo "Finished creating $SECRET_NAME"
             echo
           }
 
@@ -253,28 +187,14 @@ jobs:
               PLAYIT_SECRET_3) create_agent "PLAYIT_SECRET_3" "3" ;;
               PLAYIT_SECRET_4) create_agent "PLAYIT_SECRET_4" "4" ;;
               DASHBOARD_TOKEN)
-                echo
-                echo "##################################################"
-                echo "# DASHBOARD_TOKEN is missing"
-                echo "##################################################"
-                echo
-                echo "Create a GitHub PAT with Gist read/write and add it as DASHBOARD_TOKEN"
-                echo
+                echo "Create a GitHub PAT with Gist access and add it as DASHBOARD_TOKEN"
                 ;;
             esac
           done
 
           echo
-          echo "=============================================="
-          echo "  Setup finished."
-          echo "  Make sure you saved the secrets and created"
-          echo "  the UDP tunnels while the agents were online."
-          echo "  Then run the workflow with mode = start."
-          echo "=============================================="
+          echo "Setup finished. Add the secrets, then run mode=start."
 
-  # ================================================================
-  # SERVER
-  # ================================================================
   server:
     if: ${{ inputs.mode == 'start' }}
     runs-on: ubuntu-latest
@@ -290,27 +210,27 @@ jobs:
           PORT="7777"
           case "$SLOT" in
             1)
-              DOMAIN="irvine-util.tun.ply.gg"
+              DOMAIN="drake-missy.tun.ply.gg"
               IP="147.185.221.231"
-              PUBLIC_PORT="54710"
+              PUBLIC_PORT="46049"
               SECRET_NAME="PLAYIT_SECRET_1"
               ;;
             2)
-              DOMAIN="drake-expansion.tun.ply.gg"
-              IP="147.185.221.18"
-              PUBLIC_PORT="20718"
+              DOMAIN="drake-embraced.tun.ply.gg"
+              IP="147.185.221.231"
+              PUBLIC_PORT="47064"
               SECRET_NAME="PLAYIT_SECRET_2"
               ;;
             3)
-              DOMAIN="drake-drama.tun.ply.gg"
-              IP="147.185.221.231"
-              PUBLIC_PORT="58951"
+              DOMAIN="drake-limbs.tun.ply.gg"
+              IP="147.185.221.30"
+              PUBLIC_PORT="40093"
               SECRET_NAME="PLAYIT_SECRET_3"
               ;;
             4)
-              DOMAIN="drake-muscle.tun.ply.gg"
-              IP="147.185.221.231"
-              PUBLIC_PORT="58968"
+              DOMAIN="drake-relativity.tun.ply.gg"
+              IP="147.185.221.230"
+              PUBLIC_PORT="49177"
               SECRET_NAME="PLAYIT_SECRET_4"
               ;;
             *)
@@ -318,13 +238,16 @@ jobs:
               exit 1
               ;;
           esac
+
           ENDPOINT="${DOMAIN}:${PUBLIC_PORT}"
+
           echo "PORT=$PORT" >> "$GITHUB_OUTPUT"
           echo "DOMAIN=$DOMAIN" >> "$GITHUB_OUTPUT"
           echo "IP=$IP" >> "$GITHUB_OUTPUT"
           echo "PUBLIC_PORT=$PUBLIC_PORT" >> "$GITHUB_OUTPUT"
           echo "ENDPOINT=$ENDPOINT" >> "$GITHUB_OUTPUT"
           echo "SECRET_NAME=$SECRET_NAME" >> "$GITHUB_OUTPUT"
+
           echo
           echo "=========================================="
           echo "L.A. CRIMES SERVER"
@@ -345,7 +268,7 @@ jobs:
         run: |
           set -e
           if [ -z "$DASHBOARD_TOKEN" ]; then
-            echo "ERROR: DASHBOARD_TOKEN missing. Run mode=setup first."
+            echo "ERROR: DASHBOARD_TOKEN missing."
             exit 1
           fi
           case "$SLOT" in
@@ -356,7 +279,7 @@ jobs:
             *) exit 1 ;;
           esac
           if [ -z "$PLAYIT_SECRET" ]; then
-            echo "ERROR: PLAYIT_SECRET_$SLOT missing. Run mode=setup first."
+            echo "ERROR: PLAYIT_SECRET_$SLOT missing."
             exit 1
           fi
           echo "::add-mask::$PLAYIT_SECRET"
@@ -420,8 +343,7 @@ jobs:
           PY
           PAYLOAD=$(jq -n --arg content "$(cat "$GITHUB_WORKSPACE/servers.json")" --arg filename "$GIST_FILE" '{files:{($filename):{content:$content}}}')
           curl --fail --silent --show-error \
-            --request PATCH \
-            --url "https://api.github.com/gists/$GIST_ID" \
+            --request PATCH --url "https://api.github.com/gists/$GIST_ID" \
             --header "Accept: application/vnd.github+json" \
             --header "Authorization: Bearer $DASHBOARD_TOKEN" \
             --header "X-GitHub-Api-Version: 2022-11-28" \
@@ -440,7 +362,6 @@ jobs:
           SERVER=$(find "$GITHUB_WORKSPACE/lac" -type f -name "LAC_Linux_v1.9.6.x86_64" -print -quit)
           if [ -z "$SERVER" ]; then
             echo "ERROR: L.A. Crimes executable not found."
-            find "$GITHUB_WORKSPACE/lac" -maxdepth 5 -type f -print
             exit 1
           fi
           chmod +x "$SERVER"
@@ -495,7 +416,7 @@ jobs:
             tail -250 "$GITHUB_WORKSPACE/lac-server.log" || true
             exit 1
           fi
-          echo "L.A. Crimes is running. PID: $LAC_PID  UDP: $PORT"
+          echo "L.A. Crimes is running. PID: $LAC_PID"
 
       - name: Download Playit agent
         run: |
@@ -568,8 +489,7 @@ jobs:
           PY
           PAYLOAD=$(jq -n --arg content "$(cat "$GITHUB_WORKSPACE/servers.json")" --arg filename "$GIST_FILE" '{files:{($filename):{content:$content}}}')
           curl --fail --silent --show-error \
-            --request PATCH \
-            --url "https://api.github.com/gists/$GIST_ID" \
+            --request PATCH --url "https://api.github.com/gists/$GIST_ID" \
             --header "Accept: application/vnd.github+json" \
             --header "Authorization: Bearer $DASHBOARD_TOKEN" \
             --header "X-GitHub-Api-Version: 2022-11-28" \
@@ -593,8 +513,7 @@ jobs:
               cat "$GITHUB_WORKSPACE/playit.log" || true
               exit 1
             fi
-            echo
-            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT STATUS=ONLINE RUN_ID=${GITHUB_RUN_ID}"
+            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT STATUS=ONLINE"
             sleep 10
           done
 
@@ -628,8 +547,7 @@ jobs:
           PY
           PAYLOAD=$(jq -n --arg content "$(cat "$GITHUB_WORKSPACE/servers.json")" --arg filename "$GIST_FILE" '{files:{($filename):{content:$content}}}')
           curl --silent --show-error \
-            --request PATCH \
-            --url "https://api.github.com/gists/$GIST_ID" \
+            --request PATCH --url "https://api.github.com/gists/$GIST_ID" \
             --header "Accept: application/vnd.github+json" \
             --header "Authorization: Bearer $DASHBOARD_TOKEN" \
             --header "X-GitHub-Api-Version: 2022-11-28" \
