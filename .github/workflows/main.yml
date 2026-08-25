@@ -296,12 +296,8 @@ jobs:
             unzip wget curl ca-certificates iproute2 jq python3 \
             screen libc6-i386 lib32stdc++6 \
             || true
-          # optional 32-bit package (ignore if unavailable)
           sudo apt-get install -y libncurses5:i386 2>/dev/null || true
 
-      # ----------------------------------------------------------
-      # README requirement: disable IPv6 or players cannot join
-      # ----------------------------------------------------------
       - name: Disable IPv6 (required by LAC README)
         run: |
           set -e
@@ -388,11 +384,6 @@ jobs:
           echo "$SERVER" > "$GITHUB_WORKSPACE/server-path.txt"
           echo "Found server binary: $SERVER"
 
-      # ----------------------------------------------------------
-      # Official path from README:
-      # /root/.config/unity3d/MA/LAC/ServerConfig.txt
-      # Game must run as root so it reads this path.
-      # ----------------------------------------------------------
       - name: Install ServerConfig.txt (official path)
         run: |
           set -e
@@ -414,7 +405,7 @@ jobs:
           sudo chown root:root /root/.config/unity3d/MA/LAC/ServerConfig.txt
 
           echo "Installed to:"
-          ls -la /root/.config/unity3d/MA/LAC/ServerConfig.txt
+          sudo ls -la /root/.config/unity3d/MA/LAC/ServerConfig.txt
           echo
           echo "Contents on disk:"
           sudo cat /root/.config/unity3d/MA/LAC/ServerConfig.txt
@@ -427,7 +418,6 @@ jobs:
           SERVER=$(cat "$GITHUB_WORKSPACE/server-path.txt")
           SERVER_DIR=$(dirname "$SERVER")
 
-          # Run as root so Unity uses /root/.config/unity3d/MA/LAC/
           cd "$SERVER_DIR"
           sudo ./LAC_Linux_v1.9.6.x86_64 -batchmode -nographics > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
           LAC_PID=$!
