@@ -3,418 +3,48 @@ name: L.A. Crimes Server
 on:
   workflow_dispatch:
     inputs:
+
       mode:
-        description: "Choose server operation or Playit agent setup"
+        description: "Server operation"
         required: true
         type: choice
-        default: start
         options:
           - start
-          - setup
+        default: start
 
       slot:
-        description: "Server slot to start (used when mode=start)"
+        description: "Server slot"
         required: true
         type: choice
-        default: "1"
         options:
           - "1"
           - "2"
           - "3"
           - "4"
+        default: "1"
+
 
 permissions:
   contents: read
 
+
+concurrency:
+  group: lac-server-slot-${{ inputs.slot }}
+  cancel-in-progress: false
+
+
 env:
+
   GIST_ID: cb2aaaece7a231ec707429d41e1457f4
+
   GIST_FILE: servers.json
 
   PLAYIT_VERSION: "1.0.10"
 
   PLAYIT_AGENT_URL: "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-linux-amd64"
 
-  PLAYIT_CLI_URL: "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-cli-linux-amd64"
-
-  PLAYIT_API_URL: "https://api.playit.gg"
-
-
-# ============================================================
-# PLAYIT AGENT SETUP
-# ============================================================
 
 jobs:
-
-  setup:
-
-    if: ${{ inputs.mode == 'setup' }}
-
-    runs-on: ubuntu-latest
-
-    timeout-minutes: 60
-
-    steps:
-
-      # --------------------------------------------------------
-      # INSTALL DEPENDENCIES
-      # --------------------------------------------------------
-
-      - name: Install setup dependencies
-        run: |
-          set -e
-
-          sudo apt-get update
-
-          sudo apt-get install -y \
-            wget \
-            curl \
-            ca-certificates \
-            jq
-
-
-      # --------------------------------------------------------
-      # DOWNLOAD PLAYIT CLI
-      # --------------------------------------------------------
-
-      - name: Download Playit CLI
-        run: |
-          set -e
-
-          echo "=============================================="
-          echo "DOWNLOADING PLAYIT CLI"
-          echo "=============================================="
-
-          wget \
-            --timeout=60 \
-            --tries=5 \
-            -O "$GITHUB_WORKSPACE/playit-cli" \
-            "$PLAYIT_CLI_URL"
-
-          chmod +x "$GITHUB_WORKSPACE/playit-cli"
-
-          echo
-          echo "Playit CLI version:"
-
-          "$GITHUB_WORKSPACE/playit-cli" version || true
-
-
-      # --------------------------------------------------------
-      # CREATE ASSIGNABLE AGENT
-      # --------------------------------------------------------
-
-      - name: Create Playit assignable agents
-        env:
-          PLAYIT_API_URL: ${{ env.PLAYIT_API_URL }}
-        run: |
-          set -e
-
-          PLAYIT_CLI="$GITHUB_WORKSPACE/playit-cli"
-
-          echo
-          echo "=================================================="
-          echo "PLAYIT ASSIGNABLE AGENT SETUP"
-          echo "=================================================="
-          echo
-          echo "This creates four ASSIGNABLE agents."
-          echo
-          echo "Account 1:"
-          echo "  Agent 1"
-          echo "  Agent 2"
-          echo
-          echo "Account 2:"
-          echo "  Agent 3"
-          echo "  Agent 4"
-          echo
-          echo "=================================================="
-
-          create_agent() {
-
-            SLOT="$1"
-            AGENT_NAME="$2"
-            ACCOUNT_NAME="$3"
-
-            echo
-            echo "=================================================="
-            echo "CREATING PLAYIT AGENT $SLOT"
-            echo "=================================================="
-            echo
-            echo "Agent name: $AGENT_NAME"
-            echo "Account:    $ACCOUNT_NAME"
-            echo "Type:       ASSIGNABLE"
-            echo
-
-            # ------------------------------------------------
-            # GENERATE CLAIM CODE
-            # ------------------------------------------------
-
-            CLAIM_CODE="$(
-              "$PLAYIT_CLI" \
-                --stdout \
-                claim generate
-            )"
-
-            CLAIM_CODE="$(echo "$CLAIM_CODE" | tr -d '[:space:]')"
-
-            if ! echo "$CLAIM_CODE" | grep -Eq '^[a-f0-9]{10}$'; then
-              echo
-              echo "ERROR: Invalid Playit claim code:"
-              echo "$CLAIM_CODE"
-              return 1
-            fi
-
-            CLAIM_URL="https://playit.gg/claim/$CLAIM_CODE"
-
-            echo "Claim code:"
-            echo "$CLAIM_CODE"
-
-            echo
-            echo "=================================================="
-            echo "OPEN THIS URL"
-            echo "=================================================="
-            echo
-            echo "$CLAIM_URL"
-            echo
-            echo "Log into:"
-            echo "$ACCOUNT_NAME"
-            echo
-            echo "Claim the agent."
-            echo "=================================================="
-            echo
-
-            # ------------------------------------------------
-            # REQUEST ASSIGNABLE CLAIM
-            #
-            # The Playit CLI's standalone `claim exchange`
-            # command currently hardcodes self-managed.
-            #
-            # We therefore call the official API directly and
-            # explicitly request agent_type=assignable.
-            # ------------------------------------------------
-
-            while true; do
-
-              RESPONSE="$(
-                curl \
-                  --fail \
-                  --silent \
-                  --show-error \
-                  --request POST \
-                  --url "$PLAYIT_API_URL/claim/setup" \
-                  --header "Content-Type: application/json" \
-                  --data "$(jq -n \
-                    --arg code "$CLAIM_CODE" \
-                    --arg version "playit $PLAYIT_VERSION" \
-                    '{
-                      code: $code,
-                      agent_type: "assignable",
-                      version: $version
-                    }'
-                  )"
-              )"
-
-              STATUS="$(
-                echo "$RESPONSE" |
-                jq -r '.data // empty'
-              )"
-
-              case "$STATUS" in
-
-                WaitingForUserVisit)
-                  echo "Waiting for you to open the claim URL..."
-                  ;;
-
-                WaitingForUser)
-                  echo "Waiting for agent approval..."
-                  ;;
-
-                UserAccepted)
-                  echo "Agent approved."
-                  break
-                  ;;
-
-                UserRejected)
-                  echo "ERROR: Agent claim was rejected."
-                  return 1
-                  ;;
-
-                *)
-                  echo
-                  echo "Unexpected Playit response:"
-                  echo "$RESPONSE"
-                  echo
-                  echo "Retrying..."
-                  ;;
-
-              esac
-
-              sleep 3
-
-            done
-
-            # ------------------------------------------------
-            # EXCHANGE CLAIM FOR SECRET
-            # ------------------------------------------------
-
-            echo
-            echo "Exchanging claim for agent secret..."
-
-            EXCHANGE_RESPONSE="$(
-              curl \
-                --fail \
-                --silent \
-                --show-error \
-                --request POST \
-                --url "$PLAYIT_API_URL/claim/exchange" \
-                --header "Content-Type: application/json" \
-                --data "$(jq -n \
-                  --arg code "$CLAIM_CODE" \
-                  '{
-                    code: $code
-                  }'
-                )"
-            )"
-
-            SECRET="$(
-              echo "$EXCHANGE_RESPONSE" |
-              jq -r '.data.secret_key // empty'
-            )"
-
-            if [ -z "$SECRET" ] || [ "$SECRET" = "null" ]; then
-
-              echo
-              echo "ERROR: Playit did not return an agent secret."
-              echo
-              echo "$EXCHANGE_RESPONSE"
-
-              return 1
-
-            fi
-
-            echo "::add-mask::$SECRET"
-
-            echo
-            echo "=================================================="
-            echo "AGENT $SLOT SUCCESSFULLY CLAIMED"
-            echo "=================================================="
-            echo
-            echo "Agent:"
-            echo "$AGENT_NAME"
-            echo
-            echo "Type:"
-            echo "ASSIGNABLE"
-            echo
-            echo "Account:"
-            echo "$ACCOUNT_NAME"
-            echo
-            echo "GitHub secret:"
-            echo "PLAYIT_SECRET_$SLOT"
-            echo
-            echo "=================================================="
-            echo
-            echo "Add this value to:"
-            echo
-            echo "Repository Settings"
-            echo " -> Secrets and variables"
-            echo " -> Actions"
-            echo " -> New repository secret"
-            echo
-            echo "Name:"
-            echo "PLAYIT_SECRET_$SLOT"
-            echo
-            echo "Value:"
-            echo "The generated agent secret is masked in this log."
-            echo
-            echo "=================================================="
-
-            # ------------------------------------------------
-            # WRITE SECRET TO GITHUB ENVIRONMENT FILE
-            #
-            # This lets the workflow finish without printing
-            # the secret to the log.
-            # ------------------------------------------------
-
-            echo "PLAYIT_SECRET_$SLOT=$SECRET" >> "$GITHUB_ENV"
-          }
-
-
-          # ==================================================
-          # ACCOUNT 1
-          # ==================================================
-
-          create_agent \
-            "1" \
-            "LAC Server Agent 1" \
-            "Playit Account 1"
-
-          create_agent \
-            "2" \
-            "LAC Server Agent 2" \
-            "Playit Account 1"
-
-
-          # ==================================================
-          # ACCOUNT 2
-          # ==================================================
-
-          create_agent \
-            "3" \
-            "LAC Server Agent 3" \
-            "Playit Account 2"
-
-          create_agent \
-            "4" \
-            "LAC Server Agent 4" \
-            "Playit Account 2"
-
-
-          echo
-          echo
-          echo "=================================================="
-          echo "PLAYIT SETUP COMPLETE"
-          echo "=================================================="
-          echo
-          echo "Required GitHub secrets:"
-          echo
-          echo "PLAYIT_SECRET_1"
-          echo "PLAYIT_SECRET_2"
-          echo "PLAYIT_SECRET_3"
-          echo "PLAYIT_SECRET_4"
-          echo
-          echo "IMPORTANT:"
-          echo "Create/configure one UDP tunnel for each"
-          echo "assignable agent in the Playit dashboard."
-          echo
-          echo "Each tunnel should target:"
-          echo
-          echo "127.0.0.1:7777"
-          echo
-          echo "Protocol:"
-          echo "UDP"
-          echo
-          echo "=================================================="
-
-
-      # --------------------------------------------------------
-      # FINAL SETUP STATUS
-      # --------------------------------------------------------
-
-      - name: Setup final status
-        if: always()
-        run: |
-          echo
-          echo "=============================================="
-          echo "PLAYIT SETUP FINISHED"
-          echo "=============================================="
-
-          echo "WORKFLOW_STATUS=${{ job.status }}"
-          echo "RUN_ID=${{ github.run_id }}"
-
-          echo "=============================================="
-
-
-  # ============================================================
-  # L.A. CRIMES SERVER
-  # ============================================================
 
   server:
 
@@ -427,15 +57,18 @@ jobs:
     env:
       SLOT: ${{ inputs.slot }}
 
+
     steps:
 
-      # --------------------------------------------------------
+      # ========================================================
       # CONFIGURE SLOT
-      # --------------------------------------------------------
+      # ========================================================
 
       - name: Configure server slot
         id: config
+
         run: |
+
           set -e
 
           PORT="7777"
@@ -443,83 +76,112 @@ jobs:
           case "$SLOT" in
 
             1)
-              SECRET_NAME="PLAYIT_SECRET_1"
+
               DOMAIN="irvine-util.tun.ply.gg"
               IP="147.185.221.231"
               PUBLIC_PORT="54710"
+
+              SECRET_NAME="PLAYIT_SECRET_1"
+
               ;;
 
             2)
-              SECRET_NAME="PLAYIT_SECRET_2"
+
               DOMAIN="drake-expansion.tun.ply.gg"
               IP="147.185.221.18"
               PUBLIC_PORT="20718"
+
+              SECRET_NAME="PLAYIT_SECRET_2"
+
               ;;
 
             3)
-              SECRET_NAME="PLAYIT_SECRET_3"
+
               DOMAIN="drake-drama.tun.ply.gg"
               IP="147.185.221.231"
               PUBLIC_PORT="58951"
+
+              SECRET_NAME="PLAYIT_SECRET_3"
+
               ;;
 
             4)
-              SECRET_NAME="PLAYIT_SECRET_4"
+
               DOMAIN="drake-muscle.tun.ply.gg"
               IP="147.185.221.231"
               PUBLIC_PORT="58968"
+
+              SECRET_NAME="PLAYIT_SECRET_4"
+
               ;;
 
             *)
-              echo "ERROR: Invalid server slot: $SLOT"
+
+              echo "Invalid server slot."
               exit 1
+
               ;;
 
           esac
 
+
           ENDPOINT="${DOMAIN}:${PUBLIC_PORT}"
 
+
           echo "PORT=$PORT" >> "$GITHUB_OUTPUT"
-          echo "SECRET_NAME=$SECRET_NAME" >> "$GITHUB_OUTPUT"
+
           echo "DOMAIN=$DOMAIN" >> "$GITHUB_OUTPUT"
+
           echo "IP=$IP" >> "$GITHUB_OUTPUT"
+
           echo "PUBLIC_PORT=$PUBLIC_PORT" >> "$GITHUB_OUTPUT"
+
           echo "ENDPOINT=$ENDPOINT" >> "$GITHUB_OUTPUT"
 
+          echo "SECRET_NAME=$SECRET_NAME" >> "$GITHUB_OUTPUT"
+
+
           echo
-          echo "======================================"
-          echo "L.A. CRIMES SERVER CONFIGURATION"
-          echo "======================================"
+          echo "=========================================="
+          echo "L.A. CRIMES SERVER"
+          echo "=========================================="
 
-          echo "SERVER SLOT: $SLOT"
-          echo "LOCAL UDP: $PORT"
-          echo "PLAYIT SECRET: $SECRET_NAME"
-          echo "PUBLIC DOMAIN: $DOMAIN"
-          echo "PUBLIC IP: $IP"
-          echo "PUBLIC PORT: $PUBLIC_PORT"
-          echo "ENDPOINT: $ENDPOINT"
+          echo "Slot:       $SLOT"
+          echo "Local UDP:  $PORT"
+          echo "Endpoint:   $ENDPOINT"
+          echo "Playit:     $SECRET_NAME"
 
-          echo "======================================"
+          echo "=========================================="
 
 
-      # --------------------------------------------------------
+      # ========================================================
       # CHECK SECRETS
-      # --------------------------------------------------------
+      # ========================================================
 
       - name: Check required secrets
+
         env:
+
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
+
           PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET_1 }}
           PLAYIT_SECRET_2: ${{ secrets.PLAYIT_SECRET_2 }}
           PLAYIT_SECRET_3: ${{ secrets.PLAYIT_SECRET_3 }}
           PLAYIT_SECRET_4: ${{ secrets.PLAYIT_SECRET_4 }}
+
         run: |
+
           set -e
 
+
           if [ -z "$DASHBOARD_TOKEN" ]; then
+
             echo "ERROR: DASHBOARD_TOKEN is missing."
+
             exit 1
+
           fi
+
 
           case "$SLOT" in
 
@@ -540,42 +202,43 @@ jobs:
               ;;
 
             *)
-              echo "ERROR: Invalid slot."
               exit 1
               ;;
 
           esac
 
+
           if [ -z "$PLAYIT_SECRET" ]; then
 
-            echo
-            echo "ERROR:"
-            echo "PLAYIT_SECRET_$SLOT is missing."
-            echo
-            echo "Run setup first and add the secret."
+            echo "ERROR: PLAYIT_SECRET_$SLOT is missing."
+
             exit 1
 
           fi
 
+
           echo "::add-mask::$PLAYIT_SECRET"
 
-          echo "Required secrets found."
+          echo "Required secrets are available."
 
 
-      # --------------------------------------------------------
+      # ========================================================
       # CHECKOUT
-      # --------------------------------------------------------
+      # ========================================================
 
       - name: Checkout repository
+
         uses: actions/checkout@v4
 
 
-      # --------------------------------------------------------
+      # ========================================================
       # INSTALL DEPENDENCIES
-      # --------------------------------------------------------
+      # ========================================================
 
       - name: Install dependencies
+
         run: |
+
           set -e
 
           sudo apt-get update
@@ -590,15 +253,21 @@ jobs:
             python3
 
 
-      # --------------------------------------------------------
-      # DOWNLOAD DATABASE
-      # --------------------------------------------------------
+      # ========================================================
+      # DOWNLOAD GIST DATABASE
+      # ========================================================
 
       - name: Download server database
+
         env:
-          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
+
+          DASHBOARD_TOKEN:
+            ${{ secrets.DASHBOARD_TOKEN }}
+
         run: |
+
           set -e
+
 
           curl \
             --fail \
@@ -608,8 +277,9 @@ jobs:
             --url "https://api.github.com/gists/$GIST_ID" \
             --header "Accept: application/vnd.github+json" \
             --header "Authorization: Bearer $DASHBOARD_TOKEN" \
-            --header "X-GitHub-Api-Version: 2022-11-28" \
+            --header "X-GitHub-Api-Version: 2026-03-10" \
             > "$GITHUB_WORKSPACE/gist-response.json"
+
 
           jq \
             -e \
@@ -617,30 +287,45 @@ jobs:
             "$GITHUB_WORKSPACE/gist-response.json" \
             > /dev/null
 
+
           jq \
             -r \
             '.files["servers.json"].content' \
             "$GITHUB_WORKSPACE/gist-response.json" \
             > "$GITHUB_WORKSPACE/servers.json"
 
+
           jq empty \
             "$GITHUB_WORKSPACE/servers.json"
 
-          echo "Database loaded."
+
+          echo "Server database loaded."
 
 
-      # --------------------------------------------------------
+      # ========================================================
       # MARK STARTING
-      # --------------------------------------------------------
+      # ========================================================
 
       - name: Mark server STARTING
+
         env:
-          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
-          PORT: ${{ steps.config.outputs.PORT }}
-          ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
-          IP: ${{ steps.config.outputs.IP }}
+
+          DASHBOARD_TOKEN:
+            ${{ secrets.DASHBOARD_TOKEN }}
+
+          PORT:
+            ${{ steps.config.outputs.PORT }}
+
+          ENDPOINT:
+            ${{ steps.config.outputs.ENDPOINT }}
+
+          IP:
+            ${{ steps.config.outputs.IP }}
+
         run: |
+
           set -e
+
 
           python3 - \
             "$GITHUB_WORKSPACE/servers.json" \
@@ -660,39 +345,61 @@ jobs:
           endpoint = sys.argv[5]
           ip = sys.argv[6]
 
+
           with open(path, "r", encoding="utf-8") as f:
+
               data = json.load(f)
+
 
           for server in data["servers"]:
 
-              if int(server["slot"]) == slot:
+              if int(server["slot"]) != slot:
+                  continue
 
-                  current_run = server.get("run_id")
 
-                  if current_run not in (None, "", run_id):
-                      raise SystemExit(
-                          f"Server {slot} is already owned by "
-                          f"workflow run {current_run}."
-                      )
+              current_run = server.get("run_id")
 
-                  server["status"] = "starting"
-                  server["run_id"] = run_id
-                  server["endpoint"] = endpoint
-                  server["ip"] = ip
-                  server["port"] = port
 
-                  break
+              if current_run not in (None, "", run_id):
+
+                  raise SystemExit(
+                      f"Server {slot} is already owned by "
+                      f"workflow {current_run}."
+                  )
+
+
+              server["status"] = "starting"
+
+              server["run_id"] = run_id
+
+              server["endpoint"] = endpoint
+
+              server["ip"] = ip
+
+              server["port"] = port
+
+
+              break
 
           else:
+
               raise SystemExit(
-                  f"Server slot {slot} was not found."
+                  f"Server slot {slot} does not exist."
               )
 
+
           with open(path, "w", encoding="utf-8") as f:
-              json.dump(data, f, indent=2)
+
+              json.dump(
+                  data,
+                  f,
+                  indent=2
+              )
+
               f.write("\n")
 
           PY
+
 
           PAYLOAD=$(
             jq -n \
@@ -707,6 +414,7 @@ jobs:
               }'
           )
 
+
           curl \
             --fail \
             --silent \
@@ -715,21 +423,25 @@ jobs:
             --url "https://api.github.com/gists/$GIST_ID" \
             --header "Accept: application/vnd.github+json" \
             --header "Authorization: Bearer $DASHBOARD_TOKEN" \
-            --header "X-GitHub-Api-Version: 2022-11-28" \
+            --header "X-GitHub-Api-Version: 2026-03-10" \
             --header "Content-Type: application/json" \
             --data "$PAYLOAD" \
             > /dev/null
 
+
           echo "Server $SLOT marked STARTING."
 
 
-      # --------------------------------------------------------
+      # ========================================================
       # DOWNLOAD L.A. CRIMES
-      # --------------------------------------------------------
+      # ========================================================
 
       - name: Download L.A. Crimes
+
         run: |
+
           set -e
+
 
           wget \
             --timeout=60 \
@@ -737,24 +449,29 @@ jobs:
             -O "$GITHUB_WORKSPACE/LAC.zip" \
             "https://www.lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
 
+
           rm -rf "$GITHUB_WORKSPACE/lac"
 
           mkdir -p "$GITHUB_WORKSPACE/lac"
+
 
           unzip -q \
             "$GITHUB_WORKSPACE/LAC.zip" \
             -d "$GITHUB_WORKSPACE/lac"
 
+
           SERVER=$(
             find "$GITHUB_WORKSPACE/lac" \
               -type f \
               -name "LAC_Linux_v1.9.6.x86_64" \
-              -print -quit
+              -print \
+              -quit
           )
+
 
           if [ -z "$SERVER" ]; then
 
-            echo "ERROR: L.A. Crimes executable not found."
+            echo "ERROR: L.A. Crimes executable was not found."
 
             find \
               "$GITHUB_WORKSPACE/lac" \
@@ -766,21 +483,27 @@ jobs:
 
           fi
 
+
           chmod +x "$SERVER"
+
 
           echo "$SERVER" \
             > "$GITHUB_WORKSPACE/server-path.txt"
 
 
-      # --------------------------------------------------------
-      # CREATE SERVER CONFIG
-      # --------------------------------------------------------
+      # ========================================================
+      # SERVER CONFIG
+      # ========================================================
 
       - name: Create ServerConfig.txt
+
         run: |
+
           set -e
 
+
           cat > "$GITHUB_WORKSPACE/ServerConfig.txt" <<'EOF'
+
           #Maps (City, Garage, RagdollParty, TrainFacility)
           #Maps (ZombieSurvival, NewTerrainRamps, Island, CarSoccer)
           #Editor Maps (editor:myMap)
@@ -799,71 +522,79 @@ jobs:
 
           username=HOST
           password=0000
+
           EOF
 
-          echo "ServerConfig:"
-          cat "$GITHUB_WORKSPACE/ServerConfig.txt"
 
-
-      # --------------------------------------------------------
-      # INSTALL SERVER CONFIG
-      # --------------------------------------------------------
+      # ========================================================
+      # INSTALL CONFIG
+      # ========================================================
 
       - name: Install ServerConfig.txt
+
         run: |
+
           set -e
+
 
           CONFIG_DIR="/root/.config/unity3d/MA/LAC"
 
+
           sudo mkdir -p "$CONFIG_DIR"
+
 
           sudo cp \
             "$GITHUB_WORKSPACE/ServerConfig.txt" \
             "$CONFIG_DIR/ServerConfig.txt"
 
+
           sudo chmod 644 \
             "$CONFIG_DIR/ServerConfig.txt"
 
 
-      # --------------------------------------------------------
+      # ========================================================
       # START L.A. CRIMES
-      # --------------------------------------------------------
+      # ========================================================
 
       - name: Start L.A. Crimes
+
         env:
-          PORT: ${{ steps.config.outputs.PORT }}
+
+          PORT:
+            ${{ steps.config.outputs.PORT }}
+
         run: |
+
           set -e
+
 
           SERVER=$(
             cat "$GITHUB_WORKSPACE/server-path.txt"
           )
 
+
           SERVER_DIR=$(dirname "$SERVER")
+
 
           cd "$SERVER_DIR"
 
-          echo
-          echo "======================================"
-          echo "STARTING L.A. CRIMES"
-          echo "======================================"
-
-          echo "SERVER SLOT: $SLOT"
-          echo "LOCAL UDP: $PORT"
-
-          echo "======================================"
 
           ./LAC_Linux_v1.9.6.x86_64 \
             -batchmode \
             -nographics \
-            > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
+            > "$GITHUB_WORKSPACE/lac-server.log" \
+            2>&1 &
+
 
           LAC_PID=$!
+
 
           echo "$LAC_PID" \
             > "$GITHUB_WORKSPACE/lac.pid"
 
+
           sleep 10
+
 
           if ! kill -0 "$LAC_PID" 2>/dev/null; then
 
@@ -877,21 +608,24 @@ jobs:
 
           fi
 
+
           echo "L.A. Crimes is running."
-          echo "LAC_PID=$LAC_PID"
 
-          ss -lunp |
-            grep ":$PORT" ||
-            true
+          echo "PID: $LAC_PID"
+
+          echo "UDP: $PORT"
 
 
-      # --------------------------------------------------------
-      # DOWNLOAD PLAYIT AGENT
-      # --------------------------------------------------------
+      # ========================================================
+      # DOWNLOAD PLAYIT
+      # ========================================================
 
       - name: Download Playit
+
         run: |
+
           set -e
+
 
           wget \
             --timeout=60 \
@@ -899,45 +633,35 @@ jobs:
             -O "$GITHUB_WORKSPACE/playit" \
             "$PLAYIT_AGENT_URL"
 
-          chmod +x "$GITHUB_WORKSPACE/playit"
 
-          echo "Playit agent downloaded."
-
-
-      # --------------------------------------------------------
-      # PREPARE PLAYIT
-      # --------------------------------------------------------
-
-      - name: Prepare Playit runtime
-        run: |
-          set -e
-
-          sudo rm -rf /run/playit
-
-          sudo mkdir -p /run/playit
-
-          sudo chown \
-            "$(id -u):$(id -g)" \
-            /run/playit
-
-          sudo chmod 700 \
-            /run/playit
-
-          echo "Playit runtime prepared."
+          chmod +x \
+            "$GITHUB_WORKSPACE/playit"
 
 
-      # --------------------------------------------------------
+      # ========================================================
       # START PLAYIT
-      # --------------------------------------------------------
+      # ========================================================
 
       - name: Start Playit
+
         env:
-          PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET_1 }}
-          PLAYIT_SECRET_2: ${{ secrets.PLAYIT_SECRET_2 }}
-          PLAYIT_SECRET_3: ${{ secrets.PLAYIT_SECRET_3 }}
-          PLAYIT_SECRET_4: ${{ secrets.PLAYIT_SECRET_4 }}
+
+          PLAYIT_SECRET_1:
+            ${{ secrets.PLAYIT_SECRET_1 }}
+
+          PLAYIT_SECRET_2:
+            ${{ secrets.PLAYIT_SECRET_2 }}
+
+          PLAYIT_SECRET_3:
+            ${{ secrets.PLAYIT_SECRET_3 }}
+
+          PLAYIT_SECRET_4:
+            ${{ secrets.PLAYIT_SECRET_4 }}
+
         run: |
+
           set -e
+
 
           case "$SLOT" in
 
@@ -958,121 +682,80 @@ jobs:
               ;;
 
             *)
-              echo "ERROR: Invalid slot."
               exit 1
               ;;
 
           esac
 
+
           if [ -z "$PLAYIT_SECRET" ]; then
-            echo "ERROR: Selected Playit secret is empty."
+
+            echo "Playit secret is empty."
+
             exit 1
+
           fi
+
 
           echo "::add-mask::$PLAYIT_SECRET"
 
-          echo
-          echo "======================================"
-          echo "STARTING PLAYIT AGENT"
-          echo "======================================"
-
-          echo "SERVER SLOT: $SLOT"
-
-          echo "======================================"
-
-          export PLAYIT_HOME="/run/playit"
 
           "$GITHUB_WORKSPACE/playit" \
             --secret "$PLAYIT_SECRET" \
-            > "$GITHUB_WORKSPACE/playit.log" 2>&1 &
+            > "$GITHUB_WORKSPACE/playit.log" \
+            2>&1 &
+
 
           PLAYIT_PID=$!
+
 
           echo "$PLAYIT_PID" \
             > "$GITHUB_WORKSPACE/playit.pid"
 
-          for i in $(seq 1 60); do
 
-            if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
+          sleep 10
 
-              echo "ERROR: Playit stopped."
 
-              cat \
-                "$GITHUB_WORKSPACE/playit.log" \
-                || true
+          if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
 
-              exit 1
+            echo "ERROR: Playit stopped."
 
-            fi
+            cat \
+              "$GITHUB_WORKSPACE/playit.log" \
+              || true
 
-            echo "Playit running... $i/60"
+            exit 1
 
-            sleep 1
+          fi
 
-          done
 
           echo "Playit agent is running."
 
 
-      # --------------------------------------------------------
-      # VERIFY PLAYIT
-      # --------------------------------------------------------
-
-      - name: Verify Playit
-        env:
-          ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
-        run: |
-          set -e
-
-          echo
-          echo "======================================"
-          echo "PLAYIT STATUS"
-          echo "======================================"
-
-          echo
-          echo "Expected endpoint:"
-          echo "$ENDPOINT"
-
-          echo
-          echo "Playit log:"
-
-          tail -100 \
-            "$GITHUB_WORKSPACE/playit.log" \
-            || true
-
-          echo
-          echo "======================================"
-          echo "TUNNEL CONFIGURATION REQUIRED"
-          echo "======================================"
-
-          echo
-          echo "The selected Playit agent must have"
-          echo "a UDP tunnel configured."
-
-          echo
-          echo "Local target:"
-          echo "127.0.0.1:7777"
-
-          echo
-          echo "Protocol:"
-          echo "UDP"
-
-          echo
-          echo "======================================"
-
-
-      # --------------------------------------------------------
+      # ========================================================
       # MARK ONLINE
-      # --------------------------------------------------------
+      # ========================================================
 
       - name: Mark server ONLINE
+
         env:
-          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
-          PORT: ${{ steps.config.outputs.PORT }}
-          ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
-          IP: ${{ steps.config.outputs.IP }}
+
+          DASHBOARD_TOKEN:
+            ${{ secrets.DASHBOARD_TOKEN }}
+
+          PORT:
+            ${{ steps.config.outputs.PORT }}
+
+          ENDPOINT:
+            ${{ steps.config.outputs.ENDPOINT }}
+
+          IP:
+            ${{ steps.config.outputs.IP }}
+
         run: |
+
           set -e
+
 
           python3 - \
             "$GITHUB_WORKSPACE/servers.json" \
@@ -1092,37 +775,57 @@ jobs:
           endpoint = sys.argv[5]
           ip = sys.argv[6]
 
+
           with open(path, "r", encoding="utf-8") as f:
+
               data = json.load(f)
+
 
           for server in data["servers"]:
 
-              if int(server["slot"]) == slot:
+              if int(server["slot"]) != slot:
+                  continue
 
-                  if str(server.get("run_id")) != run_id:
-                      raise SystemExit(
-                          "Refusing to mark server online: "
-                          "run ID ownership changed."
-                      )
 
-                  server["status"] = "online"
-                  server["run_id"] = run_id
-                  server["endpoint"] = endpoint
-                  server["ip"] = ip
-                  server["port"] = port
+              if str(server.get("run_id")) != run_id:
 
-                  break
+                  raise SystemExit(
+                      "Run ownership changed."
+                  )
+
+
+              server["status"] = "online"
+
+              server["run_id"] = run_id
+
+              server["endpoint"] = endpoint
+
+              server["ip"] = ip
+
+              server["port"] = port
+
+
+              break
 
           else:
+
               raise SystemExit(
-                  f"Server slot {slot} was not found."
+                  f"Server slot {slot} does not exist."
               )
 
+
           with open(path, "w", encoding="utf-8") as f:
-              json.dump(data, f, indent=2)
+
+              json.dump(
+                  data,
+                  f,
+                  indent=2
+              )
+
               f.write("\n")
 
           PY
+
 
           PAYLOAD=$(
             jq -n \
@@ -1137,6 +840,7 @@ jobs:
               }'
           )
 
+
           curl \
             --fail \
             --silent \
@@ -1145,39 +849,28 @@ jobs:
             --url "https://api.github.com/gists/$GIST_ID" \
             --header "Accept: application/vnd.github+json" \
             --header "Authorization: Bearer $DASHBOARD_TOKEN" \
-            --header "X-GitHub-Api-Version: 2022-11-28" \
+            --header "X-GitHub-Api-Version: 2026-03-10" \
             --header "Content-Type: application/json" \
             --data "$PAYLOAD" \
             > /dev/null
 
-          echo
-          echo "======================================"
-          echo "SERVER ONLINE"
-          echo "======================================"
 
-          echo "SLOT: $SLOT"
-          echo "ENDPOINT: $ENDPOINT"
-          echo "IP: $IP"
-          echo "PORT: $PORT"
-          echo "RUN ID: $GITHUB_RUN_ID"
-
-          echo "======================================"
+          echo "Server $SLOT is ONLINE."
 
 
-      # --------------------------------------------------------
+      # ========================================================
       # KEEP ALIVE
-      # --------------------------------------------------------
+      # ========================================================
 
       - name: Keep server alive
-        env:
-          PORT: ${{ steps.config.outputs.PORT }}
-          ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
+
         run: |
+
           set -e
 
+
           echo "Server $SLOT is online."
-          echo "Endpoint: $ENDPOINT"
-          echo "Port: $PORT"
+
 
           while true; do
 
@@ -1185,27 +878,24 @@ jobs:
               cat "$GITHUB_WORKSPACE/lac.pid"
             )
 
+
             PLAYIT_PID=$(
               cat "$GITHUB_WORKSPACE/playit.pid"
             )
 
+
             if ! kill -0 "$LAC_PID" 2>/dev/null; then
 
-              echo
-              echo "ERROR: L.A. Crimes stopped."
-
-              tail -250 \
-                "$GITHUB_WORKSPACE/lac-server.log" \
-                || true
+              echo "L.A. Crimes stopped."
 
               exit 1
 
             fi
 
+
             if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
 
-              echo
-              echo "ERROR: Playit stopped."
+              echo "Playit stopped."
 
               cat \
                 "$GITHUB_WORKSPACE/playit.log" \
@@ -1215,40 +905,43 @@ jobs:
 
             fi
 
+
             echo
             echo "[$(date '+%H:%M:%S')]"
+            echo "SERVER=$SLOT"
+            echo "STATUS=ONLINE"
+            echo "RUN_ID=${GITHUB_RUN_ID}"
 
-            echo "SERVER_SLOT=$SLOT"
-            echo "SERVER_STATUS=ONLINE"
-            echo "LOCAL_UDP=$PORT"
-            echo "PUBLIC_ENDPOINT=$ENDPOINT"
-            echo "RUN_ID=${{ github.run_id }}"
 
             sleep 10
 
           done
 
 
-      # --------------------------------------------------------
+      # ========================================================
       # CLEANUP
-      # --------------------------------------------------------
+      # ========================================================
 
       - name: Cleanup server state
+
         if: always()
+
         env:
-          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
+
+          DASHBOARD_TOKEN:
+            ${{ secrets.DASHBOARD_TOKEN }}
+
         run: |
+
           set +e
 
-          echo
-          echo "======================================"
-          echo "CLEANING SERVER $SLOT"
-          echo "======================================"
 
           if [ ! -f "$GITHUB_WORKSPACE/servers.json" ]; then
-            echo "servers.json does not exist."
+
             exit 0
+
           fi
+
 
           python3 - \
             "$GITHUB_WORKSPACE/servers.json" \
@@ -1262,41 +955,61 @@ jobs:
           slot = int(sys.argv[2])
           run_id = str(sys.argv[3])
 
+
           with open(path, "r", encoding="utf-8") as f:
+
               data = json.load(f)
+
 
           for server in data["servers"]:
 
               if int(server["slot"]) != slot:
                   continue
 
-              current_run = server.get("run_id")
 
-              if current_run is not None:
+              current_run =
+                  server.get("run_id")
 
-                  if str(current_run) != run_id:
 
-                      print(
-                          f"Server {slot} currently belongs to "
-                          f"run {current_run}."
-                      )
+              if (
+                  current_run is not None
+                  and str(current_run) != run_id
+              ):
 
-                      print(
-                          f"Cleanup from run {run_id} ignored."
-                      )
+                  print(
+                      f"Cleanup ignored: "
+                      f"server belongs to {current_run}."
+                  )
 
-                      sys.exit(0)
+                  sys.exit(0)
 
-              server["status"] = "available"
+
+              server["status"] = "offline"
+
               server["run_id"] = None
+
+              server["endpoint"] = None
+
+              server["ip"] = None
+
+              server["port"] = None
+
 
               break
 
+
           with open(path, "w", encoding="utf-8") as f:
-              json.dump(data, f, indent=2)
+
+              json.dump(
+                  data,
+                  f,
+                  indent=2
+              )
+
               f.write("\n")
 
           PY
+
 
           PAYLOAD=$(
             jq -n \
@@ -1311,6 +1024,7 @@ jobs:
               }'
           )
 
+
           curl \
             --silent \
             --show-error \
@@ -1318,34 +1032,11 @@ jobs:
             --url "https://api.github.com/gists/$GIST_ID" \
             --header "Accept: application/vnd.github+json" \
             --header "Authorization: Bearer $DASHBOARD_TOKEN" \
-            --header "X-GitHub-Api-Version: 2022-11-28" \
+            --header "X-GitHub-Api-Version: 2026-03-10" \
             --header "Content-Type: application/json" \
             --data "$PAYLOAD" \
             > /dev/null \
             || true
 
-          echo "Cleanup finished."
 
-
-      # --------------------------------------------------------
-      # FINAL STATUS
-      # --------------------------------------------------------
-
-      - name: Final status
-        if: always()
-        env:
-          PORT: ${{ steps.config.outputs.PORT }}
-          ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
-        run: |
-          echo
-          echo "======================================"
-          echo "L.A. CRIMES SERVER FINISHED"
-          echo "======================================"
-
-          echo "SERVER_SLOT=$SLOT"
-          echo "LOCAL_UDP=$PORT"
-          echo "PUBLIC_ENDPOINT=$ENDPOINT"
-          echo "WORKFLOW_STATUS=${{ job.status }}"
-          echo "RUN_ID=${{ github.run_id }}"
-
-          echo "======================================"
+          echo "Server cleanup complete."
