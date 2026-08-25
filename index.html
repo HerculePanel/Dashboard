@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>L.A. Crimes Server Dashboard</title>
+  <title>HPanel - HerculePanel</title>
   <style>
     :root {
       --bg: #06070b;
@@ -36,7 +36,7 @@
       overflow-x: hidden;
     }
 
-    /* ===================== LOGIN MODAL ===================== */
+    /* ===================== LOGIN / COOKIE MODAL ===================== */
     .login-modal {
       position: fixed;
       inset: 0;
@@ -283,7 +283,6 @@
       background: radial-gradient(circle at 100% 0%, rgba(110,168,255,0.08), transparent 40%);
     }
 
-    /* Green shade when online */
     .server-card.online {
       border-color: rgba(47, 226, 138, 0.45);
       background: linear-gradient(155deg, rgba(47, 226, 138, 0.16), rgba(255,255,255,0.03));
@@ -326,28 +325,11 @@
       background: rgba(255, 255, 255, 0.06);
     }
 
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-    }
-
-    .status.online .status-dot {
-      background: var(--green);
-      box-shadow: 0 0 12px rgba(47, 226, 138, 0.85);
-    }
-
+    .status.online .status-dot { background: var(--green); box-shadow: 0 0 12px rgba(47, 226, 138, 0.85); }
     .status.offline .status-dot { background: var(--red); }
+    .status.starting, .status.stopping .status-dot { background: var(--yellow); animation: pulse 1.2s infinite; }
 
-    .status.starting .status-dot,
-    .status.stopping .status-dot {
-      background: var(--yellow);
-      animation: pulse 1.2s infinite;
-    }
-
-    @keyframes pulse {
-      50% { opacity: 0.35; }
-    }
+    @keyframes pulse { 50% { opacity: 0.35; } }
 
     .server-info {
       position: relative;
@@ -364,16 +346,8 @@
       background: rgba(0, 0, 0, 0.22);
     }
 
-    .info-label {
-      color: var(--muted);
-      font-size: 11px;
-      margin-bottom: 4px;
-    }
-
-    .info-value {
-      font-size: 14px;
-      word-break: break-word;
-    }
+    .info-label { color: var(--muted); font-size: 11px; margin-bottom: 4px; }
+    .info-value { font-size: 14px; word-break: break-word; }
 
     .server-actions {
       position: relative;
@@ -381,9 +355,7 @@
       gap: 10px;
     }
 
-    .server-actions .btn-3d {
-      flex: 1;
-    }
+    .server-actions .btn-3d { flex: 1; }
 
     /* ===================== TOASTS ===================== */
     .toast-container {
@@ -414,21 +386,14 @@
       animation: toast-in 0.35s ease forwards;
     }
 
-    .toast.hide {
-      animation: toast-out 0.4s ease forwards;
-    }
+    .toast.hide { animation: toast-out 0.4s ease forwards; }
 
     .toast.success { border-color: rgba(47, 226, 138, 0.4); color: #9dffc9; }
     .toast.error   { border-color: rgba(255, 95, 109, 0.4); color: #ffb0b7; }
     .toast.info    { border-color: rgba(110, 168, 255, 0.4); color: #c5dbff; }
 
-    @keyframes toast-in {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes toast-out {
-      to { opacity: 0; transform: translateY(14px); }
-    }
+    @keyframes toast-in  { to { opacity: 1; transform: translateY(0); } }
+    @keyframes toast-out { to { opacity: 0; transform: translateY(14px); } }
 
     .footer {
       margin-top: 34px;
@@ -445,17 +410,17 @@
 </head>
 <body>
 
-  <!-- LOGIN MODAL -->
+  <!-- LOGIN / COOKIE MODAL -->
   <div id="loginModal" class="login-modal">
     <div class="login-card">
-      <h1>L.A. Crimes</h1>
-      <p>Enter your GitHub token to unlock the server control panel.</p>
+      <h1>HPanel</h1>
+      <p>Enter your GitHub token to unlock the dashboard.</p>
       <input
         id="tokenInput"
         class="login-input"
         type="password"
         autocomplete="off"
-        placeholder="github_pat_... or ghp_..."
+        placeholder="github_pat_..."
       >
       <button id="connectButton" class="btn-3d btn-blue" style="width:100%" onclick="connectGitHub()">
         Unlock Dashboard
@@ -467,7 +432,7 @@
   <div class="app" id="app">
     <header class="hero">
       <div class="title-area">
-        <h1>L.A. Crimes Servers</h1>
+        <h1>HPanel</h1>
         <p>Four slots. One glassy control panel.</p>
       </div>
       <div class="connection">
@@ -494,7 +459,7 @@
 
     <div id="servers" class="servers"></div>
 
-    <div class="footer">L.A. Crimes Server Dashboard</div>
+    <div class="footer">HerculePanel © 2026</div>
   </div>
 
   <!-- TOASTS -->
@@ -527,16 +492,25 @@
   const setupButton = document.getElementById("setupButton");
   const toastContainer = document.getElementById("toastContainer");
 
-  function showToast(text, type = "info", duration = 3500) {
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    toast.textContent = text;
-    toastContainer.appendChild(toast);
+  // Load token from cookie on page load
+  function loadTokenFromCookie() {
+    const name = "github_token";
+    const value = document.cookie.split("; ").find(row => row.startsWith(name + "="));
+    if (value) {
+      const token = decodeURIComponent(value.split("=")[1]);
+      githubToken = token;
+      tokenInput.value = token;
+      loginModal.classList.add("hidden");
+      app.classList.add("visible");
+      connectionDot.classList.add("connected");
+      connectionText.textContent = "Connected";
+      refreshDashboard();
+    }
+  }
 
-    setTimeout(() => {
-      toast.classList.add("hide");
-      setTimeout(() => toast.remove(), 420);
-    }, duration);
+  function setTokenCookie(token) {
+    const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `github_token=${encodeURIComponent(token)}; path=/; max-age=${30*24*60*60}; SameSite=Lax`;
   }
 
   async function githubRequest(path, options = {}) {
@@ -561,6 +535,7 @@
 
     try {
       githubToken = token;
+      setTokenCookie(token);
 
       const repoResponse = await githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repo}`);
       if (!repoResponse.ok) throw new Error("Token cannot access the repository.");
@@ -573,7 +548,6 @@
       const gistResponse = await githubRequest(`/gists/${CONFIG.gistId}`);
       if (!gistResponse.ok) throw new Error("Token cannot access the status Gist.");
 
-      // Success → hide modal, show app
       loginModal.classList.add("hidden");
       app.classList.add("visible");
       connectionDot.classList.add("connected");
@@ -784,6 +758,7 @@
     }
   }
 
+  // FIXED: removes endpoint and ip (sets to null) when stopping
   async function stopServer(slot) {
     if (!githubToken) {
       showToast("Connect first.", "error");
@@ -816,6 +791,39 @@
         throw new Error(`Could not cancel workflow ${runId} (${response.status}).`);
       }
 
+      // FIXED: remove endpoint and ip from Gist when server stops
+      const payload = JSON.stringify({
+        servers: serversData.servers.map(s => {
+          if (Number(s.slot) === Number(slot)) {
+            return {
+              ...s,
+              endpoint: null,
+              ip: null
+            };
+          }
+          return s;
+        })
+      });
+
+      const gistResponse = await githubRequest(
+        `/gists/${CONFIG.gistId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            files: {
+              [CONFIG.gistFile]: {
+                content: JSON.stringify(payload, null, 2)
+              }
+            }
+          })
+        }
+      );
+
+      if (!gistResponse.ok) {
+        console.warn("Gist update failed (but stop request was sent).");
+      }
+
       showToast(`Server ${slot} is stopping...`, "success");
       setTimeout(refreshDashboard, 3000);
     } catch (error) {
@@ -823,9 +831,26 @@
     }
   }
 
+  function showToast(text, type = "info", duration = 3500) {
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.textContent = text;
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add("hide");
+      setTimeout(() => toast.remove(), 420);
+    }, duration);
+  }
+
   tokenInput.addEventListener("keydown", event => {
     if (event.key === "Enter") connectGitHub();
   });
+
+  // Init
+  window.onload = () => {
+    loadTokenFromCookie();
+  };
 </script>
 </body>
 </html>
