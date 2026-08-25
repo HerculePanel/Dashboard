@@ -1,0 +1,18 @@
+#Maps (City, Garage, RagdollParty, TrainFacility)
+#Maps (ZombieSurvival, NewTerrainRamps, Island, CarSoccer)
+#Editor Maps (editor:myMap)
+
+admin code=YOUR-NUM-CODE
+lock down=true
+
+restart timer=never
+max players=16
+map name=NewTerrainRamps
+starting port=7777
+
+share to community=true
+server language=English
+server password=none
+
+username=HOST
+password=0000
