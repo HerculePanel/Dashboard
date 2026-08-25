@@ -3,6 +3,7 @@ name: L.A. Crimes Server
 on:
   workflow_dispatch:
     inputs:
+
       mode:
         description: "Server operation"
         required: true
@@ -31,12 +32,18 @@ concurrency:
   cancel-in-progress: false
 
 env:
+
   GIST_ID: cb2aaaece7a231ec707429d41e1457f4
+
   GIST_FILE: servers.json
+
   PLAYIT_VERSION: "1.0.10"
+
   PLAYIT_AGENT_URL: "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-linux-amd64"
 
+
 jobs:
+
   # ================================================================
   # SETUP – create missing Playit agents & print secrets to save
   # ================================================================
@@ -111,7 +118,7 @@ jobs:
           done
           echo
 
-          # ---- helper: create one agent ----
+          # ---- helper: create one agent (manual browser claim – works with v1.0.10+) ----
           create_agent() {
             local SECRET_NAME="$1"
             local SLOT_HINT="$2"
@@ -120,63 +127,20 @@ jobs:
             echo "##################################################"
             echo "# Creating agent for  $SECRET_NAME"
             echo "##################################################"
-            echo
 
-            # Generate a fresh claim code
-            CLAIM_CODE=$("$GITHUB_WORKSPACE/playit" claim generate 2>/dev/null | tr -d '\r\n' || true)
+            # Start agent (daemon mode – runner can only log this)
+            "$GITHUB_WORKSPACE/playit" > /tmp/playit-setup.log 2>&1 &
+            PLAYIT_PID=$!
+            sleep 6
 
-            if [ -z "$CLAIM_CODE" ]; then
-              # Fallback for older / different binary builds
-              echo "claim generate failed – trying interactive setup method..."
-              # Run agent in background; it will print claim URL
-              "$GITHUB_WORKSPACE/playit" > /tmp/playit-setup.log 2>&1 &
-              PLAYIT_PID=$!
-              sleep 8
-              CLAIM_URL=$(grep -oE 'https://playit\.gg/claim/[A-Za-z0-9_-]+' /tmp/playit-setup.log | head -1 || true)
+            # Find claim link in log
+            CLAIM_URL=$(grep -oE 'https://playit\.gg/claim/[A-Za-z0-9_-]+' /tmp/playit-setup.log | head -1 || true)
+            if [ -z "$CLAIM_URL" ]; then
+              echo "ERROR: Could not obtain a claim URL. Check playit binary."
+              cat /tmp/playit-setup.log || true
               kill "$PLAYIT_PID" 2>/dev/null || true
-              if [ -z "$CLAIM_URL" ]; then
-                echo "ERROR: Could not obtain a claim URL. Check playit binary."
-                cat /tmp/playit-setup.log || true
-                exit 1
-              fi
-              echo "Open this URL in your browser and claim the agent:"
-              echo
-              echo "    $CLAIM_URL"
-              echo
-              echo "Waiting up to 10 minutes for you to claim it..."
-              # After claim the secret lands in the default config path
-              for i in $(seq 1 60); do
-                sleep 10
-                if [ -f "$HOME/.config/playit/playit.toml" ] || [ -f "/root/.config/playit/playit.toml" ]; then
-                  SECRET=$(grep -oE 'secret_key\s*=\s*"[^"]+"' "$HOME/.config/playit/playit.toml" 2>/dev/null \
-                           || grep -oE 'secret_key\s*=\s*"[^"]+"' /root/.config/playit/playit.toml 2>/dev/null \
-                           || true)
-                  SECRET=${SECRET#*\"}
-                  SECRET=${SECRET%\"}
-                  if [ -n "$SECRET" ]; then
-                    echo
-                    echo "✅  Agent claimed successfully!"
-                    echo
-                    echo ">>> COPY THIS SECRET AND ADD IT TO GITHUB <<<"
-                    echo "Secret name : $SECRET_NAME"
-                    echo "Secret value: $SECRET"
-                    echo
-                    echo "Go to:  Repository → Settings → Secrets and variables → Actions"
-                    echo "Click 'New repository secret', name it exactly $SECRET_NAME and paste the value."
-                    echo
-                    # clean up so next agent starts fresh
-                    rm -rf "$HOME/.config/playit" /root/.config/playit 2>/dev/null || true
-                    return 0
-                  fi
-                fi
-                echo "  still waiting... ($((i*10))s)"
-              done
-              echo "Timed out waiting for claim."
               exit 1
             fi
-
-            # Modern claim generate path
-            CLAIM_URL=$("$GITHUB_WORKSPACE/playit" claim url "$CLAIM_CODE" --name "lac-slot-$SLOT_HINT" 2>/dev/null | grep -oE 'https://playit\.gg/claim/[A-Za-z0-9_-]+' || echo "https://playit.gg/claim/$CLAIM_CODE")
 
             echo "1. Open this link in your browser (while logged into playit.gg):"
             echo
@@ -186,28 +150,36 @@ jobs:
             echo "3. Come back here – the job is waiting for the secret..."
             echo
 
-            # Exchange with 10-minute timeout
-            SECRET=$("$GITHUB_WORKSPACE/playit" claim exchange "$CLAIM_CODE" --wait 600 2>/dev/null | tail -1 | tr -d '\r\n' || true)
+            # Wait up to 10 minutes for the secret to appear in the toml
+            for i in $(seq 1 60); do
+              sleep 10
+              if [ -f "$HOME/.config/playit_gg/playit.toml" ]; then
+                SECRET=$(grep -oE 'secret_key\s*=\s*"[^"]+"' "$HOME/.config/playit_gg/playit.toml" 2>/dev/null || true)
+                SECRET=${SECRET#*\"}
+                SECRET=${SECRET%\"}
+                if [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ]; then
+                  echo
+                  echo "✅  Agent claimed successfully!"
+                  echo
+                  echo ">>> COPY THIS SECRET AND ADD IT TO GITHUB <<<"
+                  echo "Secret name : $SECRET_NAME"
+                  echo "Secret value: $SECRET"
+                  echo
+                  echo "Go to:  Repository → Settings → Secrets and variables → Actions"
+                  echo "Click 'New repository secret', name it exactly $SECRET_NAME and paste the value."
+                  echo
+                  # clean up so next agent starts fresh
+                  rm -rf "$HOME/.config/playit_gg" 2>/dev/null || true
+                  kill "$PLAYIT_PID" 2>/dev/null || true
+                  return 0
+                fi
+              fi
+              echo "  still waiting... ($((i*10))s)"
+            done
 
-            if [ -z "$SECRET" ] || [ ${#SECRET} -lt 32 ]; then
-              echo "ERROR: claim exchange did not return a usable secret."
-              echo "Make sure you claimed the agent in the browser before the timer expired."
-              exit 1
-            fi
-
-            echo
-            echo "✅  Agent for $SECRET_NAME is ready!"
-            echo
-            echo ">>> COPY THIS SECRET AND ADD IT TO GITHUB <<<"
-            echo "Secret name : $SECRET_NAME"
-            echo "Secret value: $SECRET"
-            echo
-            echo "Go to:  Repository → Settings → Secrets and variables → Actions"
-            echo "Click 'New repository secret', name it exactly $SECRET_NAME and paste the value above."
-            echo
-            echo "After saving the secret, also create (or re-assign) a UDP tunnel on playit.gg"
-            echo "that matches the domain + public port defined for this slot in the workflow."
-            echo
+            echo "Timed out waiting for claim."
+            kill "$PLAYIT_PID" 2>/dev/null || true
+            exit 1
           }
 
           # Create only the missing Playit secrets
@@ -238,7 +210,7 @@ jobs:
           echo "=============================================="
 
   # ================================================================
-  # SERVER – original start job (unchanged logic)
+  # SERVER – original start job
   # ================================================================
   server:
     if: ${{ inputs.mode == 'start' }}
