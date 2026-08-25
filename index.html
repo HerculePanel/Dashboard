@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -108,7 +109,8 @@
       box-shadow: 0 0 14px rgba(53, 208, 127, 0.6);
     }
 
-    .token-panel {
+    .token-panel,
+    .setup-panel {
       padding: 20px;
       margin-bottom: 25px;
       border: 1px solid var(--border);
@@ -118,12 +120,14 @@
       box-shadow: var(--shadow);
     }
 
-    .token-panel h2 {
+    .token-panel h2,
+    .setup-panel h2 {
       margin: 0 0 7px;
       font-size: 19px;
     }
 
-    .token-panel p {
+    .token-panel p,
+    .setup-panel p {
       margin: 0 0 16px;
       color: var(--muted);
       font-size: 14px;
@@ -198,11 +202,18 @@
       align-items: center;
       gap: 15px;
       margin-bottom: 16px;
+      flex-wrap: wrap;
     }
 
     .dashboard-header h2 {
       margin: 0;
       font-size: 22px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .secondary-button {
@@ -215,6 +226,20 @@
 
     .secondary-button:hover {
       background: rgba(255, 255, 255, 0.09);
+    }
+
+    .setup-button {
+      padding: 10px 14px;
+      color: #07150e;
+      background: var(--yellow);
+      border: 0;
+      border-radius: 11px;
+      font-weight: 700;
+    }
+
+    .setup-button:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
     }
 
     .servers {
@@ -464,7 +489,7 @@
     <h2>GitHub authentication</h2>
 
     <p>
-      Enter a GitHub token with access to this repository.
+      Enter a GitHub token with access to this repository and the status Gist.
       The token is kept only in this browser session and is never written
       into the page source.
     </p>
@@ -497,17 +522,36 @@
 
   <main id="dashboard" class="dashboard">
 
+    <section class="setup-panel">
+      <h2>Playit secrets setup</h2>
+      <p>
+        If any <code>PLAYIT_SECRET_1</code>–<code>4</code> or
+        <code>DASHBOARD_TOKEN</code> is missing, run Setup.
+        The workflow will print claim links and the finished secrets
+        in the Actions log so you can save them in GitHub.
+      </p>
+      <button
+        id="setupButton"
+        class="setup-button"
+        onclick="runSetup()"
+      >
+        Run Playit Setup
+      </button>
+    </section>
+
     <div class="dashboard-header">
 
       <h2>Your servers</h2>
 
-      <button
-        class="secondary-button"
-        id="refreshButton"
-        onclick="refreshDashboard()"
-      >
-        Refresh
-      </button>
+      <div class="header-actions">
+        <button
+          class="secondary-button"
+          id="refreshButton"
+          onclick="refreshDashboard()"
+        >
+          Refresh
+        </button>
+      </div>
 
     </div>
 
@@ -594,6 +638,9 @@
   const refreshButton =
     document.getElementById("refreshButton");
 
+  const setupButton =
+    document.getElementById("setupButton");
+
 
   /*
    * ============================================================
@@ -612,7 +659,7 @@
         "application/vnd.github+json",
 
       "X-GitHub-Api-Version":
-        "2026-03-10",
+        "2022-11-28",
 
       ...(
         options.headers || {}
@@ -731,7 +778,7 @@
       if (!workflowResponse.ok) {
 
         throw new Error(
-          "The token cannot access main.yml. Make sure Actions permission is enabled."
+          "The token cannot access the workflow file. Make sure Actions permission is enabled and the filename matches CONFIG.workflow."
         );
 
       }
@@ -1189,6 +1236,105 @@
 
   /*
    * ============================================================
+   * RUN SETUP (new mode)
+   * ============================================================
+   */
+
+  async function runSetup() {
+
+    if (!githubToken) {
+
+      showMessage(
+        "Connect to GitHub first.",
+        "error"
+      );
+
+      return;
+
+    }
+
+    const confirmed =
+      confirm(
+        "Run Playit Setup?\n\n" +
+        "This starts a workflow that checks which secrets are missing " +
+        "and creates new Playit agents. Watch the Actions log for claim " +
+        "links and the finished secret values to save in GitHub."
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setupButton.disabled = true;
+    showMessage("Starting Playit Setup workflow...");
+
+    try {
+
+      const response =
+        await githubRequest(
+          `/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/${encodeURIComponent(CONFIG.workflow)}/dispatches`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+
+              ref: CONFIG.branch,
+
+              inputs: {
+                mode: "setup",
+                // slot is required by the workflow but ignored for setup
+                slot: "1"
+              }
+
+            })
+
+          }
+        );
+
+      if (!response.ok) {
+
+        let details = "";
+
+        try {
+          details =
+            await response.text();
+        } catch (_) {}
+
+        throw new Error(
+          `GitHub could not start the setup workflow (${response.status}). ${details}`
+        );
+
+      }
+
+      showMessage(
+        "Setup workflow started. Open the Actions tab, open the latest run, and follow the claim links + copy the printed secrets into GitHub repository secrets.",
+        "success"
+      );
+
+    } catch (error) {
+
+      showMessage(
+        error.message ||
+        "Failed to start Setup.",
+        "error"
+      );
+
+    } finally {
+
+      setupButton.disabled = false;
+
+    }
+
+  }
+
+
+  /*
+   * ============================================================
    * TURN ON
    * ============================================================
    */
@@ -1416,4 +1562,4 @@
 </script>
 
 </body>
-      </html>
+  </html>
