@@ -1,18 +1,29 @@
+#place config in /root/.config/unity3d/MA/LAC/ServerConfig.txt
+#place maps in   /root/.config/unity3d/MA/LAC/editor/myMap.txt
+
 #Maps (City, Garage, RagdollParty, TrainFacility)
 #Maps (ZombieSurvival, NewTerrainRamps, Island, CarSoccer)
 #Editor Maps (editor:myMap)
 
+#make map rotation with ","
+#players can get admin by typing "/YOUR-NUM-CODE" in the chat
+#lock down will avoids changes in: server option, editor obj sync
+
+(Moderator)
 admin code=YOUR-NUM-CODE
 lock down=true
 
+(Basic)
 restart timer=never
 max players=16
-map name=NewTerrainRamps
+map name=TrainFacility
 starting port=7777
 
+(Server List)
 share to community=true
 server language=English
 server password=none
 
+(Roleplay)
 username=HOST
 password=0000
