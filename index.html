@@ -4,41 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>L.A. Crimes Control</title>
+  <title>L.A. Crimes Server Dashboard</title>
 
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --bg: #08090d;
+      --panel: rgba(20, 22, 30, 0.72);
+      --panel-2: rgba(255, 255, 255, 0.055);
+      --border: rgba(255, 255, 255, 0.10);
+      --text: #f4f5f7;
+      --muted: #9da3af;
+      --green: #35d07f;
+      --red: #ff5f6d;
+      --yellow: #ffc857;
+      --blue: #6ea8ff;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+      --radius: 22px;
     }
 
-    :root {
-      --bg: #08090c;
-      --panel: #101217;
-      --panel2: #151820;
-      --border: #252a34;
-      --text: #f5f7fb;
-      --muted: #858d9b;
-      --green: #69f0ae;
-      --yellow: #ffd166;
-      --red: #ff647c;
-      --blue: #72a7ff;
+    * {
+      box-sizing: border-box;
     }
 
     body {
       margin: 0;
       min-height: 100vh;
-      padding: 24px;
-
-      background:
-        radial-gradient(
-          circle at 10% 0%,
-          rgba(114, 167, 255, 0.12),
-          transparent 30%
-        ),
-        #08090c;
-
-      color: var(--text);
-
       font-family:
         Inter,
         system-ui,
@@ -46,346 +36,405 @@
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
+
+      color: var(--text);
+
+      background:
+        radial-gradient(
+          circle at 20% 0%,
+          rgba(90, 110, 255, 0.13),
+          transparent 35%
+        ),
+        radial-gradient(
+          circle at 90% 20%,
+          rgba(0, 210, 150, 0.08),
+          transparent 30%
+        ),
+        var(--bg);
     }
 
-    .container {
-      width: min(1100px, 100%);
+    button,
+    input {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 30px));
       margin: auto;
+      padding: 35px 0 60px;
     }
 
-    header {
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .title-area h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 46px);
+      letter-spacing: -1.5px;
+    }
+
+    .title-area p {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .connection {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      margin-bottom: 22px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 5px;
-    }
-
-    .refresh {
+      gap: 9px;
+      padding: 10px 14px;
       border: 1px solid var(--border);
+      border-radius: 999px;
       background: var(--panel);
-      color: var(--text);
-      border-radius: 11px;
-      padding: 11px 15px;
-      font-weight: 800;
-      cursor: pointer;
+      backdrop-filter: blur(20px);
+      white-space: nowrap;
     }
 
-    .token {
-      background: var(--panel);
+    .connection-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 14px rgba(255, 95, 109, 0.6);
+    }
+
+    .connection-dot.connected {
+      background: var(--green);
+      box-shadow: 0 0 14px rgba(53, 208, 127, 0.6);
+    }
+
+    .token-panel {
+      padding: 20px;
+      margin-bottom: 25px;
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 18px;
+      border-radius: var(--radius);
+      background: var(--panel);
+      backdrop-filter: blur(25px);
+      box-shadow: var(--shadow);
     }
 
-    .token-title {
-      font-size: 12px;
-      font-weight: 800;
+    .token-panel h2 {
+      margin: 0 0 7px;
+      font-size: 19px;
+    }
+
+    .token-panel p {
+      margin: 0 0 16px;
       color: var(--muted);
-      margin-bottom: 8px;
+      font-size: 14px;
+      line-height: 1.6;
     }
 
     .token-row {
       display: flex;
-      gap: 9px;
+      gap: 10px;
     }
 
-    .token input {
+    .token-input {
       flex: 1;
       min-width: 0;
+      padding: 13px 15px;
 
-      background: #090a0e;
-      border: 1px solid var(--border);
       color: var(--text);
+      background: rgba(0, 0, 0, 0.3);
 
-      border-radius: 10px;
-      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
       outline: none;
+
+      transition: 0.2s;
     }
 
-    .token button {
+    .token-input:focus {
+      border-color: rgba(110, 168, 255, 0.65);
+      box-shadow: 0 0 0 3px rgba(110, 168, 255, 0.08);
+    }
+
+    .primary-button,
+    .secondary-button,
+    .server-button {
       border: 0;
-      border-radius: 10px;
-      padding: 0 18px;
-
-      background: var(--blue);
-      color: #08101e;
-
-      font-weight: 900;
       cursor: pointer;
+      transition: 0.2s;
     }
 
-    .token-help {
-      color: var(--muted);
-      font-size: 11px;
-      margin-top: 7px;
+    .primary-button {
+      padding: 13px 19px;
+      color: white;
+      background: var(--blue);
+      border-radius: 13px;
+      font-weight: 700;
+    }
+
+    .primary-button:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    .primary-button:disabled,
+    .secondary-button:disabled,
+    .server-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .dashboard {
+      display: none;
+    }
+
+    .dashboard.visible {
+      display: block;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 16px;
+    }
+
+    .dashboard-header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .secondary-button {
+      padding: 10px 14px;
+      color: var(--text);
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+    }
+
+    .secondary-button:hover {
+      background: rgba(255, 255, 255, 0.09);
     }
 
     .servers {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      gap: 18px;
     }
 
-    .server {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 18px;
+    .server-card {
       position: relative;
       overflow: hidden;
+
+      padding: 22px;
+
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.055),
+          rgba(255, 255, 255, 0.018)
+        );
+
+      backdrop-filter: blur(25px);
+      box-shadow: var(--shadow);
     }
 
-    .server::before {
+    .server-card::before {
       content: "";
 
       position: absolute;
-      left: 0;
-      top: 0;
+      inset: 0;
 
-      width: 100%;
-      height: 3px;
+      pointer-events: none;
 
-      background: #343a46;
+      background:
+        radial-gradient(
+          circle at 100% 0%,
+          rgba(110, 168, 255, 0.09),
+          transparent 35%
+        );
     }
 
-    .server.online::before {
-      background: var(--green);
-    }
+    .server-top {
+      position: relative;
 
-    .server.starting::before {
-      background: var(--yellow);
-    }
-
-    .server.error::before {
-      background: var(--red);
-    }
-
-    .server-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-
-      margin-bottom: 16px;
+      align-items: flex-start;
+      gap: 15px;
     }
 
-    .server-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .server-name {
+      margin: 0;
+      font-size: 23px;
     }
 
-    .number {
-      width: 38px;
-      height: 38px;
-
-      display: grid;
-      place-items: center;
-
-      border-radius: 11px;
-
-      background: var(--panel2);
-
-      font-weight: 950;
-    }
-
-    .name {
-      font-weight: 900;
+    .server-slot {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
     }
 
     .status {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 7px;
 
-      padding: 6px 9px;
+      padding: 7px 10px;
 
-      background: var(--panel2);
       border-radius: 999px;
 
-      font-size: 10px;
-      font-weight: 900;
+      font-size: 12px;
+      font-weight: 700;
+
+      background: rgba(255, 255, 255, 0.06);
     }
 
-    .dot {
+    .status-dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #68717f;
     }
 
-    .online .dot {
+    .status.online .status-dot {
       background: var(--green);
-      box-shadow: 0 0 9px var(--green);
+      box-shadow: 0 0 12px rgba(53, 208, 127, 0.8);
     }
 
-    .starting .dot {
-      background: var(--yellow);
-      box-shadow: 0 0 9px var(--yellow);
-    }
-
-    .error .dot {
+    .status.offline .status-dot {
       background: var(--red);
-      box-shadow: 0 0 9px var(--red);
     }
 
-    .endpoint {
-      background: #090a0e;
-      border: 1px solid var(--border);
-
-      border-radius: 12px;
-      padding: 13px;
-
-      margin-bottom: 10px;
+    .status.starting .status-dot,
+    .status.stopping .status-dot {
+      background: var(--yellow);
+      animation: pulse 1.2s infinite;
     }
 
-    .label {
-      color: var(--muted);
-      font-size: 9px;
-      font-weight: 850;
-
-      margin-bottom: 5px;
+    @keyframes pulse {
+      50% {
+        opacity: 0.35;
+      }
     }
 
-    .endpoint-value {
-      color: var(--blue);
+    .server-info {
+      position: relative;
 
-      font-family: Consolas, monospace;
-      font-size: 13px;
-      font-weight: 900;
+      margin: 20px 0;
 
-      word-break: break-all;
-    }
-
-    .ip {
-      color: var(--muted);
-
-      font-family: Consolas, monospace;
-      font-size: 11px;
-
-      margin-top: 5px;
-    }
-
-    .meta {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-
-      margin-bottom: 13px;
+      gap: 10px;
     }
 
-    .meta-box {
-      background: #0c0e13;
-      border: 1px solid var(--border);
-
-      border-radius: 10px;
-      padding: 9px;
-    }
-
-    .meta-value {
-      font-family: Consolas, monospace;
-      font-size: 11px;
-      font-weight: 850;
-
-      word-break: break-all;
-    }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .buttons button {
-      border: 0;
-      border-radius: 10px;
-
+    .info {
       padding: 12px;
 
-      font-weight: 900;
-      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 13px;
+
+      background: rgba(0,0,0,0.18);
     }
 
-    .start {
+    .info-label {
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .server-actions {
+      position: relative;
+
+      display: flex;
+      gap: 10px;
+    }
+
+    .server-button {
+      flex: 1;
+      padding: 12px;
+
+      border-radius: 13px;
+
+      font-weight: 700;
+    }
+
+    .turn-on {
+      color: #07150e;
       background: var(--green);
-      color: #071b12;
     }
 
-    .stop {
-      background: var(--red);
-      color: #25080d;
+    .turn-off {
+      color: white;
+      background: rgba(255, 95, 109, 0.17);
+      border: 1px solid rgba(255, 95, 109, 0.35);
     }
 
-    button:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
+    .server-button:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
     }
 
-    .logs {
-      margin-top: 18px;
+    .message {
+      display: none;
+
+      margin-bottom: 20px;
+      padding: 13px 15px;
+
+      border: 1px solid var(--border);
+      border-radius: 13px;
 
       background: var(--panel);
-      border: 1px solid var(--border);
 
-      border-radius: 16px;
-      padding: 15px;
+      color: var(--muted);
+      font-size: 14px;
     }
 
-    .logs-title {
-      font-weight: 900;
-      margin-bottom: 9px;
+    .message.visible {
+      display: block;
     }
 
-    #log {
-      height: 180px;
-      overflow-y: auto;
+    .message.error {
+      color: #ff9da6;
+      border-color: rgba(255, 95, 109, 0.3);
+    }
 
-      padding: 12px;
+    .message.success {
+      color: #86e7ae;
+      border-color: rgba(53, 208, 127, 0.3);
+    }
 
-      background: #07080b;
-      border-radius: 10px;
-
-      color: #bbc2ce;
-
-      font-family: Consolas, monospace;
-      font-size: 11px;
-
-      white-space: pre-wrap;
+    .footer {
+      margin-top: 30px;
+      color: #666d78;
+      text-align: center;
+      font-size: 12px;
     }
 
     @media (max-width: 760px) {
-      body {
-        padding: 14px;
+      .hero {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .connection {
+        align-self: flex-start;
       }
 
       .servers {
         grid-template-columns: 1fr;
       }
 
-      header {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
       .token-row {
         flex-direction: column;
-      }
-
-      .token button {
-        height: 43px;
       }
     }
   </style>
@@ -393,796 +442,978 @@
 
 <body>
 
-<div class="container">
+<div class="app">
 
-  <header>
+  <header class="hero">
 
-    <div>
-      <h1>L.A. Crimes Control</h1>
-
-      <div class="subtitle">
-        Four independent server controls
-      </div>
+    <div class="title-area">
+      <h1>L.A. Crimes Servers</h1>
+      <p>Manage your four L.A. Crimes servers from one dashboard.</p>
     </div>
 
-    <button
-      class="refresh"
-      onclick="refreshDatabase()"
-    >
-      ↻ Refresh
-    </button>
+    <div class="connection">
+      <span id="connectionDot" class="connection-dot"></span>
+      <span id="connectionText">Not connected</span>
+    </div>
 
   </header>
 
 
-  <section class="token">
+  <section class="token-panel">
 
-    <div class="token-title">
-      GitHub Personal Access Token
-    </div>
+    <h2>GitHub authentication</h2>
+
+    <p>
+      Enter a GitHub token with access to this repository.
+      The token is kept only in this browser session and is never written
+      into the page source.
+    </p>
 
     <div class="token-row">
 
       <input
-        id="token"
+        id="tokenInput"
+        class="token-input"
         type="password"
-        placeholder="github_pat_..."
         autocomplete="off"
+        placeholder="github_pat_..."
       >
 
-      <button onclick="saveToken()">
-        Save
+      <button
+        id="connectButton"
+        class="primary-button"
+        onclick="connectGitHub()"
+      >
+        Connect
       </button>
 
     </div>
 
-    <div class="token-help">
-      Stored only in this browser session.
-    </div>
-
   </section>
 
 
-  <main
-    id="servers"
-    class="servers"
-  ></main>
+  <div id="message" class="message"></div>
 
 
-  <section class="logs">
+  <main id="dashboard" class="dashboard">
 
-    <div class="logs-title">
-      Control Panel Log
+    <div class="dashboard-header">
+
+      <h2>Your servers</h2>
+
+      <button
+        class="secondary-button"
+        id="refreshButton"
+        onclick="refreshDashboard()"
+      >
+        Refresh
+      </button>
+
     </div>
 
-    <div id="log">
-Waiting for connection...
-    </div>
+    <div id="servers" class="servers"></div>
 
-  </section>
+  </main>
+
+
+  <div class="footer">
+    L.A. Crimes Server Dashboard
+  </div>
 
 </div>
 
 
 <script>
-const OWNER = "LACServer";
-const REPO = "Dashboard";
+  /*
+   * ============================================================
+   * CONFIGURATION
+   * ============================================================
+   */
 
-const WORKFLOW = "main.yml";
+  const CONFIG = {
 
-const GIST_ID =
-  "cb2aaaece7a231ec707429d41e1457f4";
+    owner: "LACServer",
 
-const GIST_FILE =
-  "servers.json";
+    repo: "Dashboard",
 
-const API =
-  "https://api.github.com";
+    workflow: "main.yml",
 
-const API_VERSION =
-  "2022-11-28";
+    gistId: "cb2aaaece7a231ec707429d41e1457f4",
 
+    gistFile: "servers.json",
 
-let servers = [];
+    branch: "main",
 
-let refreshTimer = null;
+    api: "https://api.github.com",
 
+    refreshInterval: 10000
 
-const tokenInput =
-  document.getElementById("token");
-
-const serversElement =
-  document.getElementById("servers");
-
-const logElement =
-  document.getElementById("log");
+  };
 
 
-const storedToken =
-  sessionStorage.getItem("lac_token");
+  /*
+   * ============================================================
+   * STATE
+   * ============================================================
+   */
+
+  let githubToken = "";
+
+  let refreshTimer = null;
+
+  let serversData = null;
 
 
-if (storedToken) {
-  tokenInput.value =
-    storedToken;
-}
+  /*
+   * ============================================================
+   * DOM
+   * ============================================================
+   */
+
+  const tokenInput =
+    document.getElementById("tokenInput");
+
+  const connectButton =
+    document.getElementById("connectButton");
+
+  const dashboard =
+    document.getElementById("dashboard");
+
+  const serversElement =
+    document.getElementById("servers");
+
+  const messageElement =
+    document.getElementById("message");
+
+  const connectionDot =
+    document.getElementById("connectionDot");
+
+  const connectionText =
+    document.getElementById("connectionText");
+
+  const refreshButton =
+    document.getElementById("refreshButton");
 
 
-/* ==========================================
-   LOG
-========================================== */
+  /*
+   * ============================================================
+   * API HELPERS
+   * ============================================================
+   */
 
-function log(message) {
+  async function githubRequest(
+    path,
+    options = {}
+  ) {
 
-  const time =
-    new Date().toLocaleTimeString();
+    const headers = {
 
-  logElement.textContent +=
-    `[${time}] ${message}\n`;
+      "Accept":
+        "application/vnd.github+json",
 
-  logElement.scrollTop =
-    logElement.scrollHeight;
-}
+      "X-GitHub-Api-Version":
+        "2026-03-10",
 
+      ...(
+        options.headers || {}
+      )
 
-/* ==========================================
-   TOKEN
-========================================== */
+    };
 
-function saveToken() {
+    if (githubToken) {
 
-  const token =
-    tokenInput.value.trim();
+      headers["Authorization"] =
+        `Bearer ${githubToken}`;
 
-  if (!token) {
+    }
 
-    sessionStorage.removeItem(
-      "lac_token"
-    );
-
-    log("Token removed.");
-
-    return;
-  }
-
-  sessionStorage.setItem(
-    "lac_token",
-    token
-  );
-
-  log("Token saved.");
-
-  refreshDatabase();
-}
-
-
-function getToken() {
-
-  const token =
-    tokenInput.value.trim();
-
-  if (!token) {
-    throw new Error(
-      "Enter your GitHub token first."
-    );
-  }
-
-  return token;
-}
-
-
-/* ==========================================
-   GITHUB API
-========================================== */
-
-async function github(
-  path,
-  options = {}
-) {
-
-  const response =
-    await fetch(
-      API + path,
-      {
-        ...options,
-
-        headers: {
-          "Accept":
-            "application/vnd.github+json",
-
-          "Authorization":
-            "Bearer " + getToken(),
-
-          "X-GitHub-Api-Version":
-            API_VERSION,
-
-          ...(options.headers || {})
+    const response =
+      await fetch(
+        `${CONFIG.api}${path}`,
+        {
+          ...options,
+          headers
         }
-      }
-    );
+      );
+
+    return response;
+
+  }
 
 
-  if (!response.ok) {
+  /*
+   * ============================================================
+   * MESSAGE
+   * ============================================================
+   */
 
-    let message =
-      response.statusText;
+  function showMessage(
+    text,
+    type = ""
+  ) {
+
+    messageElement.textContent = text;
+
+    messageElement.className =
+      `message visible ${type}`;
+
+  }
+
+
+  function hideMessage() {
+
+    messageElement.className =
+      "message";
+
+    messageElement.textContent = "";
+
+  }
+
+
+  /*
+   * ============================================================
+   * CONNECT
+   * ============================================================
+   */
+
+  async function connectGitHub() {
+
+    const token =
+      tokenInput.value.trim();
+
+    if (!token) {
+
+      showMessage(
+        "Enter your GitHub token first.",
+        "error"
+      );
+
+      return;
+
+    }
+
+    connectButton.disabled = true;
+
+    connectButton.textContent =
+      "Checking...";
 
     try {
 
-      const data =
-        await response.json();
+      githubToken = token;
 
-      if (data.message) {
-        message =
-          data.message;
+      /*
+       * Check repository access.
+       */
+
+      const repoResponse =
+        await githubRequest(
+          `/repos/${CONFIG.owner}/${CONFIG.repo}`
+        );
+
+      if (!repoResponse.ok) {
+
+        throw new Error(
+          "The token cannot access the Dashboard repository."
+        );
+
       }
 
-    } catch (_) {}
 
-    throw new Error(
-      `GitHub API ${response.status}: ${message}`
-    );
+      /*
+       * Check workflow access.
+       */
+
+      const workflowResponse =
+        await githubRequest(
+          `/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/${encodeURIComponent(CONFIG.workflow)}`
+        );
+
+      if (!workflowResponse.ok) {
+
+        throw new Error(
+          "The token cannot access main.yml. Make sure Actions permission is enabled."
+        );
+
+      }
+
+
+      /*
+       * Check Gist access.
+       */
+
+      const gistResponse =
+        await githubRequest(
+          `/gists/${CONFIG.gistId}`
+        );
+
+      if (!gistResponse.ok) {
+
+        throw new Error(
+          "The token cannot access the server-status Gist."
+        );
+
+      }
+
+
+      /*
+       * Successful authentication.
+       */
+
+      connectionDot.classList.add(
+        "connected"
+      );
+
+      connectionText.textContent =
+        "Connected";
+
+      dashboard.classList.add(
+        "visible"
+      );
+
+      hideMessage();
+
+      await refreshDashboard();
+
+
+      /*
+       * Refresh automatically.
+       */
+
+      clearInterval(
+        refreshTimer
+      );
+
+      refreshTimer =
+        setInterval(
+          refreshDashboard,
+          CONFIG.refreshInterval
+        );
+
+
+    } catch (error) {
+
+      githubToken = "";
+
+      connectionDot.classList.remove(
+        "connected"
+      );
+
+      connectionText.textContent =
+        "Not connected";
+
+      dashboard.classList.remove(
+        "visible"
+      );
+
+      showMessage(
+        error.message ||
+        "GitHub authentication failed.",
+        "error"
+      );
+
+    } finally {
+
+      connectButton.disabled =
+        false;
+
+      connectButton.textContent =
+        "Connect";
+
+    }
+
   }
 
 
-  if (response.status === 204) {
-    return null;
-  }
+  /*
+   * ============================================================
+   * LOAD GIST
+   * ============================================================
+   */
 
+  async function loadServers() {
 
-  return response.json();
-}
-
-
-/* ==========================================
-   DATABASE
-========================================== */
-
-async function refreshDatabase() {
-
-  try {
-
-    const gist =
-      await github(
-        `/gists/${GIST_ID}`
+    const response =
+      await githubRequest(
+        `/gists/${CONFIG.gistId}`
       );
 
+    if (!response.ok) {
 
-    const file =
-      gist.files?.[GIST_FILE];
-
-
-    if (!file) {
       throw new Error(
-        `${GIST_FILE} not found in Gist.`
+        `Could not read server database (${response.status}).`
       );
-    }
 
-    if (file.truncated) {
-      throw new Error(
-        "Gist file is truncated. Make the Gist smaller or use a different storage method."
-      );
     }
-
 
     const data =
-      JSON.parse(file.content);
+      await response.json();
 
+    const file =
+      data.files?.[CONFIG.gistFile];
 
-    if (!Array.isArray(data.servers)) {
+    if (!file) {
+
       throw new Error(
-        "Invalid servers.json."
+        `${CONFIG.gistFile} was not found in the Gist.`
       );
+
     }
 
+    let content =
+      file.content;
 
-    servers =
-      data.servers;
+    /*
+     * GitHub may mark large files as truncated.
+     * This database should be tiny, but handle it anyway.
+     */
 
+    if (file.truncated && file.raw_url) {
 
-    renderServers();
+      const rawResponse =
+        await fetch(
+          file.raw_url
+        );
 
+      if (!rawResponse.ok) {
 
-  } catch (error) {
+        throw new Error(
+          "The server database content could not be downloaded."
+        );
 
-    log(
-      `Refresh failed: ${error.message}`
-    );
+      }
+
+      content =
+        await rawResponse.text();
+
+    }
+
+    const parsed =
+      JSON.parse(content);
+
+    if (
+      !parsed ||
+      !Array.isArray(parsed.servers)
+    ) {
+
+      throw new Error(
+        "servers.json does not contain a valid servers array."
+      );
+
+    }
+
+    return parsed;
+
   }
-}
 
 
-/* ==========================================
-   RENDER
-========================================== */
+  /*
+   * ============================================================
+   * RENDER SERVERS
+   * ============================================================
+   */
 
-function renderServers() {
+  function renderServers(data) {
 
-  serversElement.innerHTML = "";
+    serversData = data;
+
+    serversElement.innerHTML = "";
+
+    const sorted =
+      [...data.servers]
+        .sort(
+          (a, b) =>
+            Number(a.slot) -
+            Number(b.slot)
+        );
+
+    for (const server of sorted) {
+
+      serversElement.appendChild(
+        createServerCard(server)
+      );
+
+    }
+
+  }
 
 
-  for (const server of servers) {
+  function normalizeStatus(
+    status
+  ) {
 
-    const status =
-      server.status || "available";
+    const value =
+      String(
+        status || "offline"
+      ).toLowerCase();
 
+    if (
+      value === "online"
+    ) {
+      return "online";
+    }
+
+    if (
+      value === "starting"
+    ) {
+      return "starting";
+    }
+
+    if (
+      value === "stopping"
+    ) {
+      return "stopping";
+    }
+
+    return "offline";
+
+  }
+
+
+  function createServerCard(
+    server
+  ) {
 
     const card =
       document.createElement("article");
 
-
     card.className =
-      `server ${status}`;
+      "server-card";
 
+    const status =
+      normalizeStatus(
+        server.status
+      );
 
     const endpoint =
       server.endpoint ||
-      "No endpoint";
-
+      "—";
 
     const ip =
       server.ip ||
-      "No IP";
+      "—";
 
+    const port =
+      server.port ||
+      "—";
 
     const runId =
       server.run_id ||
       "—";
 
+    let statusText =
+      status;
 
-    const slot =
-      Number(server.slot);
+    if (
+      status === "online"
+    ) {
+      statusText = "Online";
+    }
+
+    if (
+      status === "offline"
+    ) {
+      statusText = "Offline";
+    }
+
+    if (
+      status === "starting"
+    ) {
+      statusText = "Starting";
+    }
+
+    if (
+      status === "stopping"
+    ) {
+      statusText = "Stopping";
+    }
 
 
     card.innerHTML = `
-      <div class="server-header">
+      <div class="server-top">
 
-        <div class="server-title">
+        <div>
+          <h3 class="server-name">
+            L.A. Crimes Server ${escapeHtml(server.slot)}
+          </h3>
 
-          <div class="number">
-            ${slot}
+          <div class="server-slot">
+            Slot ${escapeHtml(server.slot)}
           </div>
-
-          <div class="name">
-            ${escapeHtml(
-              server.name ||
-              `Server ${slot}`
-            )}
-          </div>
-
         </div>
 
-        <div class="status">
-
-          <span class="dot"></span>
-
-          ${escapeHtml(
-            status.toUpperCase()
-          )}
-
+        <div class="status ${status}">
+          <span class="status-dot"></span>
+          ${statusText}
         </div>
 
       </div>
 
+      <div class="server-info">
 
-      <div class="endpoint">
+        <div class="info">
+          <div class="info-label">
+            Endpoint
+          </div>
 
-        <div class="label">
-          PLAYIT DOMAIN
+          <div class="info-value">
+            ${escapeHtml(endpoint)}
+          </div>
         </div>
 
-        <div class="endpoint-value">
-          ${escapeHtml(endpoint)}
+        <div class="info">
+          <div class="info-label">
+            Local UDP
+          </div>
+
+          <div class="info-value">
+            ${escapeHtml(port)}
+          </div>
         </div>
 
-        <div class="ip">
-          IP: ${escapeHtml(ip)}
+        <div class="info">
+          <div class="info-label">
+            IP
+          </div>
+
+          <div class="info-value">
+            ${escapeHtml(ip)}
+          </div>
+        </div>
+
+        <div class="info">
+          <div class="info-label">
+            Workflow
+          </div>
+
+          <div class="info-value">
+            ${escapeHtml(runId)}
+          </div>
         </div>
 
       </div>
 
-
-      <div class="meta">
-
-        <div class="meta-box">
-
-          <div class="label">
-            LOCAL UDP
-          </div>
-
-          <div class="meta-value">
-            ${escapeHtml(
-              String(server.port || "—")
-            )}
-          </div>
-
-        </div>
-
-        <div class="meta-box">
-
-          <div class="label">
-            RUN ID
-          </div>
-
-          <div class="meta-value">
-            ${escapeHtml(
-              String(runId)
-            )}
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="buttons">
+      <div class="server-actions">
 
         <button
-          class="start"
-          onclick="startServer(${slot})"
-          ${status !== "available"
-            ? "disabled"
-            : ""}
+          class="server-button turn-on"
+          ${status !== "offline" ? "disabled" : ""}
+          onclick="startServer(${Number(server.slot)})"
         >
-          ▶ Start
+          Turn ON
         </button>
 
         <button
-          class="stop"
-          onclick="stopServer(${slot})"
-          ${status !== "online" &&
-            status !== "starting"
-              ? "disabled"
-              : ""}
+          class="server-button turn-off"
+          ${status === "offline" ? "disabled" : ""}
+          onclick="stopServer(${Number(server.slot)})"
         >
-          ■ End
+          Turn OFF
         </button>
 
       </div>
     `;
 
+    return card;
 
-    serversElement.appendChild(card);
-  }
-}
-
-
-/* ==========================================
-   START SERVER
-========================================== */
-
-async function startServer(slot) {
-
-  const server =
-    servers.find(
-      item =>
-        Number(item.slot) ===
-        Number(slot)
-    );
-
-
-  if (!server) {
-    log(
-      `Server ${slot} does not exist.`
-    );
-
-    return;
   }
 
 
-  if (
-    server.status !==
-    "available"
+  /*
+   * ============================================================
+   * ESCAPE HTML
+   * ============================================================
+   */
+
+  function escapeHtml(
+    value
   ) {
 
-    log(
-      `Server ${slot} is already ${server.status}.`
-    );
+    return String(
+      value ?? ""
+    )
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
 
-    return;
   }
 
 
-  try {
+  /*
+   * ============================================================
+   * REFRESH
+   * ============================================================
+   */
 
-    log(
+  async function refreshDashboard() {
+
+    if (!githubToken) {
+      return;
+    }
+
+    refreshButton.disabled =
+      true;
+
+    try {
+
+      const data =
+        await loadServers();
+
+      renderServers(data);
+
+      connectionDot.classList.add(
+        "connected"
+      );
+
+      connectionText.textContent =
+        "Connected";
+
+    } catch (error) {
+
+      showMessage(
+        error.message ||
+        "Failed to refresh the dashboard.",
+        "error"
+      );
+
+    } finally {
+
+      refreshButton.disabled =
+        false;
+
+    }
+
+  }
+
+
+  /*
+   * ============================================================
+   * TURN ON
+   * ============================================================
+   */
+
+  async function startServer(
+    slot
+  ) {
+
+    if (!githubToken) {
+
+      showMessage(
+        "Connect to GitHub first.",
+        "error"
+      );
+
+      return;
+
+    }
+
+    showMessage(
       `Starting Server ${slot}...`
     );
 
+    try {
 
-    await github(
-      `/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW}/dispatches`,
-      {
-        method: "POST",
+      const response =
+        await githubRequest(
+          `/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/${encodeURIComponent(CONFIG.workflow)}/dispatches`,
+          {
+            method: "POST",
 
-        body:
-          JSON.stringify({
-            ref: "main",
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
 
-            inputs: {
-              slot:
-                String(slot)
-            }
-          })
+            body: JSON.stringify({
+
+              ref: CONFIG.branch,
+
+              inputs: {
+                mode: "start",
+                slot: String(slot)
+              }
+
+            })
+
+          }
+        );
+
+      if (!response.ok) {
+
+        let details = "";
+
+        try {
+          details =
+            await response.text();
+        } catch (_) {}
+
+        throw new Error(
+          `GitHub could not start the workflow (${response.status}). ${details}`
+        );
+
       }
-    );
 
+      showMessage(
+        `Server ${slot} is starting. The dashboard will update automatically.`,
+        "success"
+      );
 
-    log(
-      `Server ${slot} workflow dispatched.`
-    );
+      await refreshDashboard();
 
+    } catch (error) {
 
-    await waitForServerRun(slot);
+      showMessage(
+        error.message ||
+        `Failed to start Server ${slot}.`,
+        "error"
+      );
 
+    }
 
-  } catch (error) {
-
-    log(
-      `Start Server ${slot} failed: ${error.message}`
-    );
-
-    await refreshDatabase();
   }
-}
 
 
-/* ==========================================
-   WAIT FOR EXACT RUN ID
-========================================== */
+  /*
+   * ============================================================
+   * TURN OFF
+   * ============================================================
+   */
 
-async function waitForServerRun(slot) {
-
-  for (
-    let attempt = 0;
-    attempt < 45;
-    attempt++
+  async function stopServer(
+    slot
   ) {
 
-    await refreshDatabase();
+    if (!githubToken) {
 
+      showMessage(
+        "Connect to GitHub first.",
+        "error"
+      );
+
+      return;
+
+    }
 
     const server =
-      servers.find(
+      serversData?.servers?.find(
         item =>
           Number(item.slot) ===
           Number(slot)
       );
 
+    if (!server) {
 
-    if (
-      server &&
-      server.run_id
-    ) {
-
-      log(
-        `Server ${slot} assigned workflow ${server.run_id}.`
+      showMessage(
+        `Server ${slot} was not found.`,
+        "error"
       );
 
       return;
+
     }
 
+    const runId =
+      server.run_id;
 
-    await sleep(2000);
-  }
+    if (
+      !runId ||
+      runId === "null" ||
+      runId === "—"
+    ) {
 
+      showMessage(
+        `Server ${slot} has no workflow run ID, so GitHub cannot cancel it.`,
+        "error"
+      );
 
-  throw new Error(
-    `Workflow did not register Server ${slot} in the database.`
-  );
-}
+      return;
 
+    }
 
-/* ==========================================
-   STOP SERVER
-========================================== */
+    const confirmed =
+      confirm(
+        `Turn OFF Server ${slot}?`
+      );
 
-async function stopServer(slot) {
+    if (!confirmed) {
+      return;
+    }
 
-  const server =
-    servers.find(
-      item =>
-        Number(item.slot) ===
-        Number(slot)
-    );
-
-
-  if (!server) {
-
-    log(
-      `Server ${slot} not found.`
-    );
-
-    return;
-  }
-
-
-  const runId =
-    server.run_id;
-
-
-  if (!runId) {
-
-    log(
-      `Server ${slot} has no workflow ID.`
-    );
-
-    await refreshDatabase();
-
-    return;
-  }
-
-
-  if (
-    !confirm(
-      `End Server ${slot}?`
-    )
-  ) {
-    return;
-  }
-
-
-  try {
-
-    log(
+    showMessage(
       `Stopping Server ${slot}...`
     );
 
-
-    await github(
-      `/repos/${OWNER}/${REPO}/actions/runs/${runId}/cancel`,
-      {
-        method: "POST"
-      }
-    );
-
-
-    log(
-      `Stop request sent for Server ${slot}.`
-    );
-
-
-    await waitUntilStopped(
-      runId,
-      slot
-    );
-
-
-  } catch (error) {
-
-    log(
-      `Stop Server ${slot} failed: ${error.message}`
-    );
-
-    await refreshDatabase();
-  }
-}
-
-
-/* ==========================================
-   WAIT UNTIL WORKFLOW ENDS
-========================================== */
-
-async function waitUntilStopped(
-  runId,
-  slot
-) {
-
-  for (
-    let attempt = 0;
-    attempt < 60;
-    attempt++
-  ) {
-
     try {
 
-      const run =
-        await github(
-          `/repos/${OWNER}/${REPO}/actions/runs/${runId}`
+      const response =
+        await githubRequest(
+          `/repos/${CONFIG.owner}/${CONFIG.repo}/actions/runs/${encodeURIComponent(runId)}/cancel`,
+          {
+            method: "POST"
+          }
         );
-
 
       if (
-        run.status ===
-        "completed"
+        !response.ok &&
+        response.status !== 409
       ) {
 
-        log(
-          `Server ${slot} workflow completed.`
+        throw new Error(
+          `GitHub could not cancel workflow ${runId} (${response.status}).`
         );
 
-        await refreshDatabase();
-
-        return;
       }
 
+      showMessage(
+        `Stop requested for Server ${slot}. Waiting for cleanup...`,
+        "success"
+      );
+
+      /*
+       * Give the runner a moment to execute cleanup.
+       */
+
+      setTimeout(
+        refreshDashboard,
+        3000
+      );
 
     } catch (error) {
 
-      log(
-        `Workflow check failed: ${error.message}`
+      showMessage(
+        error.message ||
+        `Failed to stop Server ${slot}.`,
+        "error"
       );
+
     }
 
-
-    await sleep(2000);
   }
 
 
-  await refreshDatabase();
-}
+  /*
+   * ============================================================
+   * INITIAL STATE
+   * ============================================================
+   */
 
-
-/* ==========================================
-   UTILITIES
-========================================== */
-
-function sleep(ms) {
-
-  return new Promise(
-    resolve =>
-      setTimeout(
-        resolve,
-        ms
-      )
-  );
-}
-
-
-function escapeHtml(value) {
-
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-
-/* ==========================================
-   INITIAL LOAD
-========================================== */
-
-window.addEventListener(
-  "load",
-  () => {
-
-    if (
-      tokenInput.value.trim()
-    ) {
-
-      refreshDatabase();
-
-    } else {
-
-      log(
-        "Enter your GitHub token to connect."
-      );
-    }
-  }
-);
-
-
-/* ==========================================
-   AUTO REFRESH
-========================================== */
-
-refreshTimer =
-  setInterval(
-    () => {
+  tokenInput.addEventListener(
+    "keydown",
+    event => {
 
       if (
-        tokenInput.value.trim()
+        event.key === "Enter"
       ) {
 
-        refreshDatabase();
+        connectGitHub();
+
       }
 
-    },
-    10000
+    }
   );
+
 </script>
 
 </body>
-    </html>
+      </html>
