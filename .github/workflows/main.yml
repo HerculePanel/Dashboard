@@ -40,12 +40,12 @@ env:
 jobs:
 
   # ================================================================
-  # SETUP – create correct self-managed agents that support UDP
+  # SETUP – create Docker-compatible agents that support UDP
   # ================================================================
   setup:
     if: ${{ inputs.mode == 'setup' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
 
     env:
       PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET_1 }}
@@ -70,13 +70,13 @@ jobs:
           mkdir -p "$HOME/.config/playit"
           echo "Directories ready."
 
-      - name: Download Playit CLI
+      - name: Download Playit CLI + Agent
         run: |
           set -e
-          wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/playit" "$PLAYIT_CLI_URL"
-          chmod +x "$GITHUB_WORKSPACE/playit"
-          echo "Playit CLI ready."
-          "$GITHUB_WORKSPACE/playit" --help || true
+          wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/playit-cli" "$PLAYIT_CLI_URL"
+          wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/playit" "$PLAYIT_AGENT_URL"
+          chmod +x "$GITHUB_WORKSPACE/playit-cli" "$GITHUB_WORKSPACE/playit"
+          echo "Binaries ready."
 
       - name: Check secrets and create missing agents
         run: |
@@ -128,25 +128,25 @@ jobs:
             echo "##################################################"
             echo
 
-            # Clean previous state so we get a fresh agent
+            # Clean previous state
             rm -rf "$HOME/.config/playit_gg" "$HOME/.config/playit" 2>/dev/null || true
             mkdir -p "$HOME/.config/playit_gg"
 
             # Generate claim code
-            CLAIM_CODE=$("$GITHUB_WORKSPACE/playit" claim generate 2>/dev/null | tr -d '\r\n' || true)
+            CLAIM_CODE=$("$GITHUB_WORKSPACE/playit-cli" claim generate 2>/dev/null | tr -d '\r\n' || true)
 
             if [ -z "$CLAIM_CODE" ] || [ ${#CLAIM_CODE} -lt 8 ]; then
-              echo "ERROR: claim generate failed."
-              "$GITHUB_WORKSPACE/playit" claim generate || true
+              echo "ERROR: claim generate failed"
+              "$GITHUB_WORKSPACE/playit-cli" claim generate || true
               exit 1
             fi
 
             echo "Claim code: $CLAIM_CODE"
 
-            # Force self-managed type (this is the type that supports normal UDP tunnels)
-            CLAIM_URL=$("$GITHUB_WORKSPACE/playit" claim url "$CLAIM_CODE" \
+            # Force type = docker (this is the type that accepts normal UDP tunnels)
+            CLAIM_URL=$("$GITHUB_WORKSPACE/playit-cli" claim url "$CLAIM_CODE" \
               --name "lac-slot-$SLOT_HINT" \
-              --type "self-managed" 2>/dev/null | grep -oE 'https://playit\.gg/claim/[A-Za-z0-9_-]+' || true)
+              --type "docker" 2>/dev/null | grep -oE 'https://playit\.gg/claim/[A-Za-z0-9_-]+' || true)
 
             if [ -z "$CLAIM_URL" ]; then
               CLAIM_URL="https://playit.gg/claim/$CLAIM_CODE"
@@ -154,38 +154,36 @@ jobs:
 
             echo
             echo "=================================================="
-            echo "IMPORTANT – READ CAREFULLY"
+            echo " READ THIS CAREFULLY"
             echo "=================================================="
             echo
-            echo "1. Open this link in your browser (you must be logged into playit.gg):"
+            echo "1. Open this link (you must be logged into playit.gg):"
             echo
             echo "    $CLAIM_URL"
             echo
             echo "2. On the claim page:"
-            echo "   - Accept / Claim the agent"
-            echo "   - Name it something like: lac-slot-$SLOT_HINT"
-            echo "   - Leave all other options on DEFAULT"
-            echo "   - Do NOT choose any game-specific type"
-            echo "   - Finish the wizard"
+            echo "   - Click Claim / Accept / Add Agent"
+            echo "   - Name it: lac-slot-$SLOT_HINT"
+            echo "   - Leave EVERYTHING else on default"
+            echo "   - Finish the wizard completely"
             echo
-            echo "3. After you finish, come back here."
-            echo "   The job is waiting up to 12 minutes for the secret..."
+            echo "3. After you finish, the job will get the secret"
+            echo "   and then start the agent so you can create the"
+            echo "   UDP tunnel while the agent is ONLINE."
             echo "=================================================="
             echo
 
-            # Wait for the secret
+            # Wait for secret
             SECRET=""
             for i in $(seq 1 72); do
               sleep 10
 
-              # Try claim exchange first
-              SECRET=$("$GITHUB_WORKSPACE/playit" claim exchange "$CLAIM_CODE" --wait 5 2>/dev/null | tail -n 10 | grep -oE '[0-9a-fA-F]{32,}' | tail -1 || true)
+              SECRET=$("$GITHUB_WORKSPACE/playit-cli" claim exchange "$CLAIM_CODE" --wait 5 2>/dev/null | tail -n 15 | grep -oE '[0-9a-fA-F]{32,}' | tail -1 || true)
 
               if [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ]; then
                 break
               fi
 
-              # Also check config file
               if [ -f "$HOME/.config/playit_gg/playit.toml" ]; then
                 SECRET=$(grep -oE 'secret_key\s*=\s*"[^"]+"' "$HOME/.config/playit_gg/playit.toml" 2>/dev/null || true)
                 SECRET=${SECRET#*\"}
@@ -195,28 +193,56 @@ jobs:
                 fi
               fi
 
-              echo "  still waiting... ($((i*10))s)"
+              echo "  still waiting for claim... ($((i*10))s)"
             done
 
             if [ -z "$SECRET" ] || [ ${#SECRET} -lt 32 ]; then
               echo
-              echo "ERROR: Timed out waiting for the secret."
-              echo "Make sure you fully completed the claim wizard in the browser."
+              echo "ERROR: Timed out. Make sure you fully finished the claim wizard."
               exit 1
             fi
 
             echo
-            echo "✅  Agent created successfully!"
+            echo "✅  Secret obtained!"
             echo
-            echo ">>> COPY THIS SECRET AND ADD IT TO GITHUB <<<"
+            echo ">>> COPY THIS SECRET INTO GITHUB NOW <<<"
             echo "Secret name : $SECRET_NAME"
             echo "Secret value: $SECRET"
             echo
             echo "Go to: Repository → Settings → Secrets and variables → Actions"
-            echo "Create a new repository secret named exactly: $SECRET_NAME"
+            echo "Create the secret named exactly: $SECRET_NAME"
             echo
-            echo "After saving the secret, create a UDP tunnel on playit.gg"
-            echo "and assign it to this agent (local port 7777)."
+
+            # Start the agent so it appears ONLINE (important for tunnel creation)
+            echo "Starting agent so it shows as ONLINE on playit.gg..."
+            echo "You now have ~8 minutes to create the UDP tunnel."
+            echo
+
+            "$GITHUB_WORKSPACE/playit" --secret "$SECRET" > /tmp/playit-online.log 2>&1 &
+            AGENT_PID=$!
+            sleep 8
+
+            if kill -0 "$AGENT_PID" 2>/dev/null; then
+              echo "Agent is running (PID $AGENT_PID)."
+              echo
+              echo "NOW DO THIS:"
+              echo "1. Go to https://playit.gg/account/tunnels"
+              echo "2. Click Add Tunnel"
+              echo "3. Choose UDP (or TCP+UDP)"
+              echo "4. Local port = 7777"
+              echo "5. Assign it to the agent you just claimed (lac-slot-$SLOT_HINT)"
+              echo "6. Finish"
+              echo
+              echo "The agent will stay online for about 8 minutes..."
+              sleep 480
+              kill "$AGENT_PID" 2>/dev/null || true
+            else
+              echo "Warning: agent did not stay running, but the secret is still valid."
+              cat /tmp/playit-online.log || true
+            fi
+
+            echo
+            echo "Finished creating $SECRET_NAME"
             echo
           }
 
@@ -232,9 +258,7 @@ jobs:
                 echo "# DASHBOARD_TOKEN is missing"
                 echo "##################################################"
                 echo
-                echo "Create a GitHub Personal Access Token with Gist"
-                echo "read/write permission and add it as:"
-                echo "  DASHBOARD_TOKEN"
+                echo "Create a GitHub PAT with Gist read/write and add it as DASHBOARD_TOKEN"
                 echo
                 ;;
             esac
@@ -243,13 +267,13 @@ jobs:
           echo
           echo "=============================================="
           echo "  Setup finished."
-          echo "  Add the secrets shown above into GitHub,"
-          echo "  create UDP tunnels for each agent,"
-          echo "  then run the workflow with mode = start."
+          echo "  Make sure you saved the secrets and created"
+          echo "  the UDP tunnels while the agents were online."
+          echo "  Then run the workflow with mode = start."
           echo "=============================================="
 
   # ================================================================
-  # SERVER – start a game server
+  # SERVER
   # ================================================================
   server:
     if: ${{ inputs.mode == 'start' }}
@@ -294,16 +318,13 @@ jobs:
               exit 1
               ;;
           esac
-
           ENDPOINT="${DOMAIN}:${PUBLIC_PORT}"
-
           echo "PORT=$PORT" >> "$GITHUB_OUTPUT"
           echo "DOMAIN=$DOMAIN" >> "$GITHUB_OUTPUT"
           echo "IP=$IP" >> "$GITHUB_OUTPUT"
           echo "PUBLIC_PORT=$PUBLIC_PORT" >> "$GITHUB_OUTPUT"
           echo "ENDPOINT=$ENDPOINT" >> "$GITHUB_OUTPUT"
           echo "SECRET_NAME=$SECRET_NAME" >> "$GITHUB_OUTPUT"
-
           echo
           echo "=========================================="
           echo "L.A. CRIMES SERVER"
@@ -323,12 +344,10 @@ jobs:
           PLAYIT_SECRET_4: ${{ secrets.PLAYIT_SECRET_4 }}
         run: |
           set -e
-
           if [ -z "$DASHBOARD_TOKEN" ]; then
-            echo "ERROR: DASHBOARD_TOKEN is missing. Run mode=setup first."
+            echo "ERROR: DASHBOARD_TOKEN missing. Run mode=setup first."
             exit 1
           fi
-
           case "$SLOT" in
             1) PLAYIT_SECRET="$PLAYIT_SECRET_1" ;;
             2) PLAYIT_SECRET="$PLAYIT_SECRET_2" ;;
@@ -336,12 +355,10 @@ jobs:
             4) PLAYIT_SECRET="$PLAYIT_SECRET_4" ;;
             *) exit 1 ;;
           esac
-
           if [ -z "$PLAYIT_SECRET" ]; then
-            echo "ERROR: PLAYIT_SECRET_$SLOT is missing. Run mode=setup first."
+            echo "ERROR: PLAYIT_SECRET_$SLOT missing. Run mode=setup first."
             exit 1
           fi
-
           echo "::add-mask::$PLAYIT_SECRET"
           echo "Required secrets are available."
 
@@ -366,7 +383,6 @@ jobs:
             --header "Authorization: Bearer $DASHBOARD_TOKEN" \
             --header "X-GitHub-Api-Version: 2022-11-28" \
             > "$GITHUB_WORKSPACE/gist-response.json"
-
           jq -e '.files["servers.json"].content' "$GITHUB_WORKSPACE/gist-response.json" > /dev/null
           jq -r '.files["servers.json"].content' "$GITHUB_WORKSPACE/gist-response.json" > "$GITHUB_WORKSPACE/servers.json"
           jq empty "$GITHUB_WORKSPACE/servers.json"
@@ -402,7 +418,6 @@ jobs:
               json.dump(data, f, indent=2)
               f.write("\n")
           PY
-
           PAYLOAD=$(jq -n --arg content "$(cat "$GITHUB_WORKSPACE/servers.json")" --arg filename "$GIST_FILE" '{files:{($filename):{content:$content}}}')
           curl --fail --silent --show-error \
             --request PATCH \
