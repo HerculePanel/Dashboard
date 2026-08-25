@@ -3,7 +3,6 @@ name: L.A. Crimes Server
 on:
   workflow_dispatch:
     inputs:
-
       mode:
         description: "Server operation"
         required: true
@@ -32,15 +31,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
-
   GIST_ID: cb2aaaece7a231ec707429d41e1457f4
-
   GIST_FILE: servers.json
-
   PLAYIT_VERSION: "1.0.10"
-
-  PLAYIT_AGENT_URL: "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-linux-amd64"
-
+  # Use the CLI binary – it has the claim commands and works better on runners
+  PLAYIT_AGENT_URL: "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-cli-linux-amd64"
 
 jobs:
 
@@ -50,7 +45,7 @@ jobs:
   setup:
     if: ${{ inputs.mode == 'setup' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
 
     env:
       PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET_1 }}
@@ -66,12 +61,23 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y wget curl jq
 
-      - name: Download Playit agent
+      - name: Prepare directories for playit
+        run: |
+          set -e
+          # Fix the "Failed to bind to socket" error
+          sudo mkdir -p /run/playit
+          sudo chmod 777 /run/playit
+          mkdir -p "$HOME/.config/playit_gg"
+          mkdir -p "$HOME/.config/playit"
+          echo "Directories ready."
+
+      - name: Download Playit CLI
         run: |
           set -e
           wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/playit" "$PLAYIT_AGENT_URL"
           chmod +x "$GITHUB_WORKSPACE/playit"
-          echo "Playit binary ready."
+          echo "Playit CLI binary ready."
+          "$GITHUB_WORKSPACE/playit" --help || true
 
       - name: Check existing secrets & create missing agents
         run: |
@@ -82,7 +88,6 @@ jobs:
           echo "=============================================="
           echo
 
-          # ---- status of every secret ----
           check_secret() {
             local name="$1"
             local value="$2"
@@ -96,7 +101,6 @@ jobs:
           }
 
           MISSING=()
-
           echo "Current secret status:"
           echo "----------------------------------------------"
           check_secret "DASHBOARD_TOKEN"   "$DASHBOARD_TOKEN"   || MISSING+=("DASHBOARD_TOKEN")
@@ -118,7 +122,6 @@ jobs:
           done
           echo
 
-          # ---- helper: create one agent (manual browser claim – works with v1.0.10+) ----
           create_agent() {
             local SECRET_NAME="$1"
             local SLOT_HINT="$2"
@@ -127,30 +130,71 @@ jobs:
             echo "##################################################"
             echo "# Creating agent for  $SECRET_NAME"
             echo "##################################################"
+            echo
 
-            # Start agent (daemon mode – runner can only log this)
+            # Clean any previous state
+            rm -rf "$HOME/.config/playit_gg" "$HOME/.config/playit" 2>/dev/null || true
+            mkdir -p "$HOME/.config/playit_gg"
+
+            # Method 1: try modern claim generate + exchange (playit-cli)
+            CLAIM_CODE=$("$GITHUB_WORKSPACE/playit" claim generate 2>/dev/null | tr -d '\r\n' || true)
+
+            if [ -n "$CLAIM_CODE" ] && [ ${#CLAIM_CODE} -gt 8 ]; then
+              echo "Claim code generated: $CLAIM_CODE"
+              CLAIM_URL=$("$GITHUB_WORKSPACE/playit" claim url "$CLAIM_CODE" --name "lac-slot-$SLOT_HINT" 2>/dev/null | grep -oE 'https://playit\.gg/claim/[A-Za-z0-9_-]+' || echo "https://playit.gg/claim/$CLAIM_CODE")
+
+              echo
+              echo "1. Open this link in your browser (logged into playit.gg):"
+              echo
+              echo "    $CLAIM_URL"
+              echo
+              echo "2. Click Claim / Add Agent and finish the wizard."
+              echo "3. The job will wait up to 10 minutes for the secret..."
+              echo
+
+              SECRET=$("$GITHUB_WORKSPACE/playit" claim exchange "$CLAIM_CODE" --wait 600 2>/dev/null | tail -n 5 | grep -oE '[0-9a-f]{32,}' | tail -1 || true)
+
+              if [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ]; then
+                echo
+                echo "✅  Agent claimed successfully!"
+                echo
+                echo ">>> COPY THIS SECRET AND ADD IT TO GITHUB <<<"
+                echo "Secret name : $SECRET_NAME"
+                echo "Secret value: $SECRET"
+                echo
+                echo "Go to: Repository → Settings → Secrets and variables → Actions"
+                echo "Create a new repository secret named exactly $SECRET_NAME"
+                echo
+                return 0
+              fi
+            fi
+
+            # Method 2: fallback – start daemon and scrape claim URL from log
+            echo "Falling back to daemon method..."
             "$GITHUB_WORKSPACE/playit" > /tmp/playit-setup.log 2>&1 &
             PLAYIT_PID=$!
-            sleep 6
+            sleep 8
 
-            # Find claim link in log
             CLAIM_URL=$(grep -oE 'https://playit\.gg/claim/[A-Za-z0-9_-]+' /tmp/playit-setup.log | head -1 || true)
+
             if [ -z "$CLAIM_URL" ]; then
-              echo "ERROR: Could not obtain a claim URL. Check playit binary."
+              echo "ERROR: Could not obtain a claim URL."
+              echo "----- playit log -----"
               cat /tmp/playit-setup.log || true
+              echo "----------------------"
               kill "$PLAYIT_PID" 2>/dev/null || true
               exit 1
             fi
 
-            echo "1. Open this link in your browser (while logged into playit.gg):"
+            echo
+            echo "1. Open this link in your browser (logged into playit.gg):"
             echo
             echo "    $CLAIM_URL"
             echo
-            echo "2. Click 'Claim' / 'Add Agent' and finish the wizard."
-            echo "3. Come back here – the job is waiting for the secret..."
+            echo "2. Click Claim / Add Agent and finish the wizard."
+            echo "3. The job will wait up to 10 minutes for the secret..."
             echo
 
-            # Wait up to 10 minutes for the secret to appear in the toml
             for i in $(seq 1 60); do
               sleep 10
               if [ -f "$HOME/.config/playit_gg/playit.toml" ]; then
@@ -165,12 +209,11 @@ jobs:
                   echo "Secret name : $SECRET_NAME"
                   echo "Secret value: $SECRET"
                   echo
-                  echo "Go to:  Repository → Settings → Secrets and variables → Actions"
-                  echo "Click 'New repository secret', name it exactly $SECRET_NAME and paste the value."
+                  echo "Go to: Repository → Settings → Secrets and variables → Actions"
+                  echo "Create a new repository secret named exactly $SECRET_NAME"
                   echo
-                  # clean up so next agent starts fresh
-                  rm -rf "$HOME/.config/playit_gg" 2>/dev/null || true
                   kill "$PLAYIT_PID" 2>/dev/null || true
+                  rm -rf "$HOME/.config/playit_gg" "$HOME/.config/playit" 2>/dev/null || true
                   return 0
                 fi
               fi
@@ -182,7 +225,6 @@ jobs:
             exit 1
           }
 
-          # Create only the missing Playit secrets
           for s in "${MISSING[@]}"; do
             case "$s" in
               PLAYIT_SECRET_1) create_agent "PLAYIT_SECRET_1" "1" ;;
@@ -195,9 +237,9 @@ jobs:
                 echo "# DASHBOARD_TOKEN is missing"
                 echo "##################################################"
                 echo
-                echo "Create a GitHub Personal Access Token (classic or fine-grained)"
-                echo "with permission to read/write Gists, then add it as the"
-                echo "repository secret named exactly:  DASHBOARD_TOKEN"
+                echo "Create a GitHub Personal Access Token with Gist read/write"
+                echo "permission and add it as the repository secret:"
+                echo "  DASHBOARD_TOKEN"
                 echo
                 ;;
             esac
@@ -205,12 +247,13 @@ jobs:
 
           echo
           echo "=============================================="
-          echo "  Setup finished. Add the secrets shown above,"
-          echo "  then re-run the workflow with mode = start."
+          echo "  Setup finished."
+          echo "  Add the secrets shown above, then re-run"
+          echo "  the workflow with mode = start."
           echo "=============================================="
 
   # ================================================================
-  # SERVER – original start job
+  # SERVER – start a game server
   # ================================================================
   server:
     if: ${{ inputs.mode == 'start' }}
@@ -220,6 +263,7 @@ jobs:
       SLOT: ${{ inputs.slot }}
 
     steps:
+
       # ========================================================
       # CONFIGURE SLOT
       # ========================================================
@@ -559,11 +603,12 @@ jobs:
       - name: Download Playit
         run: |
           set -e
+          # For the running server we still use the full agent binary
           wget \
             --timeout=60 \
             --tries=5 \
             -O "$GITHUB_WORKSPACE/playit" \
-            "$PLAYIT_AGENT_URL"
+            "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-linux-amd64"
           chmod +x "$GITHUB_WORKSPACE/playit"
 
       # ========================================================
@@ -592,6 +637,11 @@ jobs:
           fi
 
           echo "::add-mask::$PLAYIT_SECRET"
+
+          # Prepare runtime dirs
+          sudo mkdir -p /run/playit
+          sudo chmod 777 /run/playit
+          mkdir -p "$HOME/.config/playit_gg"
 
           "$GITHUB_WORKSPACE/playit" \
             --secret "$PLAYIT_SECRET" \
