@@ -362,42 +362,45 @@ jobs:
           SERVER=$(find "$GITHUB_WORKSPACE/lac" -type f -name "LAC_Linux_v1.9.6.x86_64" -print -quit)
           if [ -z "$SERVER" ]; then
             echo "ERROR: L.A. Crimes executable not found."
+            find "$GITHUB_WORKSPACE/lac" -maxdepth 5 -type f -print
             exit 1
           fi
           chmod +x "$SERVER"
           echo "$SERVER" > "$GITHUB_WORKSPACE/server-path.txt"
+          echo "Found server binary: $SERVER"
 
-      - name: Create ServerConfig.txt
+      # ----------------------------------------------------------
+      # USE ServerConfig.txt FROM THE REPO (do not generate it)
+      # ----------------------------------------------------------
+      - name: Install ServerConfig.txt from repo
         run: |
           set -e
-          cat > "$GITHUB_WORKSPACE/ServerConfig.txt" <<'EOF'
-          #Maps (City, Garage, RagdollParty, TrainFacility)
-          #Maps (ZombieSurvival, NewTerrainRamps, Island, CarSoccer)
-          #Editor Maps (editor:myMap)
 
-          admin code=YOUR-NUM-CODE
-          lock down=true
+          if [ ! -f "$GITHUB_WORKSPACE/ServerConfig.txt" ]; then
+            echo "ERROR: ServerConfig.txt not found in the repository root."
+            echo "Put ServerConfig.txt in the root of the repo and commit it."
+            ls -la "$GITHUB_WORKSPACE" || true
+            exit 1
+          fi
 
-          restart timer=never
-          max players=16
-          map name=TrainFacility
-          starting port=7777
+          echo "Using ServerConfig.txt from the repository:"
+          cat "$GITHUB_WORKSPACE/ServerConfig.txt"
+          echo
 
-          share to community=true
-          server language=English
-          server password=none
+          # Game runs as the runner user, so use $HOME (not /root)
+          CONFIG_DIR="$HOME/.config/unity3d/MA/LAC"
+          mkdir -p "$CONFIG_DIR"
+          cp "$GITHUB_WORKSPACE/ServerConfig.txt" "$CONFIG_DIR/ServerConfig.txt"
+          chmod 644 "$CONFIG_DIR/ServerConfig.txt"
 
-          username=HOST
-          password=0000
-          EOF
+          # Also install under /root in case the binary elevates or checks there
+          sudo mkdir -p /root/.config/unity3d/MA/LAC
+          sudo cp "$GITHUB_WORKSPACE/ServerConfig.txt" /root/.config/unity3d/MA/LAC/ServerConfig.txt
+          sudo chmod 644 /root/.config/unity3d/MA/LAC/ServerConfig.txt
 
-      - name: Install ServerConfig.txt
-        run: |
-          set -e
-          CONFIG_DIR="/root/.config/unity3d/MA/LAC"
-          sudo mkdir -p "$CONFIG_DIR"
-          sudo cp "$GITHUB_WORKSPACE/ServerConfig.txt" "$CONFIG_DIR/ServerConfig.txt"
-          sudo chmod 644 "$CONFIG_DIR/ServerConfig.txt"
+          echo "ServerConfig.txt installed to:"
+          echo "  $CONFIG_DIR/ServerConfig.txt"
+          echo "  /root/.config/unity3d/MA/LAC/ServerConfig.txt"
 
       - name: Start L.A. Crimes
         env:
@@ -410,13 +413,13 @@ jobs:
           ./LAC_Linux_v1.9.6.x86_64 -batchmode -nographics > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
           LAC_PID=$!
           echo "$LAC_PID" > "$GITHUB_WORKSPACE/lac.pid"
-          sleep 10
+          sleep 12
           if ! kill -0 "$LAC_PID" 2>/dev/null; then
             echo "ERROR: L.A. Crimes stopped."
             tail -250 "$GITHUB_WORKSPACE/lac-server.log" || true
             exit 1
           fi
-          echo "L.A. Crimes is running. PID: $LAC_PID"
+          echo "L.A. Crimes is running. PID: $LAC_PID  Local UDP: $PORT"
 
       - name: Download Playit agent
         run: |
