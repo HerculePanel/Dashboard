@@ -1,511 +1,690 @@
-Map Name:Prime
-Map Type:1
+Map Name:<size=18><color=green>《lac - Prime》       <color=#00b75b>⚿ (key)</color>  (role)         <color=red>(fuel)</color>   <color=pink>(dmg)</color>     <color=red>(gear)</color>   <color=white>♟</color> <color=orange>[curplayers]/30</color> </color></size>
+Map Type:5
 Holo Sign:0.0, 0.0, 0.0*
-Camera Pos:22.64, 4.70, -34.09:2.96, 309.23, 0.00
+Camera Pos:248.53, 61.39, 468.05:348.00, 31.35, 0.00
+Bake AI Navmesh: 
 Chat Cooldown: 0.0
-Max Vehicle Count: 30
-Fuel Consume Rate: 3
+Max Vehicle Count: 16
+Fuel Consume Rate: 2
 Delete Idle Vehicle: -1
 Vehicle Collision: true
 Health Regeneration: true
 Hide Names: false
+Players On Minimap: true
 Allow Respawn: true
 Voice-Chat: enabled
+Sync Radio: true
 Vote For Role: disabled
 Role-play: disabled
 Approve On Register: false
-Roles List:<color=yellow>[TAXI]</color>,<color=#C7C>[WORKER]</color>,[BUILDER],<color=green>[DOCTOR]</color>,<color=orange>[MECHANIC]</color>,<color=blue>[POLICE]</color>,<color=#FF00CC>[MODERATOR]</color>,<color=red>[ADMIN]</color>,
-Block_Scalable_Editor:-1.00,11.60,-12.00:0.00,180.00,0.00:0.30,3.20,0.30:color{0.20,0.20,0.20} material{MetalBare0182,0.05}
-Point_Light_Editor:26.40,7.30,-32.90:0.00,0.00,43.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{22,1,1,1}
-Stair_Editor:-33.30,12.80,-40.70:0.00,90.00,0.00:1.60,1.20,1.20: 
-UI_Scalable_Editor:-21.50,9.60,-40.70:0.00,270.00,0.00:3.90,6.70,1.00:cooming soon...
-Block_Scalable_Editor:4.50,0.00,-32.70:0.00,0.00,0.00:24.00,0.80,0.60:color{0.50,0.50,0.50} material{Paul_Pavment,0.05}
-Plane_Transparent_Cutout_Tiled_Editor:4.50,0.90,-33.00:90.00,0.00,0.00:24.00,0.60,1.00:color{0.01,0.00,0.00} material{Billboard_Fence,1.00}
-Plane_Transparent_Cutout_Tiled_Editor:4.50,0.90,2.00:90.00,0.00,0.00:24.00,0.60,1.00:color{0.01,0.00,0.00} material{Billboard_Fence,1.00}
-Block_Scalable_Editor:4.50,0.00,2.30:0.00,0.00,0.00:24.00,0.80,0.60:color{0.50,0.50,0.50} material{Paul_Pavment,0.05}
-Block_Scalable_Editor:4.50,0.00,13.90:0.00,0.00,0.00:24.00,1.00,22.60:color{0.80,0.40,0.40} material{Paul_Pavment,0.05}
-Block_Scalable_Editor:4.50,0.00,-15.20:0.00,0.00,0.00:24.00,1.00,34.40:color{0.80,0.40,0.40} material{Paul_Pavment,0.05}
-Block_Scalable_Editor:4.50,0.00,-41.60:0.00,0.00,0.00:24.00,1.00,17.20:color{0.80,0.40,0.40} material{Paul_Pavment,0.05}
-Block_Scalable_Editor:-20.20,0.00,-12.50:0.00,0.00,0.00:25.40,1.00,75.40:color{0.80,0.40,0.40} material{Paul_Pavment,0.05}
-Point_Light_Editor:10.00,3.60,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,0.00,0.00} light{0,1,1,1}
-Point_Light_Editor:9.80,3.50,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,0.00,0.00} light{0,1,1,1}
-Point_Light_Editor:9.60,3.40,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,0.00,0.00} light{0,1,1,1}
-Point_Light_Editor:9.60,3.20,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,0.50,0.00} light{0,1,1,1}
-Point_Light_Editor:9.80,3.30,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{0.00,1.00,0.00} light{0,1,1,1}
-Point_Light_Editor:9.80,3.10,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{0.00,1.00,0.00} light{0,1,1,1}
-Pipe_Editor:6.00,1.90,-6.10:0.00,270.00,0.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:6.00,1.90,-5.00:0.00,270.00,0.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:5.70,1.90,-4.90:0.00,180.00,0.00:0.20,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:2.60,12.80,2.00:90.00,90.00,0.00:1.20,7.90,1.20:color{0.50,0.50,0.50} material{Bottom_dirt_decal,0.03}
-Cylinder_Editor:2.60,12.80,-7.00:90.00,90.00,0.00:1.20,7.90,1.20:color{0.50,0.50,0.50} material{Bottom_dirt_decal,0.03}
-Cylinder_Editor:2.60,12.80,-16.00:90.00,90.00,0.00:1.20,7.90,1.20:color{0.50,0.50,0.50} material{Bottom_dirt_decal,0.03}
-Cylinder_Editor:2.60,12.80,-25.00:90.00,90.00,0.00:1.20,7.90,1.20:color{0.50,0.50,0.50} material{Bottom_dirt_decal,0.03}
-Pipe_Editor:10.50,12.80,-7.00:0.00,180.00,0.00:0.80,1.30,1.30:color{0.60,0.60,0.60} material{Metal_Rusted_Tile,0.01}
-Pipe_Editor:10.50,12.80,2.00:0.00,180.00,0.00:0.80,1.30,1.30:color{0.60,0.60,0.60} material{Metal_Rusted_Tile,0.01}
-Pipe_Editor:10.50,12.80,-16.00:0.00,180.00,0.00:0.80,1.30,1.30:color{0.60,0.60,0.60} material{Metal_Rusted_Tile,0.01}
-Pipe_Editor:10.50,12.80,-25.00:0.00,180.00,0.00:0.80,1.30,1.30:color{0.60,0.60,0.60} material{Metal_Rusted_Tile,0.01}
-Block_Scalable_Editor:10.00,1.70,-24.60:0.00,0.00,0.00:0.70,3.50,0.20:color{0.60,0.60,0.60} material{MetalBare0182,0.10}
-Pipe_90_Editor:2.70,2.40,-9.30:0.00,90.00,90.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:2.70,1.30,-9.30:0.00,270.00,90.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Block_Scalable_Editor:8.70,1.40,-0.50:0.00,0.00,0.00:2.30,0.10,2.60:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:8.70,4.50,-0.50:0.00,0.00,0.00:0.40,0.10,0.40:color{0.40,0.50,1.00} material{MetalBare0182,0.10}
-Block_Scalable_Editor:8.70,4.60,-0.50:0.00,0.00,0.00:0.20,0.30,0.20:color{0.40,0.50,1.00} material{MetalBare0182,0.10}
-Block_Scalable_Editor:7.80,1.00,0.50:0.00,135.00,0.00:0.30,2.80,0.20:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:7.80,1.00,-1.50:0.00,225.00,0.00:0.30,2.80,0.20:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:9.60,1.00,-1.50:0.00,135.00,0.00:0.30,2.80,0.20:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Bowl_Editor:8.70,2.50,-0.50:0.00,0.00,0.00:4.80,7.00,4.80:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Pipe_90_Editor:11.50,7.40,-28.50:90.00,180.00,0.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Bowl_Editor:6.60,4.70,-9.30:0.00,180.00,180.00:1.10,0.80,1.10:color{0.70,0.70,0.70} material{MetalBare0182,0.01}
-Pipe_Editor:9.10,1.90,-16.30:0.00,270.00,90.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:4.50,4.30,-9.30:0.00,0.00,0.00:0.70,0.10,0.70:color{0.70,0.70,0.70} material{MetalBare0182,0.01}
-Cylinder_Editor:4.50,4.10,-9.30:0.00,0.00,0.00:0.60,0.10,0.60:color{0.70,0.70,0.70} material{MetalBare0182,0.01}
-Block_Scalable_Editor:-17.60,9.10,-38.00:0.00,90.00,0.00:0.40,0.40,2.60:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:-20.00,9.10,-40.70:0.00,90.00,0.00:5.00,0.50,13.00:color{1.00,1.00,1.00} material{Eleven_Roof,0.10}
-Pipe_90_Editor:7.40,7.10,7.30:301.00,90.00,270.00:0.30,0.30,0.30:color{0.30,0.30,0.30} material{MetalBare0182,0.01}
-Pipe_Editor:9.20,9.10,7.30:0.00,0.00,52.00:0.20,0.30,0.30:color{0.70,0.70,0.70} material{MetalBare0182,0.01}
-Pipe_90_Editor:11.10,11.10,7.30:54.00,270.00,90.00:0.30,0.30,0.30:color{0.30,0.30,0.30} material{MetalBare0182,0.01}
-Pipe_Editor:15.20,9.50,7.30:0.00,0.00,341.00:0.40,0.30,0.30:color{0.70,0.70,0.70} material{MetalBare0182,0.01}
-Pipe_Editor:6.90,9.10,7.30:0.00,180.00,90.00:0.20,0.30,0.30:color{0.70,0.70,0.70} material{MetalBare0182,0.01}
-Cylinder_Editor:9.20,3.90,-20.10:0.00,90.00,90.00:0.10,0.10,0.10:color{1.00,0.50,0.50} material{MetalBare0182,0.01}
-Cylinder_Editor:5.20,3.90,-20.10:0.00,90.00,90.00:0.10,0.10,0.10:color{1.00,0.50,0.50} material{MetalBare0182,0.01}
-Cylinder_Editor:4.80,1.70,-21.10:0.00,0.00,0.00:0.80,1.40,0.80:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Block_Scalable_Editor:9.60,2.90,-20.20:0.00,270.00,0.00:0.40,1.80,1.20:color{1.00,1.00,0.90} material{MetalBare0182,0.10}
-Bowl_Editor:9.60,4.90,-21.10:0.00,180.00,180.00:2.70,2.00,2.70:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:9.60,1.70,-21.10:0.00,0.00,0.00:0.80,1.40,0.80:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:10.50,3.50,-24.10:90.00,270.00,0.00:0.20,0.10,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Block_Scalable_Editor:10.50,3.70,-23.20:0.00,0.00,0.00:0.20,0.50,0.80:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:10.40,4.20,-23.20:0.00,0.00,0.00:0.20,0.50,0.60:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:10.00,2.70,-23.50:0.00,0.00,0.00:0.80,2.40,2.30:color{0.60,0.60,0.60} material{MetalBare0182,0.10}
-Cylinder_Editor:3.20,3.80,-16.30:90.00,270.00,0.00:0.40,0.10,0.40:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Block_Scalable_Editor:4.00,4.20,-23.20:0.00,0.00,0.00:0.20,0.50,0.60:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Cylinder_Editor:4.10,3.50,-24.10:90.00,270.00,0.00:0.20,0.10,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Block_Scalable_Editor:3.90,3.70,-23.20:0.00,0.00,0.00:0.20,0.50,0.80:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:4.40,2.70,-23.50:0.00,0.00,0.00:0.80,2.40,2.30:color{0.60,0.60,0.60} material{MetalBare0182,0.10}
-Pipe_Editor:6.30,4.60,-9.80:0.00,180.00,0.00:0.20,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Block_Scalable_Editor:4.50,4.40,-9.80:0.00,0.00,0.00:0.50,0.40,0.20:color{0.70,0.70,0.70} material{MetalBare0182,0.10}
-Pipe_90_Editor:8.50,4.50,-9.80:0.00,270.00,90.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:6.60,3.50,-9.30:0.00,0.00,0.00:0.30,0.50,0.30:color{0.70,0.70,0.70} material{MetalBare0182,0.01}
-Cylinder_Editor:6.60,3.30,-9.30:0.00,0.00,0.00:0.40,0.10,0.40:color{0.70,0.70,0.70} material{MetalBare0182,0.01}
-Bowl_Editor:4.80,4.90,-21.10:0.00,180.00,180.00:2.70,2.00,2.70:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:11.00,6.70,-28.50:0.00,0.00,0.00:1.90,0.10,1.90:color{0.50,0.50,0.50} material{MetalBare0182,0.01}
-Block_Scalable_Editor:7.20,1.60,-22.50:0.00,180.00,0.00:6.50,0.10,4.50:color{0.50,0.50,0.50} material{MetalBare0182,0.10}
-Pipe_90_Editor:10.10,7.40,-27.50:90.00,0.00,0.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:10.10,7.40,-29.50:90.00,0.00,0.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:8.90,7.40,-27.50:0.00,180.00,0.00:0.10,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:8.90,7.40,-29.50:0.00,180.00,0.00:0.10,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:7.50,7.20,-29.50:0.00,90.00,90.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:6.80,5.40,-28.50:0.00,180.00,0.00:0.10,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:5.80,5.40,-28.50:0.00,270.00,0.00:0.10,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:5.60,5.40,-30.10:0.00,0.00,0.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:5.60,5.40,-26.90:0.00,180.00,180.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:4.80,4.40,-30.10:0.00,0.00,90.00:0.10,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:1.80,4.40,-30.10:0.00,0.00,90.00:0.10,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:2.40,5.40,-30.10:0.00,180.00,0.00:0.30,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:-1.20,5.20,-30.10:0.00,90.00,90.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:-1.20,3.00,-30.10:0.00,0.00,90.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Bowl_Editor:-1.20,2.60,-30.10:0.00,180.00,180.00:2.70,2.00,2.70:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Bowl_Editor:4.80,4.80,-30.10:0.00,180.00,180.00:2.70,2.00,2.70:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Bowl_Editor:1.80,3.60,-30.10:0.00,180.00,180.00:2.70,2.00,2.70:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Bowl_Editor:4.80,4.80,-26.90:0.00,180.00,180.00:2.70,2.00,2.70:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Bowl_Editor:1.80,3.60,-26.90:0.00,180.00,180.00:2.70,2.00,2.70:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Bowl_Editor:-1.20,2.60,-26.90:0.00,180.00,180.00:2.70,2.00,2.70:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Pipe_90_Editor:-1.20,5.20,-26.90:0.00,90.00,90.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:-1.20,3.00,-26.90:0.00,0.00,90.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:1.80,4.40,-26.90:0.00,0.00,90.00:0.10,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:4.80,4.40,-26.90:0.00,0.00,90.00:0.10,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Point_Light_Editor:9.30,3.10,-16.10:0.00,0.00,0.00:0.10,0.20,0.20:color{1.00,0.00,0.00} light{0,1,1,1}
-Pipe_90_Editor:4.40,7.40,-17.80:0.00,0.00,90.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:7.60,7.40,-17.80:0.00,0.00,90.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:4.40,7.60,-15.40:270.00,90.00,0.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:7.60,7.60,-15.40:270.00,90.00,0.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:4.40,4.00,-13.00:0.00,270.00,90.00:0.30,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:7.60,4.00,-13.00:0.00,270.00,90.00:0.30,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:4.40,7.60,-13.20:90.00,270.00,0.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:7.60,7.60,-13.20:90.00,270.00,0.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Block_Scalable_Editor:8.80,3.80,-9.60:0.00,0.00,0.00:0.20,0.40,0.40:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:8.80,3.30,-9.30:0.00,0.00,0.00:0.10,0.30,0.90:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:8.50,3.20,-9.30:0.00,0.00,0.00:0.60,1.10,1.30:color{0.70,0.70,0.70} material{MetalBare0182,0.10}
-Cylinder_Editor:9.40,3.70,-21.10:0.00,0.00,0.00:0.10,0.10,0.10:color{0.60,0.70,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:9.40,3.90,-21.10:0.00,0.00,0.00:0.20,0.10,0.20:color{0.40,0.50,1.00} material{MetalBare0182,0.01}
-Block_Scalable_Editor:6.00,1.00,-9.30:0.00,50.00,0.00:6.40,0.50,0.10:color{1.00,0.30,0.30} material{Concrete_Bare0440,0.10}
-Block_Scalable_Editor:6.00,1.00,-9.30:0.00,320.00,0.00:6.40,0.50,0.10:color{1.00,0.30,0.30} material{Concrete_Bare0440,0.10}
-Cylinder_Editor:4.50,3.30,-9.30:0.00,0.00,0.00:0.60,0.10,0.60:color{0.70,0.70,0.70} material{MetalBare0182,0.01}
-Cylinder_Editor:4.50,3.50,-9.30:0.00,0.00,0.00:0.50,0.70,0.50:color{0.50,0.50,0.50} material{MetalBare0182,0.01}
-Cylinder_Editor:13.00,7.40,-28.50:0.00,180.00,90.00:0.40,0.10,0.40:color{0.50,0.50,0.50} material{MetalBare0182,0.01}
-Cylinder_Editor:12.20,6.90,-28.50:0.00,270.00,0.00:0.30,0.50,0.30:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:11.80,7.40,-28.50:0.00,180.00,90.00:0.30,0.60,0.30:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Block_Scalable_Editor:4.80,2.90,-20.20:0.00,270.00,0.00:0.40,1.80,1.20:color{1.00,1.00,0.90} material{MetalBare0182,0.10}
-Block_Scalable_Editor:2.00,1.00,-14.80:0.00,0.00,0.00:0.70,4.30,0.10:color{0.40,0.40,0.40} material{MetalBare0182,0.10}
-Block_Scalable_Editor:2.00,2.10,-13.30:0.00,0.00,0.00:0.60,3.20,2.90:color{0.60,0.60,0.60} material{MetalBare0182,0.10}
-Block_Scalable_Editor:6.00,7.10,-17.80:0.00,0.00,0.00:2.00,0.10,2.00:color{0.40,0.40,0.40} material{MetalBare0182,0.10}
-Cylinder_Editor:6.00,6.90,-16.30:0.00,0.00,0.00:2.90,0.10,2.90:color{0.50,0.50,0.50} material{MetalBare0182,0.01}
-Pipe_90_Editor:6.00,7.40,-15.80:0.00,0.00,90.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:6.00,7.60,-14.20:270.00,90.00,0.00:0.10,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:6.00,7.60,-13.00:90.00,270.00,0.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:6.00,4.00,-12.80:0.00,270.00,90.00:0.30,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:6.00,1.00,-16.30:0.00,0.00,0.00:3.00,3.00,3.00:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Side_Wedge_Editor:8.50,1.00,-5.90:0.00,180.00,0.00:0.40,0.70,0.40:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Side_Wedge_Editor:9.50,1.00,-4.90:0.00,90.00,0.00:0.40,0.70,0.40:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Side_Wedge_Editor:7.50,1.00,-4.90:0.00,270.00,0.00:0.40,0.70,0.40:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Side_Wedge_Editor:8.50,1.00,-3.90:0.00,0.00,0.00:0.40,0.70,0.40:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:9.60,1.00,0.50:0.00,225.00,0.00:0.30,2.80,0.20:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Cylinder_Editor:8.70,3.90,-0.50:0.00,90.00,0.00:1.30,0.30,1.30:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Block_Scalable_Editor:1.90,1.00,-28.50:0.00,90.00,0.00:6.00,0.20,8.60:color{0.80,0.40,0.40} material{Paul_Pavment,0.05}
-Pipe_Editor:13.50,1.80,-28.50:0.00,0.00,90.00:0.10,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:13.30,3.20,-28.50:90.00,0.00,0.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:10.40,7.40,-28.50:90.00,0.00,0.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:-1.20,1.20,-26.90:0.00,0.00,0.00:0.80,0.50,0.80:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:1.80,1.20,-26.90:0.00,0.00,0.00:0.80,1.00,0.80:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:-1.20,1.20,-30.10:0.00,0.00,0.00:0.80,0.50,0.80:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:1.80,1.20,-30.10:0.00,0.00,0.00:0.80,1.00,0.80:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:4.80,1.20,-26.90:0.00,0.00,0.00:0.80,1.60,0.80:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:4.80,1.20,-30.10:0.00,0.00,0.00:0.80,1.60,0.80:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Pipe_Editor:2.40,5.40,-26.90:0.00,180.00,0.00:0.30,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:9.20,7.40,-28.50:0.00,180.00,0.00:0.10,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:7.50,7.20,-27.50:0.00,90.00,90.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:7.50,3.90,-27.50:0.00,270.00,90.00:0.30,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:7.80,7.20,-28.50:0.00,90.00,90.00:0.20,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:7.80,3.90,-28.50:0.00,270.00,90.00:0.30,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:7.50,3.90,-29.50:0.00,270.00,90.00:0.30,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:11.00,1.00,-28.50:0.00,0.00,0.00:2.00,2.90,2.00:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Point_Light_Editor:-15.10,8.50,6.00:0.00,180.00,0.00:0.30,0.40,0.20:color{1.00,1.00,1.00} light{11,1,1,1}
-Point_Light_Editor:-20.90,11.20,-0.90:0.00,90.00,0.00:0.30,0.40,0.20:color{1.00,1.00,1.00} light{11,1,1,1}
-Point_Light_Editor:-17.10,14.20,-15.60:0.00,0.00,0.00:0.40,0.20,3.00:color{1.00,1.00,1.00} light{13,1,1,1}
-Point_Light_Editor:-17.10,14.20,-22.50:0.00,0.00,0.00:0.40,0.20,3.00:color{1.00,1.00,1.00} light{13,1,1,1}
-Point_Light_Editor:-20.90,13.70,-13.50:0.00,90.00,0.00:0.30,0.40,0.20:color{1.00,1.00,1.00} light{11,1,1,1}
-Point_Light_Editor:-20.90,13.70,-22.50:0.00,90.00,0.00:0.30,0.40,0.20:color{1.00,1.00,1.00} light{11,1,1,1}
-Point_Light_Editor:26.40,7.30,0.00:0.00,0.00,43.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{33,1,1,1}
-Block_Scalable_Editor:21.70,0.00,-12.50:0.00,0.00,0.00:10.40,1.00,75.40:color{0.80,0.40,0.40} material{Paul_Pavment,0.05}
-Block_Scalable_Editor:-20.90,11.10,-21.70:0.00,90.00,0.00:0.80,1.20,0.40:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-20.90,11.20,-23.70:0.00,90.00,0.00:1.40,2.20,0.40:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Cylinder_Editor:-16.00,11.90,-37.70:0.00,270.00,90.00:0.10,0.10,0.10:color{1.00,0.30,0.30} material{MetalBare0182,0.01}
-Block_Scalable_Editor:-15.60,11.40,-37.80:0.00,0.00,0.00:0.10,3.00,0.10:color{0.60,0.60,0.60} material{Metal_Rusted_Tile,0.10}
-Block_Scalable_Editor:-16.00,11.70,-37.80:0.00,0.00,0.00:0.30,0.40,0.10:color{1.00,0.80,0.50} material{MetalBare0182,0.10}
-Point_Light_Editor:31.30,5.10,-20.50:0.00,90.00,0.00:2.20,0.20,0.40:color{0.00,0.60,1.00} light{44,1,1,1}
-Block_Scalable_Editor:-17.70,14.20,-22.50:320.00,90.00,0.00:18.00,0.10,0.30:color{0.30,0.30,0.30} material{MetalBare0182,0.01}
-Block_Scalable_Editor:-16.50,14.20,-22.50:40.00,90.00,0.00:18.00,0.10,0.30:color{0.30,0.30,0.30} material{MetalBare0182,0.01}
-Point_Light_Editor:17.00,8.20,-37.70:0.00,90.00,43.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{13,1,1,1}
-Point_Light_Editor:9.00,8.20,-37.70:0.00,90.00,43.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{10,1,1,1}
-Point_Light_Editor:1.00,8.20,-37.70:0.00,90.00,43.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{14,1,1,1}
-Point_Light_Editor:-7.00,8.20,-37.70:0.00,90.00,43.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{10,1,1,1}
-Block_Scalable_Editor:-32.00,1.00,-35.10:0.00,90.00,0.00:6.20,16.20,21.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Stair_Editor:-23.70,9.00,-40.70:0.00,90.00,0.00:1.60,1.20,1.20: 
-Point_Light_Editor:-21.00,7.30,-13.50:0.00,0.00,317.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{19,1,1,1}
-Point_Light_Editor:-21.00,7.30,-22.50:0.00,0.00,317.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{19,1,1,1}
-Point_Light_Editor:-21.00,7.30,-32.90:0.00,0.00,317.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{17,1,1,1}
-Point_Light_Editor:-17.10,14.20,-29.40:0.00,0.00,0.00:0.40,0.20,3.00:color{1.00,1.00,1.00} light{13,1,1,1}
-Block_Scalable_Editor:-17.10,14.30,-22.50:0.00,90.00,0.00:18.00,0.10,1.10:color{0.30,0.30,0.30} material{MetalBare0182,0.01}
-Cylinder_Editor:10.50,12.80,-31.40:90.00,0.00,0.00:1.20,0.10,1.20:color{0.50,0.50,0.50} material{Bottom_dirt_decal,0.03}
-Pipe_Editor:10.50,12.80,-9.50:0.00,90.00,0.00:2.20,1.30,1.30:color{0.60,0.60,0.60} material{Metal_Rusted_Tile,0.01}
-Block_Scalable_Editor:-27.20,9.00,-24.50:0.00,0.00,0.00:11.40,7.40,15.00:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:-32.70,1.00,-24.50:0.00,180.00,0.00:0.40,8.00,15.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:-27.00,1.00,-31.80:0.00,90.00,0.00:0.40,8.00,11.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:-27.00,1.00,-17.20:0.00,90.00,0.00:0.40,8.00,11.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Glass_Scalable_Editor:-21.30,2.80,-22.20:0.00,0.00,0.00:0.10,2.20,2.00:color{0.72,0.86,1.00}
-Block_Scalable_Editor:-21.30,2.60,-21.10:0.00,90.00,0.00:0.20,2.40,0.40:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-21.30,2.60,-22.20:0.00,90.00,0.00:2.00,0.20,0.40:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-21.30,1.00,-22.10:0.00,90.00,0.00:2.20,1.60,0.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:-21.30,1.00,-1.40:0.00,90.00,0.00:39.20,13.80,0.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:-21.30,5.20,-23.40:0.00,90.00,0.00:4.80,9.60,0.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:-21.30,5.00,-23.30:0.00,90.00,0.00:4.60,0.20,0.40:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-21.30,1.00,-23.30:0.00,90.00,0.00:0.20,4.00,0.40:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Door_Modern_Editor:-21.30,1.00,-25.60:0.00,90.00,0.00:1.10,1.00,1.00:color{1.00,0.40,0.40}
-Block_Scalable_Editor:-21.30,1.00,-25.70:0.00,90.00,0.00:0.20,4.20,0.40:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:24.20,14.30,-14.00:0.00,180.00,0.00:1.80,0.50,47.60:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:-11.00,14.30,-15.80:0.00,180.00,0.00:1.80,0.50,44.00:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:6.00,14.30,-14.00:0.00,180.00,0.00:1.80,0.50,47.60:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:-13.00,4.70,2.30:0.00,0.00,333.00:9.00,0.10,0.10:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-20.90,4.90,4.20:0.00,0.00,0.00:0.20,0.30,4.00:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-18.90,4.90,6.10:0.00,0.00,0.00:3.80,0.30,0.20:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-9.00,1.00,2.30:0.00,180.00,0.00:0.30,2.00,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.00,3.70,2.30:0.00,0.00,333.00:9.00,0.10,0.10:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.50,14.40,-40.70:0.00,90.00,0.00:5.00,2.00,8.00:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Trigger_Box_Editor:-15.10,10.20,-7.10:0.00,90.00,0.00:0.10,0.60,3.70:mode{solid}
-Trigger_Box_Editor:-13.20,10.20,-22.50:0.00,0.00,0.00:0.10,0.60,30.60:mode{solid}
-Door_Modern_Editor:12.10,1.00,18.00:0.00,180.00,0.00:1.10,1.00,1.00:color{1.00,0.40,0.40}
-Door_Modern_Editor:20.90,1.00,10.00:0.00,180.00,0.00:1.10,1.00,1.00:color{1.00,0.40,0.40}
-Door_Modern_Editor:4.70,1.00,10.00:0.00,0.00,0.00:1.10,1.00,1.00:color{1.00,0.40,0.40}
-Door_Modern_Editor:-18.70,9.60,-38.00:0.00,180.00,0.00:1.10,1.00,1.00:color{1.00,0.40,0.40}
-Block_Scalable_Editor:1.90,14.80,-14.20:0.00,0.00,0.00:46.80,1.60,48.00:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:13.00,9.00,21.50:0.00,0.00,0.00:10.20,5.80,6.60:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:13.00,1.00,25.00:0.00,90.00,0.00:0.40,13.80,11.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:8.10,14.40,9.30:0.00,90.00,0.00:2.60,0.50,34.40:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:2.10,14.40,-36.90:0.00,90.00,0.00:1.80,0.40,46.40:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:2.20,14.40,-27.00:0.00,90.00,0.00:1.80,0.40,45.00:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:2.20,14.40,-18.00:0.00,90.00,0.00:1.80,0.40,45.00:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:-20.90,7.40,-2.10:333.00,180.00,180.00:0.20,0.80,11.00:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.20,2.30,6.10:0.00,0.00,333.00:9.40,0.80,0.20:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Trigger_Box_Editor:-17.10,9.40,-22.50:0.00,0.00,0.00:7.60,0.10,30.60:mode{solid}
-Plane_Transparent_Cutout_Tiled_Editor:-17.10,9.40,-37.80:90.00,0.00,0.00:7.60,30.60,0.90:color{1.00,0.40,0.40} material{Billboard_Fence,1.00}
-Block_Scalable_Editor:-26.80,1.00,-40.50:0.00,90.00,0.00:5.40,8.10,31.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:-21.00,9.10,-22.50:0.00,180.00,0.00:0.20,0.40,30.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.20,9.10,-22.50:0.00,180.00,0.00:0.20,0.80,30.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.60,13.80,-38.00:0.00,90.00,0.00:0.40,1.00,2.60:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:4.50,9.10,-38.00:0.00,90.00,0.00:0.40,5.70,41.60:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:-16.40,9.60,-38.00:0.00,0.00,0.00:0.20,4.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.60,13.60,-38.00:0.00,0.00,0.00:2.20,0.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-18.80,9.60,-38.00:0.00,0.00,0.00:0.20,4.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Trigger_Box_Editor:0.00,-4.00,0.00:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|weather{clear}
-Block_Scalable_Editor:-19.00,9.30,-6.20:0.00,90.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-19.00,8.70,-5.20:0.00,90.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-5.00,1.00,13.70:0.00,0.00,0.00:8.20,13.80,9.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:-15.10,1.00,12.20:0.00,0.00,0.00:12.00,13.80,12.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:-10.40,1.50,4.20:0.00,0.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-11.40,2.00,4.20:0.00,0.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-19.00,4.30,4.20:0.00,0.00,0.00:4.00,0.60,4.00:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-21.30,1.00,-31.80:0.00,90.00,0.00:12.00,13.80,0.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:0.70,1.00,10.00:0.00,0.00,0.00:3.20,13.80,0.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:2.40,1.00,10.00:0.00,0.00,0.00:0.20,4.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:3.60,5.00,10.00:0.00,0.00,0.00:2.20,0.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:4.80,1.00,10.00:0.00,0.00,0.00:0.20,4.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:3.60,5.20,10.00:0.00,0.00,0.00:2.60,9.60,0.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:7.70,1.00,17.50:0.00,0.00,0.00:0.40,13.80,14.60:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:6.40,1.00,10.00:0.00,0.00,0.00:3.00,13.80,0.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:8.70,1.00,10.20:0.00,0.00,0.00:1.60,13.80,0.80:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:-0.70,1.00,14.20:0.00,0.00,0.00:0.40,13.80,8.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:5.70,1.00,18.00:0.00,90.00,0.00:0.40,13.80,12.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:13.20,5.20,18.00:0.00,90.00,0.00:0.40,9.60,2.60:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:12.00,1.00,18.00:0.00,0.00,0.00:0.20,4.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:13.20,5.00,18.00:0.00,0.00,0.00:2.20,0.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:14.40,1.00,18.00:0.00,0.00,0.00:0.20,4.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:20.70,1.00,18.00:0.00,90.00,0.00:0.40,13.80,12.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:18.30,1.00,17.30:0.00,0.00,0.00:0.40,13.80,15.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:17.30,1.00,10.20:0.00,0.00,0.00:1.60,13.80,0.80:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:19.60,1.00,10.00:0.00,0.00,0.00:2.20,13.80,0.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:20.80,1.00,10.00:0.00,0.00,0.00:0.20,4.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:22.00,5.00,10.00:0.00,0.00,0.00:2.20,0.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:23.20,1.00,10.00:0.00,0.00,0.00:0.20,4.20,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:22.00,5.20,10.00:0.00,0.00,0.00:2.60,9.60,0.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:24.90,1.00,10.00:0.00,0.00,0.00:3.20,13.80,0.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:26.70,1.00,13.80:0.00,0.00,0.00:0.40,13.80,8.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:26.20,1.00,8.90:0.00,90.00,0.00:1.80,7.50,0.80:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:26.70,1.00,-31.30:0.00,0.00,0.00:0.40,8.10,13.80:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:13.00,8.30,11.00:0.00,0.00,0.00:10.20,6.50,0.80:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:22.50,9.00,14.00:0.00,0.00,0.00:8.00,5.80,7.60:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:-17.10,9.10,-7.10:0.00,90.00,0.00:0.20,0.80,8.00:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-20.70,1.00,-9.00:0.00,90.00,0.00:1.80,13.80,0.80:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:26.20,1.00,-9.00:0.00,90.00,0.00:1.80,7.50,0.80:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:-20.70,1.00,-18.00:0.00,90.00,0.00:1.80,13.80,0.80:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:-20.70,1.00,-27.00:0.00,90.00,0.00:1.80,13.80,0.80:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:26.20,1.00,-18.00:0.00,90.00,0.00:1.80,7.50,0.80:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:26.20,1.00,-27.00:0.00,90.00,0.00:1.80,7.50,0.80:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:21.80,1.00,-38.00:0.00,90.00,0.00:0.40,8.10,9.40:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:2.70,8.40,-37.30:0.00,90.00,0.00:1.00,0.70,47.60:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:-20.20,9.10,-38.00:0.00,90.00,0.00:0.40,5.70,2.60:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:26.00,8.40,-13.50:0.00,180.00,0.00:1.00,0.70,46.60:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:-6.10,1.00,-43.00:0.00,90.00,0.00:0.40,8.10,10.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:26.20,9.00,-9.00:345.00,90.00,0.00:1.80,6.00,0.80:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:26.20,9.00,-18.00:345.00,90.00,0.00:1.80,6.00,0.80:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:26.20,9.00,-27.00:345.00,90.00,0.00:1.80,6.00,0.80:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:26.20,9.00,8.90:345.00,90.00,0.00:1.80,6.00,0.80:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:26.70,9.00,-14.20:0.00,0.00,15.00:0.40,6.10,48.00:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:-12.40,2.50,4.20:0.00,0.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.40,3.00,4.20:0.00,0.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-14.40,3.50,4.20:0.00,0.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-16.40,4.50,4.20:0.00,0.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-15.40,4.00,4.20:0.00,0.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-19.00,5.20,1.80:0.00,90.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-19.00,5.70,0.80:0.00,90.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-19.00,6.20,-0.20:0.00,90.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-19.00,6.70,-1.20:0.00,90.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-19.00,7.20,-2.20:0.00,90.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-19.00,7.70,-3.20:0.00,90.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-19.00,8.20,-4.20:0.00,90.00,0.00:0.40,0.10,3.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:3.50,9.00,14.00:0.00,0.00,0.00:8.00,5.80,7.60:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:13.00,9.00,14.60:0.00,0.00,0.00:10.20,5.80,6.40:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:-13.20,11.50,-22.40:0.00,180.00,0.00:0.10,0.10,30.70:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.20,9.90,-37.80:0.00,180.00,0.00:0.10,1.70,0.10:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.60,9.50,-38.00:0.00,0.00,0.00:2.60,0.10,0.40:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.40,1.00,-7.30:0.00,180.00,0.00:0.30,13.80,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-15.20,11.50,-7.10:0.00,270.00,0.00:0.10,0.10,3.90:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.10,9.10,-7.30:0.00,180.00,0.00:0.30,5.70,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.20,10.50,-22.40:0.00,180.00,0.00:0.10,0.10,30.70:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-15.20,10.50,-7.10:0.00,270.00,0.00:0.10,0.10,3.90:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.10,1.00,2.30:0.00,180.00,0.00:0.30,13.80,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.10,8.20,-2.40:333.00,180.00,180.00:0.10,0.10,10.50:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.10,9.20,-2.40:333.00,180.00,180.00:0.10,0.10,10.50:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.20,2.30,2.30:0.00,0.00,333.00:9.40,0.80,0.20:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.10,7.40,-2.10:333.00,180.00,180.00:0.20,0.80,11.00:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.40,1.00,-18.00:0.00,180.00,0.00:0.30,13.40,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.40,1.00,-27.00:0.00,180.00,0.00:0.30,13.40,0.30:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:17.30,1.00,-44.00:0.00,180.00,0.00:0.40,8.10,11.60:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:14.30,1.00,-43.00:0.00,270.00,0.00:0.40,8.10,5.60:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:5.20,7.50,-43.00:0.00,270.00,0.00:0.40,1.60,12.60:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:2.00,9.10,-44.20:0.00,90.00,0.00:12.00,7.30,31.00:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Side_Wedge_Editor:25.90,9.10,-38.00:0.00,90.00,0.00:0.40,4.40,1.20:color{1.00,0.90,0.70} material{Concrete_Bare0428,0.01}
-Block_Scalable_Editor:5.00,1.00,-50.00:0.00,270.00,0.00:0.40,8.10,25.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:-10.50,1.00,-46.70:0.00,0.00,0.00:6.00,8.10,7.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:3.00,7.40,-38.00:0.00,90.00,0.00:0.40,1.70,28.20:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:2.20,14.40,-9.00:0.00,90.00,0.00:1.80,0.40,45.00:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Trigger_Box_Editor:-13.20,2.90,4.20:333.00,270.00,180.00:3.60,0.10,8.60:mode{solid}
-Trigger_Box_Editor:-19.00,7.30,-2.30:333.00,180.00,180.00:3.60,0.10,10.80:mode{solid}
-Pipe_Editor:6.90,11.70,8.90:0.00,90.00,0.00:0.10,0.30,0.30:color{0.70,0.70,0.70} material{MetalBare0182,0.01}
-Pipe_90_Editor:6.90,11.40,7.30:0.00,0.00,90.00:0.30,0.30,0.30:color{0.30,0.30,0.30} material{MetalBare0182,0.01}
-Cylinder_Editor:6.00,1.50,-9.30:0.00,0.00,0.00:3.10,0.80,3.10:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:6.00,3.00,-9.30:0.00,0.00,0.00:3.00,0.10,3.00:color{0.30,0.30,0.30} material{MetalBare0182,0.01}
-Block_Scalable_Editor:5.70,3.20,-9.30:0.00,0.00,0.00:4.80,0.20,1.40:color{0.70,0.70,0.70} material{MetalBare0182,0.01}
-Block_Scalable_Editor:26.70,1.00,-4.70:0.00,0.00,0.00:0.40,8.10,29.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Door_Editor:26.80,1.00,-19.40:0.00,90.00,0.00:1.10,1.00,1.00:color{0.40,0.40,0.40}
-Door_Editor:26.80,1.00,-24.20:0.00,270.00,0.00:1.10,1.00,1.00:color{0.40,0.40,0.40}
-Block_Scalable_Editor:26.70,5.20,-21.80:0.00,0.00,0.00:0.40,4.00,5.20:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Block_Scalable_Editor:29.30,0.00,-21.80:0.00,0.00,0.00:4.80,1.00,5.20:color{0.40,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:31.60,1.00,-21.80:0.00,90.00,0.00:5.20,4.20,0.20:color{0.40,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:29.00,1.00,-21.80:0.00,0.00,0.00:5.00,4.20,0.40:color{0.40,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:29.10,1.00,-19.30:0.00,0.00,0.00:4.80,4.20,0.20:color{0.40,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:29.10,1.00,-24.30:0.00,0.00,0.00:4.80,4.20,0.20:color{0.40,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:26.80,5.00,-21.80:0.00,0.00,0.00:0.20,0.20,4.80:color{0.40,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:29.30,5.20,-21.80:0.00,0.00,0.00:4.80,4.00,5.20:color{0.40,0.40,0.40} material{MetalBare0182,0.05}
-Point_Light_Editor:26.40,7.30,-22.50:0.00,0.00,43.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{24,1,1,1}
-Point_Light_Editor:26.40,7.30,-13.50:0.00,0.00,43.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{21,1,1,1}
-Point_Light_Editor:13.00,9.30,10.50:0.00,90.00,317.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{11,1,1,1}
-Point_Light_Editor:4.30,9.30,9.70:0.00,90.00,317.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{11,1,1,1}
-Point_Light_Editor:-5.00,9.30,9.10:0.00,90.00,317.00:0.10,0.40,3.00:color{1.00,1.00,1.00} light{11,1,1,1}
-Cylinder_Editor:8.50,1.30,-4.90:0.00,0.00,0.00:1.00,1.10,1.00:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Bowl_Editor:8.50,0.60,-4.90:0.00,0.00,0.00:3.40,3.00,3.40:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:8.50,3.90,-4.90:0.00,0.00,0.00:0.60,0.10,0.60:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Cylinder_Editor:3.50,2.50,-3.00:70.00,0.00,0.00:0.60,2.40,0.60:color{1.00,0.80,0.40} material{MetalBare0182,0.01}
-Block_Scalable_Editor:3.50,1.00,-0.50:0.00,90.00,0.00:3.20,0.20,0.50:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:3.50,1.00,-2.20:0.00,90.00,0.00:0.20,1.20,0.60:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:3.50,1.00,1.20:0.00,90.00,0.00:0.20,2.40,0.60:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Cylinder_Editor:3.50,4.00,1.20:70.00,0.00,0.00:0.70,0.10,0.70:color{0.50,0.50,0.50} material{MetalBare0182,0.01}
-Cylinder_Editor:3.50,2.50,-2.90:70.00,0.00,0.00:0.70,0.10,0.70:color{0.50,0.50,0.50} material{MetalBare0182,0.01}
-Cylinder_Editor:5.00,2.50,-2.90:70.00,0.00,0.00:0.70,0.10,0.70:color{0.50,0.50,0.50} material{MetalBare0182,0.01}
-Cylinder_Editor:5.00,2.50,-3.00:70.00,0.00,0.00:0.60,2.40,0.60:color{1.00,0.80,0.40} material{MetalBare0182,0.01}
-Cylinder_Editor:5.00,4.00,1.20:70.00,0.00,0.00:0.70,0.10,0.70:color{0.50,0.50,0.50} material{MetalBare0182,0.01}
-Block_Scalable_Editor:5.00,1.00,-0.50:0.00,90.00,0.00:3.20,0.20,0.50:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:5.00,1.00,-2.20:0.00,90.00,0.00:0.20,1.20,0.60:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:5.00,1.00,1.20:0.00,90.00,0.00:0.20,2.40,0.60:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-15.10,8.70,6.00:0.00,0.00,0.00:0.50,0.10,0.40:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-20.90,11.40,-0.90:0.00,90.00,0.00:0.50,0.10,0.40:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-20.90,13.90,-13.50:0.00,90.00,0.00:0.50,0.10,0.40:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-20.90,13.90,-22.50:0.00,90.00,0.00:0.50,0.10,0.40:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-20.90,13.90,-32.90:0.00,90.00,0.00:0.50,0.10,0.40:color{0.30,0.30,0.30} material{MetalBare0182,0.05}
-Point_Light_Editor:-20.90,13.70,-32.90:0.00,90.00,0.00:0.30,0.40,0.20:color{1.00,1.00,1.00} light{11,1,1,1}
-Block_Scalable_Editor:-17.10,9.20,-22.70:0.00,270.00,0.00:0.10,0.10,7.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-18.40,9.20,-22.50:0.00,0.00,0.00:0.10,0.10,30.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.10,9.20,-27.50:0.00,270.00,0.00:0.10,0.10,7.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.10,9.20,-12.30:0.00,270.00,0.00:0.10,0.10,7.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-15.80,9.20,-22.50:0.00,0.00,0.00:0.10,0.10,30.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.10,9.20,-17.50:0.00,270.00,0.00:0.10,0.10,7.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-17.10,9.20,-32.70:0.00,270.00,0.00:0.10,0.10,7.60:color{1.00,0.40,0.40} material{MetalBare0182,0.05}
-Cylinder_Editor:3.40,4.00,0.50:318.00,270.00,0.00:0.20,0.60,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:-20.90,11.50,-37.80:90.00,0.00,0.00:0.10,7.90,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Cylinder_Editor:-20.90,13.10,-37.80:90.00,0.00,0.00:0.10,6.70,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Cylinder_Editor:-20.90,8.40,-23.30:0.00,270.00,0.00:0.10,1.40,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Cylinder_Editor:-20.90,8.40,-23.70:0.00,270.00,0.00:0.10,1.40,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Cylinder_Editor:-20.90,8.40,-24.10:0.00,270.00,0.00:0.10,1.40,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-20.90,11.00,-20.50:0.00,90.00,0.00:0.80,1.40,0.40:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Cylinder_Editor:-20.90,11.30,-21.30:90.00,0.00,0.00:0.10,0.20,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Cylinder_Editor:-20.90,12.10,-21.30:90.00,0.00,0.00:0.10,0.20,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Cylinder_Editor:-20.90,12.40,-20.70:0.00,270.00,0.00:0.10,1.20,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Cylinder_Editor:-20.90,12.40,-20.30:0.00,270.00,0.00:0.10,1.20,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Cylinder_Editor:-21.20,12.00,-15.80:0.00,180.00,90.00:0.60,0.10,0.60:color{1.00,0.50,0.50} material{MetalBare0182,0.01}
-Block_Scalable_Editor:-21.00,11.30,-15.80:0.00,90.00,0.00:0.10,1.40,0.10:color{1.00,0.50,0.50} material{MetalBare0182,0.01}
-Block_Scalable_Editor:-21.00,12.00,-15.10:90.00,180.00,0.00:0.10,1.40,0.10:color{1.00,0.50,0.50} material{MetalBare0182,0.01}
-Cylinder_Editor:-21.10,12.00,-15.80:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.50,0.50} material{MetalBare0182,0.01}
-Block_Scalable_Editor:-13.80,10.00,-37.70:0.00,0.00,0.00:0.50,0.50,0.20:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.80,10.50,-37.80:0.00,0.00,0.00:0.10,3.90,0.10:color{0.60,0.60,0.60} material{Metal_Rusted_Tile,0.10}
-Block_Scalable_Editor:-15.60,11.00,-37.70:0.00,0.00,0.00:0.40,0.40,0.20:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-15.60,11.10,-37.60:0.00,0.00,0.00:0.30,0.20,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.90,10.10,-37.60:0.00,0.00,0.00:0.10,0.30,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Block_Scalable_Editor:-13.70,10.10,-37.60:0.00,0.00,0.00:0.10,0.30,0.10:color{0.50,0.50,0.50} material{MetalBare0182,0.05}
-Block_Scalable_Editor:9.00,2.90,-16.30:0.00,270.00,0.00:0.80,1.20,0.60:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Point_Light_Editor:9.30,3.40,-16.50:0.00,0.00,0.00:0.10,0.20,0.20:color{0.00,1.00,0.00} light{0,1,1,1}
-Block_Scalable_Editor:9.30,3.80,-16.30:0.00,270.00,0.00:0.50,0.20,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.10}
-Block_Scalable_Editor:8.50,3.50,-4.90:0.00,0.00,0.00:0.20,0.80,0.20:color{0.40,0.70,1.00} material{MetalBare0182,0.10}
-Bowl_Editor:8.50,3.70,-4.90:0.00,180.00,180.00:3.40,1.00,3.40:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Block_Scalable_Editor:10.30,1.00,-20.40:0.00,180.00,0.00:0.30,0.60,0.30:color{0.50,0.50,0.50} material{MetalBare0182,0.10}
-Block_Scalable_Editor:10.30,1.00,-24.60:0.00,180.00,0.00:0.30,0.60,0.30:color{0.50,0.50,0.50} material{MetalBare0182,0.10}
-Block_Scalable_Editor:4.10,1.00,-20.40:0.00,180.00,0.00:0.30,0.60,0.30:color{0.50,0.50,0.50} material{MetalBare0182,0.10}
-Block_Scalable_Editor:4.10,1.00,-24.60:0.00,180.00,0.00:0.30,0.60,0.30:color{0.50,0.50,0.50} material{MetalBare0182,0.10}
-Block_Scalable_Editor:-28.00,1.00,-46.70:0.00,90.00,0.00:7.00,16.20,29.00:color{1.00,0.90,0.70} material{Brick_Large_Blocks,0.10}
-Point_Light_Editor:4.60,3.10,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{0.00,1.00,0.00} light{0,1,1,1}
-Point_Light_Editor:4.60,3.30,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{0.00,1.00,0.00} light{0,1,1,1}
-Point_Light_Editor:4.80,3.20,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,0.50,0.00} light{0,1,1,1}
-Point_Light_Editor:4.80,3.40,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,0.00,0.00} light{0,1,1,1}
-Point_Light_Editor:4.60,3.50,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,0.00,0.00} light{0,1,1,1}
-Point_Light_Editor:4.40,3.60,-20.00:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,0.00,0.00} light{0,1,1,1}
-Point_Light_Editor:8.90,4.00,-9.60:0.00,0.00,0.00:0.10,0.20,0.20:color{1.00,1.00,1.00} light{0,1,1,1}
-Point_Light_Editor:31.30,5.10,-23.10:0.00,90.00,0.00:2.20,0.20,0.40:color{0.00,0.60,1.00} light{44,1,1,1}
-Cylinder_Editor:4.20,5.30,-0.50:0.00,180.00,127.00:0.10,2.80,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:4.20,5.30,-0.60:90.00,0.00,0.00:0.10,0.60,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:8.70,1.80,-0.50:0.00,0.00,0.00:0.10,0.40,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:5.00,4.00,0.50:42.00,270.00,0.00:0.20,0.60,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:4.20,4.80,0.50:0.00,0.00,0.00:0.20,0.30,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:18.40,8.40,7.30:71.00,270.00,180.00:0.30,0.30,0.30:color{0.20,0.20,0.20}
-Point_Light_Editor:3.80,4.00,-23.20:0.00,0.00,0.00:0.10,0.10,0.10:color{0.00,1.00,0.00} light{0,1,1,1}
-Point_Light_Editor:10.60,4.00,-23.20:0.00,0.00,0.00:0.10,0.10,0.10:color{0.00,1.00,0.00} light{0,1,1,1}
-Cylinder_Editor:4.10,4.00,-24.10:90.00,270.00,0.00:0.20,0.10,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:10.50,4.00,-24.10:90.00,270.00,0.00:0.20,0.10,0.20:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:10.90,2.90,-21.10:0.00,0.00,90.00:0.20,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:9.60,5.10,-21.10:0.00,90.00,90.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:1.60,2.50,-12.10:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.20,0.20}
-Cylinder_Editor:1.60,2.50,-12.70:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.20,0.20}
-Cylinder_Editor:1.60,2.50,-13.30:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.20,0.20}
-Cylinder_Editor:1.60,2.50,-13.90:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.20,0.20}
-Cylinder_Editor:1.60,2.50,-14.50:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.20,0.20}
-Cylinder_Editor:1.60,2.80,-14.50:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,2.80,-13.90:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,2.80,-13.30:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,2.80,-12.70:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,2.80,-12.10:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,3.30,-12.70:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,3.30,-13.30:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,3.30,-14.50:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.20,0.20}
-Cylinder_Editor:1.60,3.30,-12.10:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.20,0.20}
-Block_Scalable_Editor:1.70,3.50,-13.60:0.00,0.00,0.00:0.10,0.40,0.40:color{1.00,1.00,1.00} material{MetalBare0182,0.10}
-Point_Light_Editor:3.90,4.40,-23.20:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,1.00,1.00} light{0,1,1,1}
-Point_Light_Editor:10.50,4.40,-23.20:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,1.00,1.00} light{0,1,1,1}
-Point_Light_Editor:1.70,4.20,-12.10:0.00,0.00,0.00:0.10,0.20,0.20:color{1.00,0.00,0.00} light{0,1,1,1}
-Point_Light_Editor:1.70,3.70,-12.70:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,0.00,0.00} light{0,1,1,1}
-Cylinder_Editor:1.60,3.70,-14.50:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Block_Scalable_Editor:1.70,4.10,-13.30:0.00,0.00,0.00:0.10,0.20,0.60:color{1.00,1.00,1.00} material{MetalBare0182,0.10}
-Block_Scalable_Editor:1.70,4.40,-13.30:0.00,0.00,0.00:0.10,0.20,0.60:color{1.00,1.00,1.00} material{MetalBare0182,0.10}
-Cylinder_Editor:1.60,3.70,-12.10:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.20,0.20}
-Cylinder_Editor:1.60,4.20,-12.70:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Point_Light_Editor:1.70,4.20,-14.10:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,1.00,0.00} light{0,1,1,1}
-Point_Light_Editor:1.70,4.20,-14.50:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,1.00,0.00} light{0,1,1,1}
-Point_Light_Editor:1.70,4.50,-14.50:0.00,0.00,0.00:0.10,0.10,0.10:color{1.00,0.00,0.00} light{0,1,1,1}
-Cylinder_Editor:1.60,5.00,-12.70:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,5.00,-13.30:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,5.00,-13.90:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,5.00,-14.50:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,5.00,-12.10:0.00,180.00,90.00:0.10,0.10,0.10:color{0.20,0.20,0.20}
-Cylinder_Editor:1.60,4.60,-12.10:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.20,0.20}
-Cylinder_Editor:1.60,4.60,-12.70:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.20,0.20}
-Cylinder_Editor:1.60,4.60,-13.90:0.00,180.00,90.00:0.10,0.10,0.10:color{1.00,0.20,0.20}
-Point_Light_Editor:1.70,3.30,-13.90:0.00,0.00,0.00:0.10,0.10,0.10:color{0.00,1.00,0.00} light{0,1,1,1}
-Pipe_90_Editor:3.60,1.90,-4.90:0.00,0.00,180.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:3.50,2.20,-3.70:288.00,180.00,270.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:5.00,2.20,-3.70:288.00,180.00,270.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:5.10,1.90,-4.90:0.00,0.00,180.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:10.80,5.20,-21.10:90.00,0.00,0.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:9.80,5.20,-21.10:0.00,180.00,90.00:0.10,0.40,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:4.80,5.10,-21.10:0.00,270.00,90.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Cylinder_Editor:3.80,5.20,-21.10:0.00,180.00,90.00:0.10,0.40,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_90_Editor:3.70,5.20,-21.10:90.00,180.00,0.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:3.60,2.90,-21.10:0.00,0.00,90.00:0.20,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:4.80,1.90,-20.10:0.00,0.00,90.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Pipe_Editor:9.60,1.90,-20.10:0.00,0.00,90.00:0.10,0.10,0.10:color{1.00,1.00,1.00} material{MetalBare0182,0.01}
-Side_Wedge_Editor:-20.30,13.30,-9.00:90.00,90.00,0.00:1.80,1.00,2.20:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Side_Wedge_Editor:-20.30,13.30,-18.00:90.00,90.00,0.00:1.80,1.00,2.20:color{1.00,0.90,0.70} material{Eleven_Roof,0.05}
-Block_Scalable_Editor:4.90,3.10,-23.50:0.00,0.00,0.00:0.30,0.10,2.40:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:4.90,4.00,-23.50:0.00,0.00,0.00:0.30,0.10,2.40:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:4.90,4.90,-23.50:0.00,0.00,0.00:0.30,0.10,2.40:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:9.50,3.10,-23.50:0.00,0.00,0.00:0.30,0.10,2.40:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:9.50,4.00,-23.50:0.00,0.00,0.00:0.30,0.10,2.40:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:9.50,4.90,-23.50:0.00,0.00,0.00:0.30,0.10,2.40:color{0.30,0.30,0.30} material{MetalBare0182,0.10}
-Block_Scalable_Editor:10.00,1.70,-22.40:0.00,0.00,0.00:0.70,3.50,0.20:color{0.60,0.60,0.60} material{MetalBare0182,0.10}
-Block_Scalable_Editor:4.40,1.70,-24.60:0.00,0.00,0.00:0.70,3.50,0.20:color{0.60,0.60,0.60} material{MetalBare0182,0.10}
-Block_Scalable_Editor:4.40,1.70,-22.40:0.00,0.00,0.00:0.70,3.50,0.20:color{0.60,0.60,0.60} material{MetalBare0182,0.10}
-Block_Scalable_Editor:2.00,1.20,-13.30:0.00,0.00,0.00:0.70,0.10,3.00:color{0.40,0.40,0.40} material{MetalBare0182,0.10}
-Block_Scalable_Editor:2.00,1.00,-11.80:0.00,0.00,0.00:0.70,4.30,0.10:color{0.40,0.40,0.40} material{MetalBare0182,0.10}
-Block_Scalable_Editor:12.20,7.70,-28.50:0.00,0.00,0.00:0.80,0.50,0.80:color{1.00,1.00,1.00} material{MetalBare0182,0.10}
-Cylinder_Editor:7.20,1.70,-22.00:0.00,0.00,0.00:0.80,1.00,0.80:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Bowl_Editor:7.20,4.10,-22.00:0.00,180.00,180.00:2.70,2.00,2.70:color{0.80,0.80,0.80} material{MetalBare0182,0.01}
-Block_Scalable_Editor:7.20,4.00,-22.00:0.00,0.00,0.00:0.10,0.40,0.10:color{0.40,0.70,1.00} material{MetalBare0182,0.10}
-Block_Scalable_Editor:7.20,4.40,-22.00:0.00,0.00,0.00:0.50,0.10,0.10:color{0.40,0.70,1.00} material{MetalBare0182,0.10}
-Block_Scalable_Editor:7.20,4.40,-22.00:0.00,90.00,0.00:0.50,0.10,0.10:color{0.40,0.70,1.00} material{MetalBare0182,0.10}
-Point_Light_Editor:-1.00,11.50,-12.00:0.00,90.00,0.00:1.30,0.20,1.30:color{1.00,1.00,1.00} light{46,1,1,1}
-Spawn_Point_Editor:-17.60,9.50,-35.30:0.00,0.00,0.00:1.00,1.00,1.00: 
+Roles List:<color=purple>[player]</color>,
+TV_LED_Editor:1.12,185.23,-238.98:0.00,0.00,0.00:1.50,1.30,1.00: 
+Trigger_Box_Editor:33.01,184.13,-231.68:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|player{role*player}|deactivate{}
+Trigger_Box_Editor:87.27,185.65,-212.13:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|ifcondition{inventory;hel=1}|tip{لایسنس هلیکوپتر ندارید}
+Trigger_Box_Editor:-124.63,74.54,676.57:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|inventory{add*hel*1}|deactivate{}
+Trigger_Box_Editor:86.95,185.65,-212.04:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|ifcondition{inventory;hel=0}|draw{halo}|draw{helicopter}|player{spawn&drive*Hummingbird}
+Trigger_Box_Editor:56.89,184.73,-176.83:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|camsequence{10;-121.61, 80.70, 676.89;4.64, 359.20, 0.00}|draw{halo}
+Trigger_Box_Editor:-121.62,78.48,682.51:0.00,0.00,0.00:3.60,1.20,3.00:mode{onclick}|ifcondition{inventory;key<5}|tip{کلید کافی ندارید}
+Trigger_Box_Editor:-121.49,79.88,682.46:0.00,0.00,0.00:3.60,1.20,3.00:mode{onclick}|ifcondition{inventory;key<1}|tip{کلید کافی ندارید}
+Trigger_Box_Editor:-121.36,81.38,682.36:0.00,0.00,0.00:3.60,1.20,3.00:mode{onclick}|ifcondition{inventory;key<3}|tip{کلید کافی ندارید}
+Trigger_Box_Editor:-129.05,81.61,682.77:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;color=0}|vehicle{paint*randomvectorabs}|️cooldown{2}
+Trigger_Box_Editor:-121.49,78.48,682.40:0.00,0.00,0.00:3.60,1.20,3.00:mode{onclick}|ifcondition{inventory;key>4}|inventory{add*hel*0}|tip{لایسنس هلیکوپتر خریدید}
+Trigger_Box_Editor:-121.49,79.98,682.40:0.00,0.00,0.00:3.60,1.20,3.00:mode{onclick}|ifcondition{inventory;key>0}|inventory{add*color*0}|tip{ار جی بی خودرو خریدید}
+Trigger_Box_Editor:-121.49,81.38,682.40:0.00,0.00,0.00:3.60,1.20,3.00:mode{onclick}|ifcondition{inventory;key>2}|inventory{del*mobile}|tip{موبایل خریدید}
+Trigger_Box_Editor:-122.04,93.81,682.02:0.00,0.00,0.00:2.20,1.10,3.00:mode{onclick}|outro{bye}|deactivate{}
+Trigger_Box_Editor:-122.05,95.31,681.93:0.00,0.00,0.00:2.20,1.10,3.00:mode{onclick}|camsequence{0;0,0,0;0,0,0}
+Trigger_Box_Editor:9.80,183.53,-181.05:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|time{170}
+Trigger_Box_Editor:13.98,183.53,-220.90:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{ishost=true&&vehiclecount>16}|chat{/deletevehicles}|cooldown{2}
+Trigger_Box_Editor:13.69,183.53,-216.66:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{ishost=true}|chat{/deletevehicles}|cooldown{60}
+Trigger_Box_Editor:13.41,183.53,-212.59:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;gun=0}|weapon{0}
+Trigger_Box_Editor:-129.19,149.52,-306.47:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|inventory{add*key*+1}|tip{1 کلید پیدا کردید}|draw{key}|deactivate{}
+Trigger_Box_Editor:721.96,12.12,188.85:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|inventory{add*key*+1}|tip{1 کلید پیدا کردید}|draw{key}|deactivate{}
+Trigger_Box_Editor:629.30,107.80,287.88:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|inventory{add*key*+1}|tip{1 کلید پیدا کردید}|draw{key}|deactivate{}
+Trigger_Box_Editor:-139.55,47.99,539.65:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|inventory{add*key*+1}|tip{1 کلید پیدا کردید}|draw{key}|deactivate{}
+Trigger_Box_Editor:-67.92,13.63,270.95:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|inventory{add*key*+1}|tip{1 کلید پیدا کردید}|draw{key}|deactivate{}
+Trigger_Box_Editor:72.29,172.94,-178.34:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|inventory{add*key*+1}|tip{1 کلید پیدا کردید}|draw{key}|deactivate{}
+Trigger_Box_Editor:65.47,165.51,-295.15:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|inventory{add*key*+1}|tip{1 کلید پیدا کردید}|draw{key}|deactivate{}
+Trigger_Box_Editor:94.47,192.33,-412.24:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|inventory{add*key*+1}|tip{1 کلید پیدا کردید}|draw{key}|deactivate{}
+UI_Scalable_Editor:11.37,185.38,-218.95:0.00,270.00,0.00:4.10,4.40,1.00:<size=400><color=red>C</color><color=green>A</color><color=yellow>F</color><color=lightblue>E</color>
+TV_LED_Editor:1.12,185.23,-238.98:0.00,0.00,0.00:1.50,1.30,1.00: 
+Box_Cardboard_Editor:-7.18,188.65,-215.61:0.00,0.00,0.00:1.00,1.00,1.00: 
+Box_Cardboard_Editor:-7.17,188.65,-216.66:0.00,0.00,0.00:1.00,1.00,1.00: 
+Box_Cardboard_Editor:-7.27,188.65,-217.89:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:-7.48,186.54,-215.53:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:-7.49,186.54,-216.01:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:-7.35,186.54,-216.93:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:-7.28,186.54,-217.58:0.00,0.00,0.00:1.00,1.00,1.00: 
+Wooden_Plank_Editor:-7.71,188.48,-216.52:0.00,0.00,0.00:1.00,1.00,0.30: 
+Wooden_Plank_Editor:-7.71,186.38,-216.52:0.00,0.00,0.00:1.00,1.00,0.30: 
+Wooden_Plank_Editor:-6.25,185.23,-217.71:0.00,90.00,0.00:0.80,1.00,0.40: 
+Wooden_Plank_Editor:-3.28,185.23,-213.85:0.00,0.00,0.00:0.80,1.00,0.70: 
+Block_Scalable_Editor:-3.29,183.83,-213.32:0.00,90.00,0.00:8.60,1.40,1.00:color{1.00,1.00,1.00} material{Marble_Tiles_Wide,0.25}
+Block_Scalable_Editor:-5.73,183.83,-217.93:0.00,0.00,0.00:5.80,1.40,1.00:color{1.00,1.00,1.00} material{Marble_Tiles_Wide,0.25}
+Steam_Smoke_Editor:-10.39,190.12,-218.92:272.00,0.00,180.00:1.00,1.00,1.00:color{1.00,1.00,1.00}
+Pipe_Rusty_90_Editor:-10.33,189.83,-218.96:0.00,90.00,270.00:0.30,0.30,0.30:color{1.00,1.00,1.00} material{Metal_Rusted_Tile,0.01}
+Chair_Wooden_Editor:-4.71,183.83,-236.86:0.00,0.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:-7.53,183.83,-233.71:0.00,90.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:-4.48,183.83,-231.18:0.00,180.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:-1.83,183.83,-233.53:0.00,270.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:6.22,183.83,-234.41:0.00,0.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:3.23,183.83,-230.99:0.00,90.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:8.90,183.83,-230.99:0.00,270.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:5.85,183.83,-228.42:0.00,180.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:6.36,183.83,-225.80:0.00,0.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:3.29,183.83,-222.54:0.00,90.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:6.10,183.83,-220.37:0.00,180.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:9.20,183.83,-223.05:0.00,270.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:8.60,183.83,-214.66:0.00,270.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:5.43,183.83,-217.19:0.00,0.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:5.04,183.83,-211.45:0.00,180.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:2.78,183.83,-213.97:0.00,90.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:-4.87,183.83,-221.61:0.00,180.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:-1.75,183.83,-224.22:0.00,270.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:-7.66,183.83,-224.43:0.00,90.00,0.00:1.00,1.00,1.00: 
+Chair_Wooden_Editor:-4.81,183.83,-227.50:0.00,0.00,0.00:1.00,1.00,1.00: 
+Block_Scalable_Editor:2.80,188.78,-208.75:359.00,270.00,180.00:0.90,4.40,1.10:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:-0.80,188.78,-208.69:359.00,270.00,180.00:0.90,4.40,1.30:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:-1.40,188.58,-208.56:89.00,270.00,180.00:1.40,4.80,1.70:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Window_1by1_Editor:6.44,185.13,-208.84:0.00,0.00,0.00:2.80,1.70,1.00: 
+Block_Scalable_Editor:-8.78,189.68,-208.51:90.00,90.00,0.00:0.90,19.20,1.30:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:-8.95,185.38,-208.54:0.00,0.00,0.00:1.00,2.90,1.00:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Window_1by1_Editor:-4.73,185.13,-208.57:0.00,0.00,0.00:2.80,1.70,1.00: 
+Table_Wooden_Editor:-4.86,183.83,-224.47:0.00,0.00,0.00:2.50,1.00,1.00: 
+Table_Wooden_Editor:-4.59,183.83,-233.83:0.00,0.00,0.00:2.50,1.00,1.00: 
+Table_Wooden_Editor:6.14,183.83,-231.23:0.00,0.00,0.00:2.50,1.00,1.00: 
+Table_Wooden_Editor:6.29,183.83,-222.88:0.00,0.00,0.00:2.50,1.00,1.00: 
+Table_Wooden_Editor:5.84,183.83,-214.20:0.00,0.00,0.00:2.50,1.00,1.00: 
+Block_Scalable_Editor:-8.88,188.03,-222.75:0.00,90.00,0.00:31.40,2.20,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:10.79,188.13,-223.64:0.00,90.00,0.00:31.20,2.20,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:-8.93,183.53,-238.14:0.00,270.00,0.00:2.40,6.80,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:10.74,183.53,-237.95:0.00,270.00,0.00:2.40,6.80,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:1.03,190.23,-223.90:0.00,0.00,0.00:20.30,0.10,32.20:color{1.00,1.00,1.00} material{Wood_Parquet_Herringbone,0.25}
+Block_Scalable_Editor:10.82,183.53,-207.25:0.00,0.00,0.00:-0.90,5.20,2.60:color{1.00,1.00,1.00} material{Brick_Small_Brown,0.25}
+Window_1by1_Editor:11.11,185.23,-222.86:0.00,90.00,0.00:11.00,1.00,1.00: 
+Window_1by1_Editor:-9.19,185.23,-222.86:0.00,90.00,0.00:11.00,1.00,1.00: 
+Block_Scalable_Editor:-8.93,183.53,-231.47:0.00,90.00,0.00:17.10,1.90,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:-8.93,183.53,-212.67:0.00,90.00,0.00:9.80,1.90,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:-8.91,183.43,-218.84:0.00,90.00,0.00:8.80,4.90,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:0.90,183.53,-239.57:0.00,180.00,0.00:20.60,6.80,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:10.77,183.53,-231.47:0.00,90.00,0.00:17.10,1.90,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:10.77,183.53,-212.67:0.00,90.00,0.00:9.80,1.90,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:10.79,183.43,-218.84:0.00,90.00,0.00:8.80,4.90,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:6.60,183.83,-208.74:0.00,0.00,0.00:8.80,1.60,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Block_Scalable_Editor:-5.08,183.83,-208.76:0.00,0.00,0.00:9.80,1.60,0.90:color{1.00,1.00,1.00} material{Wood_Parquet_Strip6,0.25}
+Tree_Palm_Editor:627.69,11.24,75.98:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Palm_Editor:627.69,11.24,75.98:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Palm_Editor:661.48,11.24,36.45:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Palm_Editor:715.21,11.24,27.87:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Palm_Editor:751.14,11.24,32.44:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Palm_Editor:776.63,11.24,29.56:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Palm_Editor:799.29,11.24,22.15:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Palm_Editor:816.08,11.24,17.19:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Desert_Editor:828.13,11.18,14.01:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Poplar_Editor:492.04,11.67,102.68:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:492.04,11.67,102.68:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:491.14,11.67,200.19:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:459.05,11.67,179.22:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:515.91,11.67,149.89:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:532.35,11.67,221.34:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:481.06,11.67,261.58:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:505.31,11.67,347.98:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:464.43,11.67,315.78:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:508.70,11.67,283.27:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:497.76,11.67,397.04:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:538.29,11.67,335.99:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:515.30,11.67,258.60:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:309.90,11.67,331.05:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:298.30,11.67,328.82:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:206.02,11.67,406.61:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:293.28,11.67,383.00:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:404.57,11.67,310.98:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:395.05,11.67,397.36:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:451.87,11.67,376.35:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:450.76,11.67,309.48:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:458.43,11.67,236.75:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:364.12,11.67,248.26:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:414.20,11.67,236.04:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:433.77,11.67,178.03:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:366.00,11.67,114.23:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:301.71,11.67,92.27:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:301.71,11.67,92.27:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:369.41,11.67,165.26:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:330.67,11.67,55.70:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:358.11,11.67,31.15:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:435.61,11.67,106.64:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:485.56,11.67,-20.63:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:489.88,11.67,74.76:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:442.35,11.67,-1.63:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:336.46,11.67,0.58:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:261.97,11.67,7.07:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:319.16,11.67,146.00:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:230.85,11.67,75.77:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:211.35,11.67,22.11:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:125.11,11.67,7.34:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:98.08,11.67,82.09:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:390.44,11.67,16.36:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:390.44,11.67,16.36:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:297.87,11.67,50.05:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:207.33,11.67,99.65:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:158.51,11.67,35.61:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:69.38,11.67,24.18:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:3.26,11.67,28.30:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:-66.22,11.67,162.42:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:-97.42,11.67,198.68:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:-19.07,11.67,169.07:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:-104.63,11.67,120.97:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:-48.65,11.67,193.17:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Spruce_Editor:-27.94,7.57,224.48:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-38.50,7.57,286.16:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-38.50,7.57,286.16:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-79.79,7.57,256.48:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-130.39,7.57,190.50:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-187.07,7.57,132.91:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-127.70,7.57,118.07:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:30.40,7.57,64.84:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-38.98,7.57,72.93:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-124.86,7.57,70.04:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-181.08,7.57,77.21:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-237.20,7.57,51.10:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-223.80,7.57,119.57:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-210.84,7.57,163.98:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-166.33,7.57,223.32:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-140.97,7.57,245.43:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-257.22,7.57,240.10:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-190.08,7.57,225.69:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-136.55,7.57,310.01:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-113.24,7.57,376.77:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-84.85,7.57,402.22:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-77.93,7.57,330.33:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:-35.24,7.57,355.38:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:6.40,7.57,364.73:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:93.97,7.57,310.91:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:21.30,7.57,283.62:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:147.31,7.57,343.68:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:243.93,7.57,308.67:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:197.09,7.57,239.27:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:48.24,7.57,139.67:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:40.15,7.57,115.87:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:34.11,7.57,186.70:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:89.47,7.57,233.64:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:179.28,7.57,189.25:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:185.61,7.57,160.36:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:134.92,7.57,155.41:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:143.18,7.57,127.63:0.00,0.00,0.00:2.00,1.70,1.70: 
+Bridge_Chunk_Editor:-396.42,84.74,-266.54:357.00,96.00,0.00:1.10,1.00,1.00: 
+Bridge_Chunk_Editor:-483.40,80.24,-257.05:0.00,90.00,0.00:1.10,1.00,1.00: 
+Bridge_Chunk_Editor:-316.36,115.94,-269.36:339.00,90.00,0.00:1.10,1.00,1.00: 
+Bridge_Chunk_Editor:-681.80,80.24,-89.26:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:-681.64,80.24,-84.65:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk90_Editor:-578.19,80.21,-256.39:0.00,84.00,0.00:1.00,1.00,1.20: 
+Bridge_Chunk_Editor:-226.86,150.14,-269.32:339.00,90.00,0.00:1.10,1.00,1.00: 
+Bridge_Chunk_Editor:-137.15,182.24,-269.62:340.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:-41.20,182.24,-269.02:0.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:54.47,182.24,-268.96:0.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:-681.47,80.24,-11.15:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:-681.47,80.24,83.85:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:-681.22,80.24,178.09:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk90_Editor:-681.13,80.21,172.45:0.00,176.00,0.00:1.00,1.00,1.20: 
+Bridge_Chunk_Editor:-608.94,80.24,273.43:0.00,272.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:-514.39,80.54,273.30:339.00,270.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:-425.39,46.34,273.48:339.00,270.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:-336.32,11.84,273.72:0.00,270.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk90_Editor:-156.13,12.01,367.91:0.00,0.00,0.00:1.00,1.00,1.20: 
+Bridge_Chunk90_Editor:-155.87,12.01,364.93:0.00,180.00,0.00:1.00,1.00,1.20: 
+Bridge_Chunk_Editor:19.07,11.84,459.13:0.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:114.84,11.74,458.75:0.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:209.48,11.74,458.85:0.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:305.21,11.74,458.63:0.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:396.48,11.74,459.22:0.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:489.72,11.74,458.77:0.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk90_Editor:486.39,12.01,458.12:0.00,270.00,0.00:1.00,1.00,1.20: 
+Bridge_Chunk_Editor:581.10,11.74,281.12:0.00,180.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:581.00,11.74,184.38:0.00,180.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:581.47,11.74,88.64:0.00,180.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk90_Editor:677.03,12.01,4.72:0.00,90.00,0.00:1.00,1.00,1.20: 
+Bridge_Chunk90_Editor:748.09,12.01,6.05:0.00,270.00,0.00:1.00,1.00,1.20: 
+Bridge_Chunk90_Editor:841.57,12.01,-168.25:0.00,0.00,0.00:1.00,1.00,1.20: 
+Bridge_Chunk_Editor:772.35,11.74,4.88:0.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:841.30,11.74,-76.96:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:836.09,-16.35,-261.63:20.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:747.02,16.15,-261.38:15.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:655.38,40.75,-261.50:15.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:564.55,64.75,-261.97:15.00,90.00,0.00:1.00,1.00,1.00: 
+Building12_Editor:173.54,4.40,822.37:0.00,0.00,0.00:1.00,1.00,1.00: 
+Building5_Editor:128.49,8.19,722.03:0.00,0.00,0.00:1.00,1.00,1.00: 
+Building9_Editor:94.89,5.65,625.36:0.00,180.00,0.00:1.00,1.00,1.00: 
+Building_Shop_Close2_Editor:21.16,11.81,555.70:0.00,0.00,0.00:1.00,1.00,1.00: 
+Building_Shop_Close2_Editor:-21.25,11.81,556.16:0.00,0.00,0.00:1.00,1.00,1.00: 
+Building_Shop_Close3_Editor:-58.12,9.13,560.18:0.00,0.00,0.00:1.00,1.00,1.00: 
+Parking_Editor:-170.84,7.98,586.63:0.00,0.00,0.00:1.00,1.00,1.00: 
+Building17_Editor:-48.07,11.85,645.50:0.00,0.00,0.00:1.00,1.00,1.00: 
+Building18_Editor:-122.79,11.71,671.19:0.00,0.00,0.00:1.00,1.00,1.00: 
+Building16_Editor:-275.20,9.68,666.98:0.00,0.00,0.00:1.00,1.00,1.00: 
+Building13_Editor:-40.14,12.00,813.20:0.00,0.00,0.00:1.00,1.00,1.00: 
+Building12_Editor:-210.25,9.99,772.14:0.00,0.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:-269.67,5.30,814.22:0.00,3.00,0.00:1.00,1.00,1.30: 
+Dirt_Chunk_Editor:-273.80,5.30,726.52:0.00,3.00,0.00:1.00,1.00,1.30: 
+Dirt_Chunk_Editor:-137.54,5.30,663.70:0.00,3.00,0.00:1.00,1.00,1.30: 
+Dirt_Chunk_Editor:-113.58,5.30,827.81:0.00,3.00,0.00:1.00,1.00,1.30: 
+Dirt_Chunk_Editor:6.10,5.30,688.38:0.00,3.00,0.00:1.00,1.00,1.30: 
+Dirt_Chunk_Editor:33.34,5.30,809.88:0.00,3.00,0.00:1.00,1.00,1.30: 
+Dirt_Chunk_Editor:165.45,5.30,801.11:0.00,3.00,0.00:1.00,1.00,1.30: 
+Dirt_Chunk_Editor:155.33,5.30,645.29:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:-178.87,5.30,514.29:0.00,3.00,0.00:1.30,1.00,1.30: 
+Dirt_Chunk_Editor:-5.91,5.30,518.29:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:136.14,5.30,512.24:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:257.66,5.30,504.69:0.00,6.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:690.32,5.30,455.85:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:552.85,5.30,466.03:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:403.97,5.30,488.40:0.00,6.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:490.22,84.55,-262.58:15.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:397.54,110.05,-262.29:15.00,90.00,0.00:1.00,1.00,1.00: 
+Side_Wedge_Editor:499.33,0.28,-269.88:0.00,90.00,0.00:160.20,145.10,516.50:color{0.80,0.80,0.80} material{Grass0155_1,0.02}
+Dirt_Chunk_Editor:-228.76,5.30,91.50:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:-217.93,5.30,225.82:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:-208.06,5.30,379.39:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:-65.17,5.30,372.11:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:-65.17,5.30,372.11:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:-59.02,5.30,223.24:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:-69.23,5.30,83.81:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:92.02,5.30,365.25:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:82.50,5.30,228.76:0.00,5.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:75.38,5.30,72.81:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:233.32,5.30,63.22:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:239.60,5.30,201.90:0.00,4.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:246.81,5.30,352.92:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:392.00,5.30,344.79:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:382.82,5.30,206.32:0.00,4.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:373.26,5.30,57.11:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:513.97,5.30,43.74:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:528.41,5.30,192.80:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:538.97,5.30,317.71:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:688.03,5.30,306.71:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:684.09,5.30,180.06:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:671.70,5.30,34.08:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:827.04,5.30,26.04:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:826.46,5.30,-123.88:0.00,4.50,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:814.66,5.30,-274.33:0.00,3.00,0.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:692.98,18.80,-273.48:0.00,0.00,345.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:550.15,56.30,-272.04:0.00,0.00,345.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:437.34,91.40,-271.15:0.00,0.00,345.00:1.00,1.00,1.00: 
+Dirt_Chunk_Editor:330.34,122.40,-271.57:0.00,0.00,345.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:305.22,134.35,-262.40:15.00,90.00,0.00:1.00,1.00,1.00: 
+Bridge_Chunk_Editor:213.13,159.06,-262.51:14.00,90.00,0.00:1.00,1.00,1.00: 
+Tree_Spruce_Editor:29.23,177.15,-389.92:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:14.00,177.15,-399.12:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-14.14,177.15,-375.76:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:13.77,162.85,-362.99:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:46.90,162.85,-359.51:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-63.99,144.03,-220.66:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-57.62,153.64,-249.43:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-32.34,159.49,-253.71:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-127.67,153.43,-282.17:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-112.30,153.14,-246.19:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-89.82,160.73,-257.05:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-82.07,163.58,-266.99:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Poplar_Editor:-48.33,183.57,-295.27:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Palm_Editor:-43.10,180.00,-289.42:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Spruce_Editor:-26.97,183.61,-292.23:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-127.20,149.76,-249.11:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-122.38,149.50,-224.20:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-94.86,151.98,-209.18:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-101.15,148.62,-192.84:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-77.24,136.57,-172.38:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-68.20,141.42,-190.42:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-32.51,136.82,-199.64:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-31.61,134.50,-180.45:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:-46.53,132.43,-185.13:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Poplar_Editor:82.23,168.68,-156.83:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Spruce_Editor:96.66,164.22,-155.76:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:89.71,164.86,-144.83:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:233.67,145.40,-345.65:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:234.07,159.72,-374.97:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:144.20,181.91,-387.31:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:124.83,185.46,-381.85:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:116.56,187.68,-372.56:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:141.18,163.28,-290.14:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:93.03,168.32,-301.03:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:63.20,162.85,-329.01:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:98.66,182.01,-338.26:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:108.27,181.27,-334.94:0.00,0.00,0.00:0.50,0.50,0.50: 
+Road_Barrier_Editor:62.11,183.53,-252.69:0.00,0.00,0.00:1.00,1.00,1.00: 
+Road_Barrier_Editor:53.30,183.53,-252.61:0.00,0.00,0.00:1.00,1.00,1.00: 
+Car_Dummy_Volkswagen_Editor:44.66,194.13,-388.30:354.00,267.00,357.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Car_Dummy_Volkswagen_Editor:62.86,194.09,-385.30:6.00,87.00,1.00:1.00,1.00,1.00:color{0.00,0.00,0.00}
+Car_Dummy_Volkswagen_Editor:90.57,194.06,-390.38:5.00,88.00,3.00:1.00,1.00,1.00:color{0.80,1.00,0.80}
+Car_Dummy_Volkswagen_Editor:89.48,194.02,-408.18:4.00,89.00,359.00:1.00,1.00,1.00:color{0.80,0.00,0.00}
+Car_Dummy_Volkswagen_Editor:71.31,193.99,-418.35:2.00,90.00,359.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Car_Dummy_Volkswagen_Editor:44.80,193.99,-411.94:358.00,270.00,1.00:1.00,1.00,1.00:color{0.00,0.00,0.80}
+Car_Dummy_Volkswagen_Editor:63.53,194.00,-401.28:0.00,90.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Car_Wreck_Editor:103.84,183.53,-282.21:0.00,0.00,0.00:1.00,1.00,1.00:color{1.00,1.00,1.00}
+Car_Wreck_Editor:113.45,183.53,-282.91:0.00,0.00,0.00:1.00,1.00,1.00:color{1.00,1.00,1.00}
+Car_Wreck_Editor:97.33,183.53,-281.99:0.00,0.00,0.00:1.00,1.00,1.00:color{1.00,1.00,1.00}
+Car_Wreck_Editor:90.54,183.53,-281.43:0.00,0.00,0.00:1.00,1.00,1.00:color{1.00,1.00,1.00}
+Car_Wreck_Editor:85.10,183.53,-282.18:0.00,0.00,0.00:1.00,1.00,1.00:color{1.00,1.00,1.00}
+Road_Guard_Editor:90.71,183.53,-275.94:0.00,90.00,0.00:1.20,1.20,1.20: 
+Road_Guard_Editor:109.51,183.53,-275.94:0.00,90.00,0.00:1.20,1.20,1.20: 
+Road_Guard_Editor:109.51,183.53,-254.04:0.00,270.00,0.00:1.20,1.20,1.20: 
+Road_Guard_Editor:90.81,183.53,-254.04:0.00,270.00,0.00:1.20,1.20,1.20: 
+Road_Guard_Editor:71.81,183.53,-254.04:0.00,270.00,0.00:1.20,1.20,1.20: 
+Block_Scalable_Editor:87.96,182.73,-264.81:0.00,180.00,0.00:69.60,1.00,22.40:color{1.00,1.00,1.00} material{Road_Street_4k,0.01}
+Block_Scalable_Editor:67.41,182.73,-285.59:0.00,0.00,0.00:27.10,1.00,22.40:color{1.00,1.00,1.00} material{Road_Street_4k_V,0.02}
+Fancy_Chunk_Editor:50.34,80.05,-320.17:0.00,9.00,0.00:5.50,24.70,5.50: 
+Block_Scalable_Editor:55.04,182.53,-228.24:0.00,0.00,0.00:130.50,1.00,126.00:color{0.64,0.64,0.64} material{Marble_Tiles_Wide,0.25}
+Block_Scalable_Editor:-8.36,144.36,-166.52:0.00,0.00,0.00:3.50,38.50,3.50:color{1.00,1.00,1.00} material{Snow_Rock_Cliff,0.25}
+Block_Scalable_Editor:47.14,151.86,-166.52:0.00,0.00,0.00:3.50,31.50,3.50:color{1.00,1.00,1.00} material{Snow_Rock_Cliff,0.25}
+Block_Scalable_Editor:118.64,151.86,-166.52:0.00,0.00,0.00:3.50,31.50,3.50:color{1.00,1.00,1.00} material{Snow_Rock_Cliff,0.25}
+Block_Scalable_Editor:116.64,151.86,-288.52:0.00,0.00,0.00:3.50,31.50,3.50:color{1.00,1.00,1.00} material{Snow_Rock_Cliff,0.25}
+Ladder_Editor:47.27,160.63,-164.51:0.00,180.00,0.00:1.00,1.00,1.00: 
+Block_Scalable_Editor:55.05,151.86,-244.35:0.00,0.00,0.00:129.80,31.50,93.00:color{1.00,1.00,1.00} material{Metal_Floor_Other,0.25}
+Bridge_Chunk_Editor:68.55,181.64,-289.71:6.00,0.00,0.00:1.00,1.00,0.90: 
+Block_Scalable_Editor:67.55,189.43,-406.60:0.00,0.00,0.00:58.10,2.90,63.00:color{1.00,1.00,1.00} material{Asphalt_Closeup_Gray,0.25}
+Block_Scalable_Editor:39.11,192.33,-406.56:0.00,0.00,0.00:0.90,1.90,62.90:color{1.00,1.00,0.00}
+Block_Scalable_Editor:68.07,192.33,-437.54:0.00,90.00,0.00:0.90,1.90,57.40:color{1.00,1.00,0.00}
+Block_Scalable_Editor:96.50,192.33,-406.53:0.00,0.00,0.00:0.90,1.90,62.90:color{1.00,1.00,0.00}
+Block_Scalable_Editor:90.77,192.33,-375.53:0.00,90.00,0.00:0.90,1.90,11.20:color{1.00,1.00,0.00}
+Block_Scalable_Editor:45.23,192.33,-375.52:0.00,90.00,0.00:0.90,1.90,12.50:color{1.00,1.00,0.00}
+Pipe_Editor:39.14,194.23,-399.14:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:39.14,194.23,-404.04:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:39.14,194.23,-409.24:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:39.14,194.23,-415.44:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:39.14,194.23,-422.74:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:39.14,194.23,-429.45:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:39.14,194.23,-436.05:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:39.14,194.23,-437.65:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:44.54,194.23,-437.65:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:49.64,194.23,-437.65:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:55.54,194.23,-437.65:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:60.94,194.23,-437.65:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:67.74,194.23,-437.65:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:73.94,194.23,-437.65:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:80.44,194.23,-437.65:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:87.44,194.23,-437.65:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:94.24,194.23,-437.65:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:96.64,194.23,-437.65:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:96.64,194.23,-432.05:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:96.64,194.23,-425.64:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:96.64,194.23,-419.14:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:96.64,194.23,-411.54:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:96.64,194.23,-404.34:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:96.64,194.23,-397.34:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:96.64,194.23,-389.64:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:96.64,194.23,-382.24:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:96.64,194.23,-377.84:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:96.64,194.23,-375.74:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:86.44,194.23,-375.74:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:51.14,194.23,-375.74:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:46.04,194.23,-375.74:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:39.24,194.23,-375.74:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:39.24,194.23,-380.04:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:39.24,194.23,-384.54:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+Pipe_Editor:39.24,194.23,-391.54:0.00,270.00,270.00:0.50,0.10,0.10:color{0.80,0.80,0.80} material{MetalBare0212,0.01}
+FuseBox_Editor:53.69,191.65,-369.71:0.00,90.00,0.00:1.00,1.00,1.00: 
+Panorama_Object_Editor:14.67,-49.65,-210.65:0.00,180.00,0.00:100.30,150.65,114.80:color{1.00,1.00,1.00} material{sunflowers_4k,0.25}
+Decal_Planar_Editor:45.29,194.23,-375.80:0.00,0.00,0.00:11.90,5.20,1.00:color{1.00,1.00,1.00} material{Billboard_Fence,1.00}
+Decal_Planar_Editor:45.29,194.23,-375.80:0.00,180.00,0.00:11.90,5.20,1.00:color{1.00,1.00,1.00} material{Billboard_Fence,1.00}
+Decal_Planar_Editor:39.32,194.23,-406.37:0.00,270.00,0.00:62.20,5.20,1.00:color{1.00,1.00,1.00} material{Billboard_Fence,1.00}
+Decal_Planar_Editor:68.37,194.23,-437.58:0.00,180.00,0.00:56.80,5.20,1.00:color{1.00,1.00,1.00} material{Billboard_Fence,1.00}
+Decal_Planar_Editor:39.32,194.23,-406.37:0.00,90.00,0.00:62.20,5.20,1.00:color{1.00,1.00,1.00} material{Billboard_Fence,1.00}
+Decal_Planar_Editor:68.37,194.23,-437.58:0.00,0.00,0.00:56.80,5.20,1.00:color{1.00,1.00,1.00} material{Billboard_Fence,1.00}
+Decal_Planar_Editor:96.87,194.23,-406.98:0.00,270.00,0.00:62.20,5.20,1.00:color{1.00,1.00,1.00} material{Billboard_Fence,1.00}
+Decal_Planar_Editor:96.87,194.23,-406.98:0.00,90.00,0.00:62.20,5.20,1.00:color{1.00,1.00,1.00} material{Billboard_Fence,1.00}
+Bottle_Wine_Editor:82.50,187.41,-326.36:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:83.56,187.24,-324.74:0.00,0.00,0.00:1.00,1.00,1.00: 
+Box_Cardboard_Editor:83.54,187.31,-325.34:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tire_Barrier_Editor:68.67,188.07,-337.42:0.00,90.00,7.00:1.00,1.00,1.00: 
+Tire_Barrier_Editor:68.67,188.87,-343.82:0.00,90.00,7.00:1.00,1.00,1.00: 
+Tire_Barrier_Editor:68.67,189.57,-350.32:0.00,90.00,7.00:1.00,1.00,1.00: 
+Tire_Barrier_Editor:68.67,190.28,-356.62:0.00,90.00,7.00:1.00,1.00,1.00: 
+Tire_Barrier_Editor:68.67,191.28,-363.12:0.00,90.00,7.00:1.00,1.00,1.00: 
+Tire_Barrier_Editor:68.67,191.88,-369.82:0.00,90.00,7.00:1.00,1.00,1.00: 
+Block_Scalable_Editor:68.67,192.10,-374.28:0.00,0.00,0.00:2.20,2.00,1.90:color{0.72,0.72,0.69} material{Metal_Floor_Other,0.25}
+Alarm_Light_Editor:68.53,194.10,-374.37:0.00,0.00,0.00:1.00,1.00,1.00: 
+Block_Scalable_Editor:67.22,191.34,-403.81:0.00,0.00,0.00:0.20,1.00,45.60:color{1.00,1.00,1.00}
+Block_Scalable_Editor:66.71,191.34,-421.01:0.00,90.00,0.00:-0.20,1.00,14.70:color{1.00,1.00,1.00}
+Block_Scalable_Editor:66.71,191.34,-426.51:0.00,90.00,0.00:-0.20,1.00,14.70:color{1.00,1.00,1.00}
+Block_Scalable_Editor:66.71,191.34,-415.81:0.00,90.00,0.00:-0.20,1.00,14.70:color{1.00,1.00,1.00}
+Block_Scalable_Editor:66.71,191.34,-410.31:0.00,90.00,0.00:-0.20,1.00,14.70:color{1.00,1.00,1.00}
+Block_Scalable_Editor:66.71,191.34,-404.51:0.00,90.00,0.00:-0.20,1.00,14.70:color{1.00,1.00,1.00}
+Block_Scalable_Editor:66.71,191.34,-398.41:0.00,90.00,0.00:-0.20,1.00,14.70:color{1.00,1.00,1.00}
+Block_Scalable_Editor:67.47,191.34,-393.53:0.00,90.00,0.00:-0.20,1.00,14.70:color{1.00,1.00,1.00}
+Block_Scalable_Editor:66.77,191.34,-387.64:0.00,90.00,0.00:-0.20,1.00,14.70:color{1.00,1.00,1.00}
+Block_Scalable_Editor:66.71,191.34,-380.81:0.00,90.00,0.00:-0.20,1.00,14.70:color{1.00,1.00,1.00}
+Block_Scalable_Editor:43.69,191.34,-415.11:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:43.69,191.34,-419.21:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:43.69,191.34,-424.41:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:43.69,191.34,-432.01:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:43.69,191.34,-409.31:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:43.69,191.34,-402.41:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:43.69,191.34,-396.61:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:43.69,191.34,-390.90:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:43.69,191.34,-384.80:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:43.69,191.34,-378.90:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:91.36,191.34,-382.19:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Decal_Planar_Editor:91.37,194.03,-375.70:0.00,0.00,0.00:10.50,5.20,1.00:color{1.00,1.00,1.00} material{Billboard_Fence,1.00}
+Decal_Planar_Editor:91.37,194.03,-375.70:0.00,180.00,0.00:10.50,5.20,1.00:color{1.00,1.00,1.00} material{Billboard_Fence,1.00}
+Block_Scalable_Editor:91.36,191.34,-387.29:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:91.36,191.34,-392.79:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:91.36,191.34,-398.29:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:91.36,191.34,-405.59:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:91.36,191.34,-411.49:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:91.36,191.34,-419.59:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:91.36,191.34,-426.89:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Block_Scalable_Editor:91.36,191.34,-434.19:0.00,90.00,0.00:-0.20,1.00,10.00:color{1.00,1.00,1.00}
+Tree_Spruce_Editor:225.11,7.57,196.55:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:235.30,7.57,146.41:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:277.91,7.57,114.15:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:310.83,7.57,205.00:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:260.07,7.57,271.80:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:262.21,7.57,174.18:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Spruce_Editor:241.20,7.57,200.46:0.00,0.00,0.00:2.00,1.70,1.70: 
+Tree_Poplar_Editor:544.17,11.67,-13.03:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:532.73,11.67,59.03:0.00,0.00,0.00:2.20,2.20,2.20: 
+Tree_Poplar_Editor:647.22,11.67,-22.74:0.00,0.00,0.00:2.20,2.20,2.20: 
+Building11_Editor:680.10,10.98,175.72:0.00,90.00,0.00:1.00,1.00,1.00: 
+Building7_Editor:649.22,9.03,310.53:0.00,180.00,0.00:1.00,1.00,1.00: 
+Tree_Desert_Editor:800.49,8.75,-64.04:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:808.25,8.75,-101.02:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:815.31,8.75,-102.69:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:800.81,8.75,-105.98:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:801.05,8.75,-147.98:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:755.21,8.75,-158.77:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:779.97,8.75,-114.84:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:784.00,8.75,-61.79:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:779.42,8.75,-86.77:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:803.85,8.75,-75.23:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:801.56,8.75,-110.02:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:801.44,8.75,-92.44:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:804.41,8.75,-68.74:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:820.19,8.75,-68.85:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Desert_Editor:820.19,8.75,-68.85:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:322.55,132.28,-239.32:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:292.99,134.28,-234.82:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:338.68,128.28,-240.57:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:367.66,119.78,-239.26:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:417.56,100.28,-238.98:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:461.15,91.28,-239.81:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:497.38,79.28,-240.69:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:543.18,64.78,-237.07:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:584.65,55.78,-238.09:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:630.53,37.94,-237.31:0.00,0.00,0.00:0.50,0.50,0.50: 
+Tree_Spruce_Editor:673.75,28.44,-237.01:0.00,0.00,0.00:0.50,0.50,0.50: 
+Grass_Chunk_Editor:544.40,62.98,-301.67:0.00,0.00,0.00:1.00,1.00,1.00: 
+Grass_Chunk_Editor:512.88,71.98,-304.37:0.00,0.00,0.00:1.00,1.00,1.00: 
+Steam_Smoke_Editor:-92.43,11.32,278.80:270.00,350.00,0.00:43.70,44.30,54.10:color{0.00,0.00,0.00}
+Fire_Editor:-81.95,2.86,265.70:0.00,0.00,0.00:26.00,4.50,40.00: 
+Fire_Editor:-85.77,10.39,253.94:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-88.05,9.85,259.07:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-81.21,14.20,254.11:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-88.00,9.55,262.77:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-89.80,9.05,271.28:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-87.51,9.09,272.04:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-86.26,8.84,280.34:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-90.88,8.84,284.68:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-93.77,8.84,284.92:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-98.93,8.76,282.21:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-103.57,8.90,277.28:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-103.29,8.88,276.50:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-101.45,9.05,269.39:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-101.18,9.06,268.41:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-97.06,8.77,273.85:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-93.21,8.84,279.08:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-91.66,8.84,281.24:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-86.58,9.28,279.84:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-86.22,9.43,279.34:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-77.60,15.48,254.81:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-77.82,15.66,254.31:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-69.58,12.51,263.37:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-69.00,12.60,262.55:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-96.75,10.97,296.63:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-96.75,10.98,296.65:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-96.75,10.98,296.66:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-89.64,4.73,297.85:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-90.96,5.23,296.93:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-92.55,5.61,296.37:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-95.33,5.15,297.77:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-96.35,4.52,299.24:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-94.48,5.48,302.04:0.00,0.00,0.00:1.00,1.00,1.00: 
+Fire_Editor:-93.98,6.41,302.45:0.00,0.00,0.00:1.00,1.00,1.00: 
+Block_Scalable_Editor:0.92,182.83,-224.15:0.00,0.00,0.00:20.30,1.00,31.50:color{1.00,1.00,1.00} material{Wood_Parquet_Herringbone,0.25}
+Block_Scalable_Editor:0.42,183.53,-201.97:0.00,0.00,0.00:20.80,5.20,0.40:color{1.00,1.00,1.00} material{Brick_Small_Brown,0.25}
+Block_Scalable_Editor:-8.99,183.53,-205.07:0.00,0.00,0.00:1.30,5.20,5.80:color{1.00,1.00,1.00} material{Brick_Small_Brown,0.25}
+Door_Modern_Editor:2.19,183.83,-208.22:0.00,0.00,0.00:1.10,1.10,1.00:color{0.65,0.66,0.66}
+Table_Plastic_Editor:-2.91,183.53,-192.28:0.00,0.00,0.00:0.40,1.00,0.80:color{0.80,0.80,0.80}
+Table_Plastic_Editor:3.69,183.53,-192.66:0.00,0.00,0.00:0.40,1.00,0.80:color{0.80,0.80,0.80}
+Table_Plastic_Editor:4.41,183.53,-186.56:0.00,0.00,0.00:0.40,1.00,0.80:color{0.80,0.80,0.80}
+Table_Plastic_Editor:-2.76,183.53,-186.76:0.00,0.00,0.00:0.40,1.00,0.80:color{0.80,0.80,0.80}
+Table_Plastic_Editor:-3.06,183.53,-180.04:0.00,0.00,0.00:0.40,1.00,0.80:color{0.80,0.80,0.80}
+Table_Plastic_Editor:4.27,183.53,-180.22:0.00,0.00,0.00:0.40,1.00,0.80:color{0.80,0.80,0.80}
+Table_Plastic_Editor:4.56,183.53,-173.95:0.00,0.00,0.00:0.40,1.00,0.80:color{0.80,0.80,0.80}
+Table_Plastic_Editor:-3.49,183.53,-174.11:0.00,0.00,0.00:0.40,1.00,0.80:color{0.80,0.80,0.80}
+Tree_Poplar_Editor:30.29,184.36,-247.01:0.00,0.00,0.00:1.00,1.00,1.00: 
+Tree_Poplar_Editor:38.33,184.59,-241.17:0.00,0.00,0.00:1.00,1.00,1.00: 
+Point_Light_Editor:-3.44,185.23,-174.16:0.00,0.00,0.00:1.80,0.30,1.60:color{1.00,0.00,1.00} light{20,30,0,1}
+Block_Scalable_Editor:-3.33,185.38,-174.11:0.00,0.00,0.00:1.10,0.20,1.10:color{1.00,1.00,1.00} material{Grass0155_1,0.25}
+Tree_Palm_Editor:-3.37,185.58,-174.06:0.00,0.00,0.00:0.10,0.10,0.10: 
+Point_Light_Editor:-3.14,185.23,-180.07:0.00,0.00,0.00:1.80,0.30,1.60:color{1.00,0.00,1.00} light{20,30,0,1}
+Point_Light_Editor:-2.84,185.23,-186.67:0.00,0.00,0.00:1.80,0.30,1.60:color{1.00,0.00,1.00} light{20,30,0,1}
+Point_Light_Editor:-2.94,185.23,-192.17:0.00,0.00,0.00:1.80,0.30,1.60:color{1.00,0.00,1.00} light{20,30,0,1}
+Point_Light_Editor:3.56,185.23,-192.67:0.00,0.00,0.00:1.80,0.30,1.60:color{1.00,0.00,1.00} light{20,30,0,1}
+Point_Light_Editor:4.36,185.23,-186.37:0.00,0.00,0.00:1.80,0.30,1.60:color{1.00,0.00,1.00} light{20,30,0,1}
+Point_Light_Editor:4.26,185.23,-180.37:0.00,0.00,0.00:1.80,0.30,1.60:color{1.00,0.00,1.00} light{20,30,0,1}
+Point_Light_Editor:4.46,185.23,-173.96:0.00,0.00,0.00:1.80,0.30,1.60:color{1.00,0.00,1.00} light{20,30,0,1}
+Block_Scalable_Editor:-3.03,185.38,-179.91:0.00,0.00,0.00:1.10,0.20,1.10:color{1.00,1.00,1.00} material{Grass0155_1,0.25}
+Block_Scalable_Editor:-2.83,185.38,-186.61:0.00,0.00,0.00:1.10,0.20,1.10:color{1.00,1.00,1.00} material{Grass0155_1,0.25}
+Block_Scalable_Editor:-2.93,185.38,-192.11:0.00,0.00,0.00:1.10,0.20,1.10:color{1.00,1.00,1.00} material{Grass0155_1,0.25}
+Block_Scalable_Editor:3.41,185.38,-192.37:0.00,0.00,0.00:1.10,0.20,1.10:color{1.00,1.00,1.00} material{Grass0155_1,0.25}
+Block_Scalable_Editor:4.28,185.38,-186.36:0.00,0.00,0.00:1.10,0.20,1.10:color{1.00,1.00,1.00} material{Grass0155_1,0.25}
+Block_Scalable_Editor:4.19,185.38,-180.37:0.00,0.00,0.00:1.10,0.20,1.10:color{1.00,1.00,1.00} material{Grass0155_1,0.25}
+Block_Scalable_Editor:4.37,185.38,-173.91:0.00,0.00,0.00:1.10,0.20,1.10:color{1.00,1.00,1.00} material{Grass0155_1,0.25}
+Tree_Palm_Editor:-3.00,185.58,-179.88:0.00,0.00,0.00:0.10,0.10,0.10: 
+Tree_Palm_Editor:-2.71,185.58,-186.52:0.00,0.00,0.00:0.10,0.10,0.10: 
+Tree_Palm_Editor:-2.89,185.58,-192.00:0.00,0.00,0.00:0.10,0.10,0.10: 
+Tree_Palm_Editor:3.40,185.58,-192.47:0.00,0.00,0.00:0.10,0.10,0.10: 
+Tree_Palm_Editor:4.33,185.58,-186.45:0.00,0.00,0.00:0.10,0.10,0.10: 
+Tree_Palm_Editor:4.09,185.58,-180.40:0.00,0.00,0.00:0.10,0.10,0.10: 
+Tree_Palm_Editor:4.20,185.58,-173.94:0.00,0.00,0.00:0.10,0.10,0.10: 
+Building12_Editor:91.10,133.53,-201.80:0.00,270.00,0.00:1.00,0.10,1.00: 
+Chair_Plastic_Editor:-3.07,183.53,-194.46:0.00,0.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:-3.07,183.53,-188.46:0.00,0.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:-3.07,183.53,-181.46:0.00,0.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:-3.07,183.53,-175.96:0.00,0.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:3.93,183.53,-194.46:0.00,0.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:4.43,183.53,-187.96:0.00,0.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:4.43,183.53,-181.46:0.00,0.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:4.43,183.53,-174.96:0.00,0.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:4.47,183.53,-184.82:0.00,180.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:3.47,183.53,-190.82:0.00,180.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:3.97,183.53,-177.32:0.00,180.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:4.47,183.53,-171.32:0.00,180.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:-4.03,183.53,-172.32:0.00,180.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:-3.53,183.53,-178.32:0.00,180.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:-3.03,183.53,-184.82:0.00,180.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Chair_Plastic_Editor:-3.03,183.53,-190.82:0.00,180.00,0.00:1.00,1.00,1.00:color{0.80,0.80,0.80}
+Block_Scalable_Editor:61.78,182.73,-176.87:0.00,0.00,0.00:7.60,1.00,15.00:color{1.00,1.00,1.00} material{White_Tile_Bathroom,0.25}
+Block_Scalable_Editor:63.39,186.23,-177.07:0.00,180.00,90.00:7.60,1.00,15.00:color{1.00,1.00,1.00} material{Wood_Parquet_Strip,0.25}
+Block_Scalable_Editor:60.90,186.23,-183.68:0.00,90.00,270.00:7.60,1.00,5.80:color{1.00,1.00,1.00} material{Wood_Parquet_Strip,0.25}
+Block_Scalable_Editor:60.91,186.23,-169.20:0.00,90.00,270.00:7.60,1.00,5.80:color{1.00,1.00,1.00} material{Wood_Parquet_Strip,0.25}
+Block_Scalable_Editor:61.78,189.13,-176.87:0.00,0.00,0.00:7.60,1.00,15.00:color{1.00,1.00,1.00} material{Marble_Tiles_Wide,0.25}
+Npc_Char5_Editor:60.00,183.73,-176.78:0.00,270.00,357.00:1.00,1.00,1.00:animation{Idle}
+Block_Scalable_Editor:58.90,183.73,-176.92:0.00,0.00,0.00:1.90,1.60,14.10:color{1.00,1.00,1.00} material{White_Tile_Bathroom,0.25}
+Wooden_Plank_Editor:58.59,185.33,-177.05:0.00,0.00,0.00:1.40,1.00,1.10: 
+Wooden_Plank_Editor:62.22,185.33,-177.27:0.00,0.00,0.00:1.40,1.00,1.10: 
+Wooden_Plank_Editor:62.22,187.33,-177.27:0.00,0.00,0.00:1.40,1.00,1.10: 
+Money_Chunk_Editor:62.00,185.50,-181.88:0.00,0.00,0.00:1.00,1.00,1.00: 
+Money_Single_Editor:58.88,185.50,-177.01:0.00,0.00,0.00:1.00,1.00,1.00: 
+Money_Single_Editor:58.85,185.50,-174.29:0.00,0.00,0.00:1.00,1.00,1.00: 
+Money_Single_Editor:58.62,185.50,-177.36:0.00,0.00,0.00:1.00,1.00,1.00: 
+Money_Single_Editor:58.28,185.50,-178.58:0.00,0.00,0.00:1.00,1.00,1.00: 
+Money_Single_Editor:58.91,185.50,-179.39:0.00,0.00,0.00:1.00,1.00,1.00: 
+Money_Single_Editor:59.07,185.50,-180.23:0.00,0.00,0.00:1.00,1.00,1.00: 
+Money_Single_Editor:59.60,185.50,-181.81:0.00,0.00,0.00:1.00,1.00,1.00: 
+Money_Single_Editor:59.03,185.50,-182.76:0.00,0.00,0.00:1.00,1.00,1.00: 
+Money_Single_Editor:58.11,185.50,-173.97:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:61.99,185.50,-178.10:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:62.29,185.50,-179.26:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:62.06,185.50,-180.15:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:61.86,185.50,-176.76:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:61.66,185.50,-175.64:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:62.19,185.50,-173.22:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:62.11,185.50,-171.99:0.00,0.00,0.00:1.00,1.00,1.00: 
+Bottle_Wine_Editor:62.09,185.50,-170.90:0.00,0.00,0.00:1.00,1.00,1.00: 
+Radio_Editor:61.26,187.50,-181.65:0.00,270.00,0.00:1.00,1.00,1.00: 
+Spoon_Editor:62.03,187.50,-179.65:0.00,0.00,0.00:1.00,1.00,1.00: 
+Road_Barrier_Cone_Editor:61.70,187.50,-178.63:0.00,0.00,0.00:1.00,1.00,1.00: 
+Blocker_Editor:62.26,187.50,-176.75:0.00,0.00,0.00:1.00,1.00,1.00: 
+Box_Cardboard_Editor:61.87,187.45,-175.62:0.00,0.00,0.00:1.00,1.00,1.00: 
+Box_Cardboard_Editor:61.87,187.45,-173.82:0.00,0.00,0.00:1.00,1.00,1.00: 
+Box_Cardboard_Editor:61.87,187.45,-172.12:0.00,0.00,0.00:1.00,1.00,1.00: 
+Blackboard_Big_Editor:57.94,188.13,-177.77:0.00,90.00,0.00:1.00,1.00,1.00:<size=190><color=red>S</color><color=green>H</color><color=yellow>O</color><color=lightblue>P</color>
+Tree_Spruce_Editor:65.11,183.73,-182.97:0.00,0.00,0.00:0.10,0.10,0.10: 
+Tree_Spruce_Editor:65.07,183.73,-180.97:0.00,0.00,0.00:0.10,0.10,0.10: 
+Tree_Spruce_Editor:65.06,183.73,-178.36:0.00,0.00,0.00:0.10,0.10,0.10: 
+Tree_Spruce_Editor:64.87,183.73,-175.74:0.00,0.00,0.00:0.10,0.10,0.10: 
+Tree_Spruce_Editor:65.21,183.73,-170.96:0.00,0.00,0.00:0.10,0.10,0.10: 
+Trigger_Box_Editor:18.50,175.03,-197.00:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{role=builder}|outro{}|ban{builder cheat}|deactivate{}
+Trigger_Box_Editor:22.12,175.03,-189.88:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;rubika=0}|header{<color=yellow>ﺪﯾﻮﺷ ﻞﻨﭼ ﺩﺭﺍﻭ ﺕﺎﻐﯿﻠﺒﺗ ﻑﺬﺣ ﯼﺍﺮﺑ</color>}|webrequest{https;rubika.ir/lac_prime}|cooldown{15}
+Trigger_Box_Editor:27.13,174.35,-185.05:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|inventory{add*rubika*0}|deactivate{}
+Trigger_Box_Editor:20.45,175.03,-184.97:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;rubika=0&&chat=(private)dollar200}|inventory{del*rubika}|header{<color=lime>️✅ﺪﺷ ﻑﺬﺣ ﺕﺎﻐﯿﻠﺒﺗ</color>}|deactivate{}
+Trigger_Box_Editor:-45.00,116.89,-155.91:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;mobile=0}|player{nophone}
+Trigger_Box_Editor:-44.48,116.89,-153.28:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|inventory{add*mobile*0}|deactivate{}
+Trigger_Box_Editor:-6.39,184.73,-212.24:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|inventory{add*key*+1}|tip{1 کلید پیدا کردید}|draw{key}|deactivate{}
+Trigger_Box_Editor:91.07,193.83,-430.58:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|draw{halo}|draw{car1}|player{spawn&drive*Chevelle}
+Building18_Editor:3.67,-3.32,1531.93:0.00,0.00,0.00:1.00,1.00,1.00: 
+Building18_Editor:0.54,-3.32,1655.05:0.00,0.00,0.00:1.00,1.00,1.00: 
+Container_Open_Editor:-10.68,145.72,1551.09:0.00,90.00,0.00:1.10,1.10,1.00: 
+Container_Open_Editor:16.95,145.72,1552.34:0.00,90.00,0.00:1.10,1.10,1.00: 
+Container_Open_Editor:16.57,145.72,1635.87:0.00,90.00,0.00:1.10,1.10,1.00: 
+Container_Open_Editor:-15.03,145.72,1635.59:0.00,90.00,0.00:1.10,1.10,1.00: 
+WoodenFance_Editor:2.97,145.72,1532.37:0.00,90.00,0.00:1.00,1.00,1.00: 
+WoodenFance_Editor:2.60,145.72,1649.33:0.00,270.00,0.00:1.00,1.00,1.00: 
+Block_Scalable_Editor:23.17,183.53,-239.57:0.00,0.00,0.00:3.00,4.35,3.25:color{1.00,1.00,1.00} material{Paul_Pavment,0.25}
+Door_Elevator_Editor:22.20,183.56,-237.92:0.00,0.00,0.00:1.00,1.00,1.00: 
+Trigger_Box_Editor:23.09,184.77,-236.47:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|ifcondition{inventory;key>1}|tip{شما با موفقیت وارد فایت روم شدید}|camsequence{10;-122.12, 89.50, 676.22;10.08, 0.80, 0.00}|draw{halo2}|cooldown{360}
+Trigger_Box_Editor:23.51,184.77,-236.50:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|ifcondition{inventory;key<2}|tip{شما کلید کافی برای ورود به فایت روم ندارید}|cooldown{2}
+Trigger_Box_Editor:18.33,184.43,-239.55:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|inventory{add*key*0}|deactivate{}
+Block_Scalable_Editor:-122.35,71.64,683.16:0.00,0.00,0.00:13.40,28.40,1.00:color{0.00,0.00,0.00}
+UI_Scalable_Editor:-121.87,91.93,681.93:0.00,0.00,0.00:3.50,7.20,1.00:https;//cdn.imgurl.ir/uploads/u562235_InShot__.jpg
+UI_Scalable_Editor:-121.87,85.83,681.93:0.00,0.00,0.00:3.50,7.20,1.00:https;//cdn.imgurl.ir/uploads/i992025_InShot__.jpg
+UI_Scalable_Editor:-121.87,78.03,681.93:0.00,0.00,0.00:3.50,7.20,1.00:https;//cdn.imgurl.ir/uploads/k8939_InShot__.jpg
+Trigger_Box_Editor:-116.69,85.77,682.66:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|camsequence{10;-122.02, 95.11, 676.80;3.68, 0.00, 0.00}|deactivate{}
+Trigger_Box_Editor:-122.04,88.91,682.02:0.00,0.00,0.00:2.20,1.10,3.00:mode{onclick}|player{team*blue}|inventory{add*blue*1}|teleport{3.27, 145.31, 1528.05}
+Trigger_Box_Editor:1.44,184.43,-235.24:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;blue=0}|setspawn{1.14, 183.43, -235.57}
+Trigger_Box_Editor:3.79,184.43,-235.21:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;red=0}|setspawn{1.14, 183.43, -235.57}
+Trigger_Box_Editor:3.09,146.74,1529.52:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|ifcondition{inventory;blue=1}|inventory{add*jonb*3}|cooldown{360}
+Trigger_Box_Editor:-2.56,147.47,1527.94:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;jonb>0}|setspawn{3.27, 145.31, 1528.05}
+Trigger_Box_Editor:-0.24,147.47,1524.40:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;jonb=0}|setspawn{1.14, 183.43, -235.57}
+Trigger_Box_Editor:-122.04,86.66,682.02:0.00,0.00,0.00:2.20,1.10,3.00:mode{onclick}|player{team*red}|inventory{add*red*1}|teleport{2.34, 146.32, 1649.88}
+Trigger_Box_Editor:2.91,146.74,1652.13:0.00,0.00,0.00:3.00,3.00,3.00:mode{enter}|ifcondition{inventory;red=1}|inventory{add*jonr*3}|cooldown{360}
+Trigger_Box_Editor:-3.76,147.47,1531.94:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;jonr>0}|setspawn{2.34, 146.32, 1649.88}
+Trigger_Box_Editor:10.05,147.47,1517.52:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;jonr=0}|setspawn{1.14, 183.43, -235.57}
+Trigger_Box_Editor:6.89,147.47,1523.18:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;jonr>-1&&health=0}|inventory{add*jonr*-1}|cooldown{10}
+Trigger_Box_Editor:10.96,147.47,1523.35:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;jonb>-1&&health=0}|inventory{add*jonr*-1}|cooldown{10}
+Trigger_Box_Editor:14.34,183.53,-208.18:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|inventory{add*gun*0}|deactivate{}
+Trigger_Box_Editor:18.85,183.53,-207.69:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;jonr>0}|inventory{add*gun*1}
+Trigger_Box_Editor:18.85,186.53,-207.69:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;jonb>0}|inventory{add*gun*1}
+Trigger_Box_Editor:21.85,186.53,-207.69:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;jonb=0}|inventory{add*gun*0}
+Trigger_Box_Editor:21.85,183.33,-207.69:0.00,0.00,0.00:3.00,3.00,3.00:mode{loop}|ifcondition{inventory;jonr=0}|inventory{add*gun*0}
+Spawn_Point_Editor:1.14,183.68,-236.74:0.00,0.00,0.00:1.00,1.00,1.00: 
+
 
