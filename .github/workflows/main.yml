@@ -11,6 +11,7 @@ on:
           - start
           - setup
         default: start
+
       slot:
         description: "Server slot (ignored for setup)"
         required: true
@@ -37,6 +38,7 @@ env:
   PLAYIT_AGENT_URL: "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-linux-amd64"
 
 jobs:
+
   setup:
     if: ${{ inputs.mode == 'setup' }}
     runs-on: ubuntu-latest
@@ -85,7 +87,7 @@ jobs:
             rm -rf "$HOME/.config/playit_gg" "$HOME/.config/playit" 2>/dev/null || true
             mkdir -p "$HOME/.config/playit_gg"
             CLAIM_CODE=$("$GITHUB_WORKSPACE/playit-cli" claim generate 2>/dev/null | tr -d '\r\n' || true)
-            [ -n "$CLAIM_CODE" ] && [ ${#CLAIM_CODE} -ge 8 ] || { echo "claim generate failed"; exit 1; }
+            if [ -z "$CLAIM_CODE" ] || [ ${#CLAIM_CODE} -lt 8 ]; then echo "claim generate failed"; exit 1; fi
             CLAIM_URL=$("$GITHUB_WORKSPACE/playit-cli" claim url "$CLAIM_CODE" --name "lac-slot-$SLOT_HINT" --type "docker" 2>/dev/null | grep -oE 'https://playit\.gg/claim/[A-Za-z0-9_-]+' || true)
             [ -z "$CLAIM_URL" ] && CLAIM_URL="https://playit.gg/claim/$CLAIM_CODE"
             echo "Open: $CLAIM_URL"
@@ -116,6 +118,7 @@ jobs:
     timeout-minutes: 350
     env:
       SLOT: ${{ inputs.slot }}
+
     steps:
       - name: Configure server slot
         id: config
@@ -145,13 +148,13 @@ jobs:
           set -e
           [ -n "$DASHBOARD_TOKEN" ] || { echo "DASHBOARD_TOKEN missing"; exit 1; }
           case "$SLOT" in
-            1) S="$PLAYIT_SECRET_1" ;;
-            2) S="$PLAYIT_SECRET_2" ;;
-            3) S="$PLAYIT_SECRET_3" ;;
-            4) S="$PLAYIT_SECRET_4" ;;
+            1) PLAYIT_SECRET="$PLAYIT_SECRET_1" ;;
+            2) PLAYIT_SECRET="$PLAYIT_SECRET_2" ;;
+            3) PLAYIT_SECRET="$PLAYIT_SECRET_3" ;;
+            4) PLAYIT_SECRET="$PLAYIT_SECRET_4" ;;
           esac
-          [ -n "$S" ] || { echo "PLAYIT_SECRET_$SLOT missing"; exit 1; }
-          echo "::add-mask::$S"
+          [ -n "$PLAYIT_SECRET" ] || { echo "PLAYIT_SECRET_$SLOT missing"; exit 1; }
+          echo "::add-mask::$PLAYIT_SECRET"
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -231,15 +234,13 @@ jobs:
         run: |
           set -e
           [ -f "$GITHUB_WORKSPACE/ServerConfig.txt" ] || { echo "ServerConfig.txt missing"; exit 1; }
-          [ -f "$GITHUB_WORKSPACE/Prime.txt" ] || { echo "Prime.txt missing in repo root"; exit 1; }
+          [ -f "$GITHUB_WORKSPACE/Prime.txt" ] || { echo "Prime.txt missing"; exit 1; }
           sudo mkdir -p /root/.config/unity3d/MA/LAC/editor
           sudo cp "$GITHUB_WORKSPACE/ServerConfig.txt" /root/.config/unity3d/MA/LAC/ServerConfig.txt
           sudo cp "$GITHUB_WORKSPACE/Prime.txt" /root/.config/unity3d/MA/LAC/editor/Prime.txt
           sudo chmod 644 /root/.config/unity3d/MA/LAC/ServerConfig.txt /root/.config/unity3d/MA/LAC/editor/Prime.txt
           sudo chown -R root:root /root/.config/unity3d/MA/LAC
-          sudo ls -la /root/.config/unity3d/MA/LAC/
-          sudo ls -la /root/.config/unity3d/MA/LAC/editor/
-          sudo cat /root/.config/unity3d/MA/LAC/ServerConfig.txt
+          echo "✅ Prime.txt is now in editor/ folder"
 
       - name: Start L.A. Crimes as root
         run: |
@@ -253,8 +254,8 @@ jobs:
             tail -300 "$GITHUB_WORKSPACE/lac-server.log" || true
             exit 1
           fi
-          echo "Game PID=$(cat "$GITHUB_WORKSPACE/lac.pid")"
-          sudo ls -la /root/.config/unity3d/MA/LAC/editor/
+          echo "Game running PID=$(cat "$GITHUB_WORKSPACE/lac.pid")"
+          echo "map should be editor:Prime"
 
       - name: Download Playit agent
         run: |
@@ -319,7 +320,7 @@ jobs:
           while true; do
             kill -0 "$(cat "$GITHUB_WORKSPACE/lac.pid")" 2>/dev/null || { tail -100 "$GITHUB_WORKSPACE/lac-server.log"; exit 1; }
             kill -0 "$(cat "$GITHUB_WORKSPACE/playit.pid")" 2>/dev/null || { cat "$GITHUB_WORKSPACE/playit.log"; exit 1; }
-            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT ONLINE map=editor:Prime"
+            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT ONLINE"
             sleep 10
           done
 
