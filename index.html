@@ -3,68 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HPanel - HerculePanel</title>
+  <title>HPanel</title>
   <style>
-    :root {
-      --bg:#06070b; --border:rgba(255,255,255,.12); --text:#f3f5f8; --muted:#9aa3b2;
-      --green:#2fe28a; --red:#ff5f6d; --yellow:#ffc857; --blue:#6ea8ff;
-      --shadow:0 25px 60px rgba(0,0,0,.55); --radius:22px;
-    }
+    :root{--bg:#06070b;--border:rgba(255,255,255,.12);--text:#f3f5f8;--muted:#9aa3b2;--green:#2fe28a;--red:#ff5f6d;--yellow:#ffc857;--blue:#6ea8ff;--shadow:0 25px 60px rgba(0,0,0,.55);--radius:22px}
     *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;font-family:Inter,system-ui,sans-serif;color:var(--text);
-      background:radial-gradient(circle at 15% 10%,rgba(80,110,255,.16),transparent 35%),radial-gradient(circle at 85% 20%,rgba(47,226,138,.1),transparent 32%),var(--bg)}
+    body{margin:0;min-height:100vh;font-family:Inter,system-ui,sans-serif;color:var(--text);background:radial-gradient(circle at 15% 10%,rgba(80,110,255,.16),transparent 35%),radial-gradient(circle at 85% 20%,rgba(47,226,138,.1),transparent 32%),var(--bg)}
     .login-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(4,5,8,.72);backdrop-filter:blur(18px);transition:.45s}
     .login-modal.hidden{opacity:0;visibility:hidden;pointer-events:none}
-    .login-card{width:min(420px,calc(100% - 32px));padding:32px 28px;border-radius:28px;border:1px solid var(--border);
-      background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.03));box-shadow:var(--shadow);text-align:center}
-    .login-card h1{margin:0 0 8px;font-size:28px}
-    .login-card p{margin:0 0 20px;color:var(--muted);font-size:14px}
-    .login-input{width:100%;padding:14px 16px;margin-bottom:14px;border-radius:14px;border:1px solid var(--border);background:rgba(0,0,0,.35);color:var(--text);outline:none}
-    .btn{border:0;cursor:pointer;font-weight:700;border-radius:14px;padding:12px 16px;color:#fff;
-      box-shadow:0 6px 0 rgba(0,0,0,.35),0 12px 24px rgba(0,0,0,.25)}
-    .btn:active:not(:disabled){transform:translateY(4px)}
+    .login-card{width:min(420px,calc(100% - 32px));padding:32px 28px;border-radius:28px;border:1px solid var(--border);background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.03));box-shadow:var(--shadow);text-align:center}
+    .login-card h1{margin:0 0 8px}
+    .login-card p{margin:0 0 18px;color:var(--muted);font-size:14px}
+    .login-input,.path-input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--border);background:rgba(0,0,0,.35);color:var(--text);outline:none}
+    .login-input{margin-bottom:12px}
+    .btn{border:0;cursor:pointer;font-weight:700;border-radius:14px;padding:11px 14px;color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.35),0 12px 22px rgba(0,0,0,.22)}
+    .btn:active:not(:disabled){transform:translateY(3px)}
     .btn:disabled{opacity:.45;cursor:not-allowed}
     .btn-blue{background:linear-gradient(180deg,#82b6ff,#4d8dff)}
     .btn-green{background:linear-gradient(180deg,#4ef0a2,#1fc975);color:#052016}
     .btn-red{background:linear-gradient(180deg,#ff8a94,#e84555)}
-    .btn-glass{background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text)}
     .btn-yellow{background:linear-gradient(180deg,#ffd67a,#f0b429);color:#2a1d00}
-    .app{width:min(1180px,calc(100% - 30px));margin:auto;padding:36px 0 80px;opacity:0;transform:translateY(12px);transition:.5s;pointer-events:none}
+    .btn-glass{background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text)}
+    .app{width:min(1180px,calc(100% - 30px));margin:auto;padding:34px 0 80px;opacity:0;transform:translateY(12px);transition:.45s;pointer-events:none}
     .app.visible{opacity:1;transform:none;pointer-events:auto}
-    .hero{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+    .hero{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
     .hero h1{margin:0;font-size:clamp(28px,5vw,44px)}
     .hero p{margin:6px 0 0;color:var(--muted)}
     .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
     .tab{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;font-weight:700}
     .tab.active{color:var(--text);background:rgba(110,168,255,.15);border-color:rgba(110,168,255,.4)}
     .view{display:none}.view.active{display:block}
-    .panel{padding:18px;margin-bottom:18px;border-radius:var(--radius);border:1px solid var(--border);
-      background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));box-shadow:var(--shadow)}
-    .servers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-    .card{padding:18px;border-radius:var(--radius);border:1px solid var(--border);background:rgba(255,255,255,.04)}
+    .panel{padding:18px;margin-bottom:16px;border-radius:var(--radius);border:1px solid var(--border);background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));box-shadow:var(--shadow)}
+    .servers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .card{padding:16px;border-radius:var(--radius);border:1px solid var(--border);background:rgba(255,255,255,.04)}
     .card.online{border-color:rgba(47,226,138,.45);background:linear-gradient(155deg,rgba(47,226,138,.16),rgba(255,255,255,.03))}
-    .row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
     .muted{color:var(--muted);font-size:13px}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
     .box{padding:10px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.06);font-size:13px;word-break:break-word}
     .actions{display:flex;gap:8px}.actions .btn{flex:1}
-    .fm{display:grid;grid-template-columns:300px 1fr;gap:14px;min-height:540px}
+    .fm{display:grid;grid-template-columns:260px 1fr;gap:12px;min-height:560px}
     .fm-side,.fm-main{border:1px solid var(--border);border-radius:16px;background:rgba(0,0,0,.22);overflow:hidden}
-    .fm-side{padding:12px;overflow:auto}
+    .fm-side{padding:10px}
     .fm-item{padding:9px 10px;border-radius:10px;cursor:pointer;font-size:13px}
     .fm-item:hover{background:rgba(255,255,255,.06)}
     .fm-item.active{background:rgba(110,168,255,.15)}
-    .fm-toolbar{display:flex;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
-    .fm-toolbar span{margin-right:auto;color:var(--muted);font-size:13px}
-    #fmEditor{width:100%;min-height:480px;border:0;resize:vertical;padding:14px;background:transparent;color:var(--text);
-      font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.45;outline:none}
-    .slot-picker{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-    .slot-btn{padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;font-weight:700}
-    .slot-btn.active{color:#052016;background:linear-gradient(180deg,#4ef0a2,#1fc975);border-color:transparent}
+    .fm-toolbar{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+    .fm-toolbar span{margin-right:auto;font-size:13px;color:var(--muted)}
+    #fmEditor{width:100%;min-height:500px;border:0;resize:vertical;padding:14px;background:transparent;color:var(--text);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.45;outline:none}
     .toast-box{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2000;width:min(420px,calc(100% - 28px))}
-    .toast{margin-top:8px;padding:12px 14px;border-radius:14px;border:1px solid var(--border);background:rgba(18,20,28,.9);font-weight:600;font-size:14px}
-    .toast.ok{color:#9dffc9}.toast.err{color:#ffb0b7}.toast.info{color:#c5dbff}
-    .footer{margin-top:28px;text-align:center;color:#5d6572;font-size:12px}
+    .toast{margin-top:8px;padding:12px 14px;border-radius:14px;border:1px solid var(--border);background:rgba(18,20,28,.92);font-weight:600;font-size:14px}
+    .ok{color:#9dffc9}.err{color:#ffb0b7}.info{color:#c5dbff}
+    .footer{margin-top:26px;text-align:center;color:#5d6572;font-size:12px}
     @media(max-width:900px){.servers,.fm{grid-template-columns:1fr}}
   </style>
 </head>
@@ -72,7 +60,7 @@
 <div id="loginModal" class="login-modal">
   <div class="login-card">
     <h1>HPanel</h1>
-    <p>GitHub token required</p>
+    <p>Enter your GitHub token</p>
     <input id="tokenInput" class="login-input" type="password" placeholder="github_pat_...">
     <button class="btn btn-blue" style="width:100%" onclick="connectGitHub()">Unlock</button>
   </div>
@@ -82,14 +70,14 @@
   <div class="hero">
     <div>
       <h1>HPanel</h1>
-      <p>Servers + temporary runner file manager</p>
+      <p>Servers · edit ServerConfig.txt and Prime.txt in the repo</p>
     </div>
     <div class="muted" id="connectionText">Connected</div>
   </div>
 
   <div class="tabs">
     <button class="tab active" onclick="switchView('servers')">Servers</button>
-    <button class="tab" onclick="switchView('files')">Runner Files</button>
+    <button class="tab" onclick="switchView('files')">File editor</button>
     <button class="tab" onclick="switchView('setup')">Setup</button>
   </div>
 
@@ -103,25 +91,17 @@
 
   <div id="view-files" class="view">
     <div class="panel">
-      <h2 style="margin-top:0">Temporary runner file manager</h2>
-      <p class="muted">
-        While a server is online, the workflow uploads a snapshot of the runner
-        (<code>/root/.config/unity3d/MA/LAC/</code>, game dir listing, logs) into the Gist every 30s.
-        Pick a slot and browse those files here to compare with your working local server.
-      </p>
-      <div class="slot-picker">
-        <button class="slot-btn active" onclick="loadRuntime(1)">Slot 1</button>
-        <button class="slot-btn" onclick="loadRuntime(2)">Slot 2</button>
-        <button class="slot-btn" onclick="loadRuntime(3)">Slot 3</button>
-        <button class="slot-btn" onclick="loadRuntime(4)">Slot 4</button>
-        <button class="btn btn-glass" onclick="loadRuntime(currentSlot)">Reload snapshot</button>
-      </div>
-      <div id="runtimeMeta" class="muted" style="margin-bottom:10px">No snapshot loaded</div>
+      <h2 style="margin-top:0">Repo file editor</h2>
+      <p class="muted">Edits files in the GitHub repo. Next server start copies them to <code>/root/.config/unity3d/MA/LAC/</code>. Token needs <b>repo contents write</b>.</p>
       <div class="fm">
-        <div class="fm-side" id="fmList"><div class="muted" style="padding:12px">Select a slot</div></div>
+        <div class="fm-side" id="fmList"></div>
         <div class="fm-main">
-          <div class="fm-toolbar"><span id="fmLabel">No file selected</span></div>
-          <textarea id="fmEditor" readonly placeholder="Select a file from the left…"></textarea>
+          <div class="fm-toolbar">
+            <span id="fmLabel">No file selected</span>
+            <button class="btn btn-glass" onclick="loadRepoFile(currentFile)">Reload</button>
+            <button class="btn btn-green" onclick="saveRepoFile()">Save to repo</button>
+          </div>
+          <textarea id="fmEditor" spellcheck="false" placeholder="Select a file…"></textarea>
         </div>
       </div>
     </div>
@@ -130,11 +110,10 @@
   <div id="view-setup" class="view">
     <div class="panel">
       <h2 style="margin-top:0">Playit setup</h2>
-      <p class="muted">Creates missing PLAYIT secrets via claim links in Actions.</p>
+      <p class="muted">Creates missing PLAYIT secrets. Check the Actions log for claim links.</p>
       <button class="btn btn-yellow" onclick="runSetup()">Run Playit Setup</button>
     </div>
   </div>
-
   <div class="footer">HerculePanel © 2026</div>
 </div>
 <div class="toast-box" id="toasts"></div>
@@ -147,53 +126,40 @@ const CONFIG = {
   gistId: "cb2aaaece7a231ec707429d41e1457f4",
   gistFile: "servers.json",
   branch: "main",
-  api: "https://api.github.com"
+  api: "https://api.github.com",
+  files: ["ServerConfig.txt", "Prime.txt"]
 };
 
 let githubToken = "";
 let serversData = null;
-let currentSlot = 1;
-let runtimeData = null;
+let currentFile = "ServerConfig.txt";
+let fileSha = {};
 
 function toast(msg, type="info") {
   const el = document.createElement("div");
-  el.className = `toast ${type === "error" ? "err" : type === "success" ? "ok" : "info"}`;
+  el.className = `toast ${type==="error"?"err":type==="success"?"ok":"info"}`;
   el.textContent = msg;
   document.getElementById("toasts").appendChild(el);
   setTimeout(() => el.remove(), 3500);
 }
-
-function setCookie(token) {
-  document.cookie = `github_token=${encodeURIComponent(token)}; path=/; max-age=${30*24*60*60}; SameSite=Lax`;
-}
-function getCookie() {
-  const row = document.cookie.split("; ").find(r => r.startsWith("github_token="));
-  return row ? decodeURIComponent(row.split("=")[1] || "") : "";
-}
-
+function setCookie(token){ document.cookie = `github_token=${encodeURIComponent(token)}; path=/; max-age=${30*24*60*60}; SameSite=Lax`; }
+function getCookie(){ const r=document.cookie.split("; ").find(x=>x.startsWith("github_token=")); return r?decodeURIComponent(r.split("=")[1]||""):""; }
 async function api(path, options={}) {
-  const headers = {
-    "Accept": "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-    ...(options.headers || {})
-  };
+  const headers = {"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(options.headers||{})};
   if (githubToken) headers.Authorization = `Bearer ${githubToken}`;
   return fetch(`${CONFIG.api}${path}`, {...options, headers});
 }
-
-function switchView(name) {
-  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach((t,i) => {
-    const map = ["servers","files","setup"];
-    t.classList.toggle("active", map[i] === name);
-  });
+function switchView(name){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active", ["servers","files","setup"][i]===name));
   document.getElementById(`view-${name}`).classList.add("active");
-  if (name === "files") loadRuntime(currentSlot);
+  if (name==="files") { renderFileList(); loadRepoFile(currentFile); }
 }
+function esc(s){ return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
 
-async function connectGitHub() {
+async function connectGitHub(){
   const token = document.getElementById("tokenInput").value.trim() || getCookie();
-  if (!token) return toast("Enter token", "error");
+  if (!token) return toast("Enter token","error");
   githubToken = token;
   try {
     const r = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}`);
@@ -203,16 +169,13 @@ async function connectGitHub() {
     setCookie(token);
     document.getElementById("loginModal").classList.add("hidden");
     document.getElementById("app").classList.add("visible");
-    toast("Unlocked", "success");
+    toast("Unlocked","success");
     refreshDashboard();
     setInterval(refreshDashboard, 10000);
-  } catch (e) {
-    githubToken = "";
-    toast(e.message || "Auth failed", "error");
-  }
+  } catch(e){ githubToken=""; toast(e.message||"Auth failed","error"); }
 }
 
-async function loadServers() {
+async function loadServers(){
   const res = await api(`/gists/${CONFIG.gistId}`);
   if (!res.ok) throw new Error("Gist read failed");
   const data = await res.json();
@@ -222,153 +185,115 @@ async function loadServers() {
   if (file.truncated && file.raw_url) content = await (await fetch(file.raw_url)).text();
   return JSON.parse(content);
 }
-
-function esc(s) {
-  return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-}
-
-function renderServers(data) {
+function renderServers(data){
   serversData = data;
   const root = document.getElementById("servers");
   root.innerHTML = "";
-  [...data.servers].sort((a,b)=>a.slot-b.slot).forEach(server => {
-    const status = String(server.status || "offline").toLowerCase();
+  [...data.servers].sort((a,b)=>a.slot-b.slot).forEach(server=>{
+    const status = String(server.status||"offline").toLowerCase();
     const card = document.createElement("div");
-    card.className = `card ${status === "online" ? "online" : ""}`;
+    card.className = `card ${status==="online"?"online":""}`;
     card.innerHTML = `
-      <div class="row">
-        <div>
-          <div style="font-size:20px;font-weight:700">Server ${esc(server.slot)}</div>
-          <div class="muted">Status: ${esc(status)}</div>
-        </div>
-      </div>
+      <div style="font-size:20px;font-weight:700">Server ${esc(server.slot)}</div>
+      <div class="muted">${esc(status)} · map editor:Prime</div>
       <div class="grid2">
-        <div class="box"><div class="muted">Endpoint</div>${esc(server.endpoint || "—")}</div>
-        <div class="box"><div class="muted">IP</div>${esc(server.ip || "—")}</div>
-        <div class="box"><div class="muted">Local UDP</div>${esc(server.port || "—")}</div>
-        <div class="box"><div class="muted">Run ID</div>${esc(server.run_id || "—")}</div>
+        <div class="box"><div class="muted">Endpoint</div>${esc(server.endpoint||"—")}</div>
+        <div class="box"><div class="muted">IP</div>${esc(server.ip||"—")}</div>
+        <div class="box"><div class="muted">Local UDP</div>${esc(server.port||"—")}</div>
+        <div class="box"><div class="muted">Run ID</div>${esc(server.run_id||"—")}</div>
       </div>
       <div class="actions">
-        <button class="btn btn-green" ${status !== "offline" ? "disabled" : ""} onclick="startServer(${Number(server.slot)})">Turn ON</button>
-        <button class="btn btn-red" ${status === "offline" ? "disabled" : ""} onclick="stopServer(${Number(server.slot)})">Turn OFF</button>
+        <button class="btn btn-green" ${status!=="offline"?"disabled":""} onclick="startServer(${Number(server.slot)})">Turn ON</button>
+        <button class="btn btn-red" ${status==="offline"?"disabled":""} onclick="stopServer(${Number(server.slot)})">Turn OFF</button>
       </div>`;
     root.appendChild(card);
   });
 }
-
-async function refreshDashboard() {
+async function refreshDashboard(){
   if (!githubToken) return;
   try { renderServers(await loadServers()); }
-  catch (e) { toast(e.message || "Refresh failed", "error"); }
+  catch(e){ toast(e.message||"Refresh failed","error"); }
 }
-
-async function startServer(slot) {
-  toast(`Server ${slot} queued…`, "info");
-  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/${encodeURIComponent(CONFIG.workflow)}/dispatches`, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ ref: CONFIG.branch, inputs: { mode: "start", slot: String(slot) } })
+async function startServer(slot){
+  toast(`Server ${slot} queued…`,"info");
+  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/${encodeURIComponent(CONFIG.workflow)}/dispatches`,{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ref:CONFIG.branch, inputs:{mode:"start", slot:String(slot)}})
   });
-  if (!res.ok) return toast(`Start failed (${res.status})`, "error");
-  toast(`Server ${slot} starting`, "success");
+  if (!res.ok) return toast(`Start failed (${res.status})`,"error");
+  toast(`Server ${slot} starting`,"success");
   setTimeout(refreshDashboard, 2500);
 }
-
-async function stopServer(slot) {
-  const server = serversData?.servers?.find(s => Number(s.slot) === Number(slot));
-  if (!server?.run_id) return toast("No run id", "error");
+async function stopServer(slot){
+  const server = serversData?.servers?.find(s=>Number(s.slot)===Number(slot));
+  if (!server?.run_id) return toast("No run id","error");
   if (!confirm(`Stop server ${slot}?`)) return;
-  toast(`Stopping ${slot}…`, "info");
-  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/actions/runs/${encodeURIComponent(server.run_id)}/cancel`, { method: "POST" });
-  if (!res.ok && res.status !== 409) return toast(`Stop failed (${res.status})`, "error");
-  toast(`Stop requested for ${slot}`, "success");
+  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/actions/runs/${encodeURIComponent(server.run_id)}/cancel`,{method:"POST"});
+  if (!res.ok && res.status!==409) return toast(`Stop failed (${res.status})`,"error");
+  toast(`Stop requested for ${slot}`,"success");
   setTimeout(refreshDashboard, 3000);
 }
-
-async function runSetup() {
+async function runSetup(){
   if (!confirm("Run Playit setup?")) return;
-  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/${encodeURIComponent(CONFIG.workflow)}/dispatches`, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ ref: CONFIG.branch, inputs: { mode: "setup", slot: "1" } })
+  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/${encodeURIComponent(CONFIG.workflow)}/dispatches`,{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ref:CONFIG.branch, inputs:{mode:"setup", slot:"1"}})
   });
-  if (!res.ok) return toast(`Setup failed (${res.status})`, "error");
-  toast("Setup started — check Actions log", "success");
+  if (!res.ok) return toast(`Setup failed (${res.status})`,"error");
+  toast("Setup started","success");
 }
 
-async function loadRuntime(slot) {
-  currentSlot = slot;
-  document.querySelectorAll(".slot-btn").forEach((b, i) => {
-    if (i < 4) b.classList.toggle("active", i + 1 === slot);
-  });
+function renderFileList(){
   const list = document.getElementById("fmList");
-  const meta = document.getElementById("runtimeMeta");
-  list.innerHTML = `<div class="muted" style="padding:12px">Loading slot ${slot}…</div>`;
-  document.getElementById("fmEditor").value = "";
-  document.getElementById("fmLabel").textContent = "No file selected";
-
-  try {
-    const res = await api(`/gists/${CONFIG.gistId}`);
-    if (!res.ok) throw new Error("Gist read failed");
-    const data = await res.json();
-    const fname = `runtime-${slot}.json`;
-    const file = data.files?.[fname];
-    if (!file) {
-      meta.textContent = `No runtime snapshot for slot ${slot} yet. Start the server and wait ~30s.`;
-      list.innerHTML = `<div class="muted" style="padding:12px">No snapshot. Server must be online.</div>`;
-      return;
-    }
-    let content = file.content;
-    if (file.truncated && file.raw_url) content = await (await fetch(file.raw_url)).text();
-    runtimeData = JSON.parse(content);
-    meta.textContent = `Slot ${runtimeData.slot} · updated ${runtimeData.updated_at || "?"} · ${Object.keys(runtimeData.files || {}).length} files`;
-
-    const items = [];
-    // directory listings
-    Object.entries(runtimeData.paths || {}).forEach(([path, lines]) => {
-      items.push({ type: "dir", name: path, body: Array.isArray(lines) ? lines.join("\n") : String(lines) });
-    });
-    // files
-    Object.entries(runtimeData.files || {}).forEach(([path, body]) => {
-      items.push({ type: "file", name: path, body: String(body) });
-    });
-
-    if (!items.length) {
-      list.innerHTML = `<div class="muted" style="padding:12px">Snapshot empty</div>`;
-      return;
-    }
-
-    list.innerHTML = "";
-    items.forEach((it, idx) => {
-      const div = document.createElement("div");
-      div.className = "fm-item";
-      div.textContent = `${it.type === "dir" ? "📁" : "📄"} ${it.name}`;
-      div.onclick = () => {
-        document.querySelectorAll(".fm-item").forEach(x => x.classList.remove("active"));
-        div.classList.add("active");
-        document.getElementById("fmLabel").textContent = it.name;
-        document.getElementById("fmEditor").value = it.body;
-      };
-      list.appendChild(div);
-      if (idx === 0) div.click();
-    });
-  } catch (e) {
-    meta.textContent = "Failed to load snapshot";
-    list.innerHTML = `<div class="muted" style="padding:12px">${esc(e.message)}</div>`;
-    toast(e.message || "Load failed", "error");
+  list.innerHTML = "";
+  CONFIG.files.forEach(name=>{
+    const div = document.createElement("div");
+    div.className = "fm-item" + (name===currentFile?" active":"");
+    div.textContent = "📄 " + name;
+    div.onclick = ()=>loadRepoFile(name);
+    list.appendChild(div);
+  });
+}
+async function loadRepoFile(path){
+  currentFile = path;
+  renderFileList();
+  document.getElementById("fmLabel").textContent = "Loading " + path + "…";
+  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(CONFIG.branch)}`);
+  if (!res.ok) {
+    document.getElementById("fmLabel").textContent = path + " not found";
+    document.getElementById("fmEditor").value = "";
+    return toast(path + " missing in repo","error");
   }
+  const data = await res.json();
+  fileSha[path] = data.sha;
+  const text = decodeURIComponent(escape(atob(data.content.replace(/\n/g,""))));
+  document.getElementById("fmEditor").value = text;
+  document.getElementById("fmLabel").textContent = path;
+}
+async function saveRepoFile(){
+  const path = currentFile;
+  const content = document.getElementById("fmEditor").value;
+  if (!path) return;
+  const body = {
+    message: `HPanel: update ${path}`,
+    content: btoa(unescape(encodeURIComponent(content))),
+    branch: CONFIG.branch
+  };
+  if (fileSha[path]) body.sha = fileSha[path];
+  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${encodeURIComponent(path)}`,{
+    method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({}));
+    return toast(err.message || `Save failed (${res.status})`,"error");
+  }
+  const data = await res.json();
+  fileSha[path] = data.content?.sha || fileSha[path];
+  toast(path + " saved. Restart a server to apply.","success");
 }
 
-document.getElementById("tokenInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") connectGitHub();
-});
-window.onload = () => {
-  const t = getCookie();
-  if (t) {
-    document.getElementById("tokenInput").value = t;
-    connectGitHub();
-  }
-};
+document.getElementById("tokenInput").addEventListener("keydown", e=>{ if(e.key==="Enter") connectGitHub(); });
+window.onload = ()=>{ const t=getCookie(); if(t){ document.getElementById("tokenInput").value=t; connectGitHub(); } };
 </script>
 </body>
   </html>
