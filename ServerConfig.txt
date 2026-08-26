@@ -5,12 +5,8 @@
 #Maps (ZombieSurvival, NewTerrainRamps, Island, CarSoccer)
 #Editor Maps (editor:myMap)
 
-#make map rotation with ","
-#players can get admin by typing "/YOUR-NUM-CODE" in the chat
-#lock down will avoids changes in: server option, editor obj sync
-
 (Moderator)
-admin code=YOUR-NUM-CODE
+admin code=12345
 lock down=true
 
 (Basic)
