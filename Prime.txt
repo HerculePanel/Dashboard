@@ -1,4 +1,4 @@
-Map Name:<size=18><color=green>《lac - Prime》       <color=#00b75b>⚿ (key)</color>  (role)         <color=red>(fuel)</color>   <color=pink>(dmg)</color>     <color=red>(gear)</color>   <color=white>♟</color> <color=orange>[curplayers]/30</color> </color></size>
+Map Name:Prime
 Map Type:5
 Holo Sign:0.0, 0.0, 0.0*
 Camera Pos:248.53, 61.39, 468.05:348.00, 31.35, 0.00
