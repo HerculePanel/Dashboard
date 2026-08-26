@@ -11,7 +11,6 @@ on:
           - start
           - setup
         default: start
-
       slot:
         description: "Server slot (ignored for setup)"
         required: true
@@ -38,7 +37,6 @@ env:
   PLAYIT_AGENT_URL: "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-linux-amd64"
 
 jobs:
-
   setup:
     if: ${{ inputs.mode == 'setup' }}
     runs-on: ubuntu-latest
@@ -70,9 +68,6 @@ jobs:
       - name: Check secrets and create missing agents
         run: |
           set -e
-          echo "=============================================="
-          echo "  L.A. CRIMES – PLAYIT SECRET SETUP"
-          echo "=============================================="
           check_secret() {
             local name="$1" value="$2"
             if [ -z "$value" ]; then echo "❌  $name  →  MISSING"; return 1
@@ -90,7 +85,7 @@ jobs:
             rm -rf "$HOME/.config/playit_gg" "$HOME/.config/playit" 2>/dev/null || true
             mkdir -p "$HOME/.config/playit_gg"
             CLAIM_CODE=$("$GITHUB_WORKSPACE/playit-cli" claim generate 2>/dev/null | tr -d '\r\n' || true)
-            if [ -z "$CLAIM_CODE" ] || [ ${#CLAIM_CODE} -lt 8 ]; then echo "claim generate failed"; exit 1; fi
+            [ -n "$CLAIM_CODE" ] && [ ${#CLAIM_CODE} -ge 8 ] || { echo "claim generate failed"; exit 1; }
             CLAIM_URL=$("$GITHUB_WORKSPACE/playit-cli" claim url "$CLAIM_CODE" --name "lac-slot-$SLOT_HINT" --type "docker" 2>/dev/null | grep -oE 'https://playit\.gg/claim/[A-Za-z0-9_-]+' || true)
             [ -z "$CLAIM_URL" ] && CLAIM_URL="https://playit.gg/claim/$CLAIM_CODE"
             echo "Open: $CLAIM_URL"
@@ -99,14 +94,9 @@ jobs:
               sleep 10
               SECRET=$("$GITHUB_WORKSPACE/playit-cli" claim exchange "$CLAIM_CODE" --wait 5 2>/dev/null | tail -n 15 | grep -oE '[0-9a-fA-F]{32,}' | tail -1 || true)
               if [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ]; then break; fi
-              if [ -f "$HOME/.config/playit_gg/playit.toml" ]; then
-                SECRET=$(grep -oE 'secret_key\s*=\s*"[^"]+"' "$HOME/.config/playit_gg/playit.toml" 2>/dev/null || true)
-                SECRET=${SECRET#*\"}; SECRET=${SECRET%\"}
-                if [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ]; then break; fi
-              fi
               echo "  waiting... ($((i*10))s)"
             done
-            if [ -z "$SECRET" ] || [ ${#SECRET} -lt 32 ]; then echo "Timed out"; exit 1; fi
+            [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ] || { echo "Timed out"; exit 1; }
             echo "Secret name : $SECRET_NAME"
             echo "Secret value: $SECRET"
           }
@@ -116,7 +106,7 @@ jobs:
               PLAYIT_SECRET_2) create_agent "PLAYIT_SECRET_2" "2" ;;
               PLAYIT_SECRET_3) create_agent "PLAYIT_SECRET_3" "3" ;;
               PLAYIT_SECRET_4) create_agent "PLAYIT_SECRET_4" "4" ;;
-              DASHBOARD_TOKEN) echo "Add DASHBOARD_TOKEN (Gist PAT)" ;;
+              DASHBOARD_TOKEN) echo "Add DASHBOARD_TOKEN" ;;
             esac
           done
 
@@ -126,7 +116,6 @@ jobs:
     timeout-minutes: 350
     env:
       SLOT: ${{ inputs.slot }}
-
     steps:
       - name: Configure server slot
         id: config
@@ -134,20 +123,16 @@ jobs:
           set -e
           PORT="7777"
           case "$SLOT" in
-            1) DOMAIN="drake-missy.tun.ply.gg"; IP="147.185.221.231"; PUBLIC_PORT="46049"; SECRET_NAME="PLAYIT_SECRET_1" ;;
-            2) DOMAIN="drake-embraced.tun.ply.gg"; IP="147.185.221.231"; PUBLIC_PORT="47064"; SECRET_NAME="PLAYIT_SECRET_2" ;;
-            3) DOMAIN="drake-limbs.tun.ply.gg"; IP="147.185.221.30"; PUBLIC_PORT="40093"; SECRET_NAME="PLAYIT_SECRET_3" ;;
-            4) DOMAIN="drake-relativity.tun.ply.gg"; IP="147.185.221.230"; PUBLIC_PORT="49177"; SECRET_NAME="PLAYIT_SECRET_4" ;;
+            1) DOMAIN="drake-missy.tun.ply.gg"; IP="147.185.221.231"; PUBLIC_PORT="46049" ;;
+            2) DOMAIN="drake-embraced.tun.ply.gg"; IP="147.185.221.231"; PUBLIC_PORT="47064" ;;
+            3) DOMAIN="drake-limbs.tun.ply.gg"; IP="147.185.221.30"; PUBLIC_PORT="40093" ;;
+            4) DOMAIN="drake-relativity.tun.ply.gg"; IP="147.185.221.230"; PUBLIC_PORT="49177" ;;
             *) echo "Invalid slot"; exit 1 ;;
           esac
           ENDPOINT="${DOMAIN}:${PUBLIC_PORT}"
           echo "PORT=$PORT" >> "$GITHUB_OUTPUT"
-          echo "DOMAIN=$DOMAIN" >> "$GITHUB_OUTPUT"
           echo "IP=$IP" >> "$GITHUB_OUTPUT"
-          echo "PUBLIC_PORT=$PUBLIC_PORT" >> "$GITHUB_OUTPUT"
           echo "ENDPOINT=$ENDPOINT" >> "$GITHUB_OUTPUT"
-          echo "SECRET_NAME=$SECRET_NAME" >> "$GITHUB_OUTPUT"
-          echo "Slot $SLOT → $ENDPOINT"
 
       - name: Check required secrets
         env:
@@ -160,13 +145,13 @@ jobs:
           set -e
           [ -n "$DASHBOARD_TOKEN" ] || { echo "DASHBOARD_TOKEN missing"; exit 1; }
           case "$SLOT" in
-            1) PLAYIT_SECRET="$PLAYIT_SECRET_1" ;;
-            2) PLAYIT_SECRET="$PLAYIT_SECRET_2" ;;
-            3) PLAYIT_SECRET="$PLAYIT_SECRET_3" ;;
-            4) PLAYIT_SECRET="$PLAYIT_SECRET_4" ;;
+            1) S="$PLAYIT_SECRET_1" ;;
+            2) S="$PLAYIT_SECRET_2" ;;
+            3) S="$PLAYIT_SECRET_3" ;;
+            4) S="$PLAYIT_SECRET_4" ;;
           esac
-          [ -n "$PLAYIT_SECRET" ] || { echo "PLAYIT_SECRET_$SLOT missing"; exit 1; }
-          echo "::add-mask::$PLAYIT_SECRET"
+          [ -n "$S" ] || { echo "PLAYIT_SECRET_$SLOT missing"; exit 1; }
+          echo "::add-mask::$S"
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -176,7 +161,6 @@ jobs:
           set -e
           sudo apt-get update
           sudo apt-get install -y unzip wget curl ca-certificates iproute2 jq python3 screen libc6-i386 lib32stdc++6 || true
-          sudo apt-get install -y libncurses5:i386 2>/dev/null || true
 
       - name: Disable IPv6
         run: |
@@ -190,14 +174,13 @@ jobs:
           DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
         run: |
           set -e
-          curl --fail --silent --show-error \
-            --request GET --url "https://api.github.com/gists/$GIST_ID" \
+          curl --fail --silent --show-error --request GET \
+            --url "https://api.github.com/gists/$GIST_ID" \
             --header "Accept: application/vnd.github+json" \
             --header "Authorization: Bearer $DASHBOARD_TOKEN" \
             --header "X-GitHub-Api-Version: 2022-11-28" \
             > "$GITHUB_WORKSPACE/gist-response.json"
           jq -r '.files["servers.json"].content' "$GITHUB_WORKSPACE/gist-response.json" > "$GITHUB_WORKSPACE/servers.json"
-          jq empty "$GITHUB_WORKSPACE/servers.json"
 
       - name: Mark server STARTING
         env:
@@ -235,8 +218,7 @@ jobs:
       - name: Download L.A. Crimes
         run: |
           set -e
-          wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/LAC.zip" \
-            "https://lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
+          wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/LAC.zip" "https://lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
           rm -rf "$GITHUB_WORKSPACE/lac"
           mkdir -p "$GITHUB_WORKSPACE/lac"
           unzip -q "$GITHUB_WORKSPACE/LAC.zip" -d "$GITHUB_WORKSPACE/lac"
@@ -245,34 +227,34 @@ jobs:
           chmod +x "$SERVER"
           echo "$SERVER" > "$GITHUB_WORKSPACE/server-path.txt"
 
-      - name: Install ServerConfig.txt
+      - name: Install ServerConfig.txt and Prime map
         run: |
           set -e
-          [ -f "$GITHUB_WORKSPACE/ServerConfig.txt" ] || { echo "ServerConfig.txt missing in repo root"; exit 1; }
-          sudo mkdir -p /root/.config/unity3d/MA/LAC
+          [ -f "$GITHUB_WORKSPACE/ServerConfig.txt" ] || { echo "ServerConfig.txt missing"; exit 1; }
+          [ -f "$GITHUB_WORKSPACE/Prime.txt" ] || { echo "Prime.txt missing in repo root"; exit 1; }
+          sudo mkdir -p /root/.config/unity3d/MA/LAC/editor
           sudo cp "$GITHUB_WORKSPACE/ServerConfig.txt" /root/.config/unity3d/MA/LAC/ServerConfig.txt
-          sudo chmod 644 /root/.config/unity3d/MA/LAC/ServerConfig.txt
-          sudo chown root:root /root/.config/unity3d/MA/LAC/ServerConfig.txt
+          sudo cp "$GITHUB_WORKSPACE/Prime.txt" /root/.config/unity3d/MA/LAC/editor/Prime.txt
+          sudo chmod 644 /root/.config/unity3d/MA/LAC/ServerConfig.txt /root/.config/unity3d/MA/LAC/editor/Prime.txt
+          sudo chown -R root:root /root/.config/unity3d/MA/LAC
           sudo ls -la /root/.config/unity3d/MA/LAC/
+          sudo ls -la /root/.config/unity3d/MA/LAC/editor/
           sudo cat /root/.config/unity3d/MA/LAC/ServerConfig.txt
 
       - name: Start L.A. Crimes as root
         run: |
           set -e
           SERVER=$(cat "$GITHUB_WORKSPACE/server-path.txt")
-          SERVER_DIR=$(dirname "$SERVER")
-          cd "$SERVER_DIR"
-          sudo -H ./LAC_Linux_v1.9.6.x86_64 -batchmode -nographics \
-            > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
+          cd "$(dirname "$SERVER")"
+          sudo -H ./LAC_Linux_v1.9.6.x86_64 > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
           echo $! > "$GITHUB_WORKSPACE/lac.pid"
           sleep 20
           if ! kill -0 "$(cat "$GITHUB_WORKSPACE/lac.pid")" 2>/dev/null; then
             tail -300 "$GITHUB_WORKSPACE/lac-server.log" || true
             exit 1
           fi
-          echo "Game running PID=$(cat "$GITHUB_WORKSPACE/lac.pid")"
-          sudo ls -la /root/.config/unity3d/MA/LAC/ || true
-          sudo cat /root/.config/unity3d/MA/LAC/ServerConfig.txt || true
+          echo "Game PID=$(cat "$GITHUB_WORKSPACE/lac.pid")"
+          sudo ls -la /root/.config/unity3d/MA/LAC/editor/
 
       - name: Download Playit agent
         run: |
@@ -331,131 +313,14 @@ jobs:
             --header "Content-Type: application/json" \
             --data "$PAYLOAD" > /dev/null
 
-      # ========== RUNTIME FILE SNAPSHOT FOR FILE MANAGER ==========
-      - name: Keep server alive + snapshot runner files
-        env:
-          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
+      - name: Keep server alive
         run: |
           set -e
-          SERVER=$(cat "$GITHUB_WORKSPACE/server-path.txt")
-          SERVER_DIR=$(dirname "$SERVER")
-          RUNTIME_FILE="runtime-${SLOT}.json"
-
-          snapshot_and_upload() {
-            python3 - <<PY
-          import json, os, subprocess, datetime, pathlib
-
-          slot = os.environ.get("SLOT", "?")
-          server_dir = r"""$SERVER_DIR"""
-          config_dir = "/root/.config/unity3d/MA/LAC"
-          out = {
-            "slot": int(slot),
-            "updated_at": datetime.datetime.utcnow().isoformat() + "Z",
-            "paths": {},
-            "files": {}
-          }
-
-          def list_dir(path):
-              try:
-                  entries = []
-                  # use sudo ls for /root
-                  r = subprocess.run(["sudo", "ls", "-la", path], capture_output=True, text=True)
-                  if r.returncode == 0:
-                      lines = [ln for ln in r.stdout.splitlines() if ln.strip()]
-                      return lines
-                  return [f"ERROR listing {path}: {r.stderr.strip()}"]
-              except Exception as e:
-                  return [str(e)]
-
-          def read_file(path, max_bytes=200000):
-              try:
-                  r = subprocess.run(["sudo", "cat", path], capture_output=True)
-                  if r.returncode != 0:
-                      return f"ERROR reading {path}: {r.stderr.decode('utf-8', errors='replace')}"
-                  data = r.stdout
-                  if len(data) > max_bytes:
-                      data = data[:max_bytes] + b"\n...[truncated]..."
-                  return data.decode("utf-8", errors="replace")
-              except Exception as e:
-                  return str(e)
-
-          out["paths"][config_dir] = list_dir(config_dir)
-          out["paths"][server_dir] = list_dir(server_dir)
-
-          # Read important config files if present
-          interesting = [
-              f"{config_dir}/ServerConfig.txt",
-              f"{config_dir}/banned-users.txt",
-          ]
-          # also any other small files in config dir
-          r = subprocess.run(["sudo", "bash", "-c", f"find {config_dir} -maxdepth 2 -type f 2>/dev/null"], capture_output=True, text=True)
-          if r.returncode == 0:
-              for p in r.stdout.splitlines():
-                  p = p.strip()
-                  if p and p not in interesting:
-                      interesting.append(p)
-
-          for p in interesting:
-              # skip huge binaries
-              check = subprocess.run(["sudo", "bash", "-c", f"stat -c%s '{p}' 2>/dev/null || echo 0"], capture_output=True, text=True)
-              try:
-                  size = int((check.stdout or "0").strip() or "0")
-              except Exception:
-                  size = 0
-              if size > 250000:
-                  out["files"][p] = f"[skipped binary/large file: {size} bytes]"
-              else:
-                  out["files"][p] = read_file(p)
-
-          # last lines of game log
-          log_path = os.path.join(os.environ.get("GITHUB_WORKSPACE", "."), "lac-server.log")
-          if os.path.isfile(log_path):
-              try:
-                  with open(log_path, "r", encoding="utf-8", errors="replace") as f:
-                      lines = f.readlines()[-80:]
-                  out["files"]["lac-server.log(tail)"] = "".join(lines)
-              except Exception as e:
-                  out["files"]["lac-server.log(tail)"] = str(e)
-
-          path = os.path.join(os.environ.get("GITHUB_WORKSPACE", "."), "runtime-snapshot.json")
-          with open(path, "w", encoding="utf-8") as f:
-              json.dump(out, f, indent=2)
-              f.write("\n")
-          print(f"Snapshot written: {path}")
-          PY
-
-            PAYLOAD=$(jq -n \
-              --arg content "$(cat "$GITHUB_WORKSPACE/runtime-snapshot.json")" \
-              --arg filename "$RUNTIME_FILE" \
-              '{files:{($filename):{content:$content}}}')
-
-            curl --silent --show-error --request PATCH \
-              --url "https://api.github.com/gists/$GIST_ID" \
-              --header "Accept: application/vnd.github+json" \
-              --header "Authorization: Bearer $DASHBOARD_TOKEN" \
-              --header "X-GitHub-Api-Version: 2022-11-28" \
-              --header "Content-Type: application/json" \
-              --data "$PAYLOAD" > /dev/null || true
-
-            echo "Runtime snapshot uploaded → Gist file $RUNTIME_FILE"
-          }
-
-          # first snapshot immediately
-          snapshot_and_upload
-
-          echo "Server $SLOT online. Snapshotting runner files every 30s."
           while true; do
-            LAC_PID=$(cat "$GITHUB_WORKSPACE/lac.pid")
-            PLAYIT_PID=$(cat "$GITHUB_WORKSPACE/playit.pid")
-            if ! kill -0 "$LAC_PID" 2>/dev/null; then
-              echo "L.A. Crimes stopped."; tail -100 "$GITHUB_WORKSPACE/lac-server.log" || true; exit 1
-            fi
-            if ! kill -0 "$PLAYIT_PID" 2>/dev/null; then
-              echo "Playit stopped."; cat "$GITHUB_WORKSPACE/playit.log" || true; exit 1
-            fi
-            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT ONLINE (snapshotting)"
-            snapshot_and_upload
-            sleep 30
+            kill -0 "$(cat "$GITHUB_WORKSPACE/lac.pid")" 2>/dev/null || { tail -100 "$GITHUB_WORKSPACE/lac-server.log"; exit 1; }
+            kill -0 "$(cat "$GITHUB_WORKSPACE/playit.pid")" 2>/dev/null || { cat "$GITHUB_WORKSPACE/playit.log"; exit 1; }
+            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT ONLINE map=editor:Prime"
+            sleep 10
           done
 
       - name: Cleanup server state
