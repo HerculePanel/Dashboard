@@ -5,64 +5,89 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HPanel</title>
   <style>
-    :root{--bg:#06070b;--border:rgba(255,255,255,.12);--text:#f3f5f8;--muted:#9aa3b2;--green:#2fe28a;--red:#ff5f6d;--yellow:#ffc857;--blue:#6ea8ff;--shadow:0 25px 60px rgba(0,0,0,.55);--radius:22px}
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;font-family:Inter,system-ui,sans-serif;color:var(--text);background:radial-gradient(circle at 15% 10%,rgba(80,110,255,.16),transparent 35%),radial-gradient(circle at 85% 20%,rgba(47,226,138,.1),transparent 32%),var(--bg)}
-    .login-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(4,5,8,.72);backdrop-filter:blur(18px);transition:.45s}
-    .login-modal.hidden{opacity:0;visibility:hidden;pointer-events:none}
-    .login-card{width:min(420px,calc(100% - 32px));padding:32px 28px;border-radius:28px;border:1px solid var(--border);background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.03));box-shadow:var(--shadow);text-align:center}
-    .login-card h1{margin:0 0 8px}
-    .login-card p{margin:0 0 18px;color:var(--muted);font-size:14px}
-    .login-input,.path-input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--border);background:rgba(0,0,0,.35);color:var(--text);outline:none}
-    .login-input{margin-bottom:12px}
-    .btn{border:0;cursor:pointer;font-weight:700;border-radius:14px;padding:11px 14px;color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.35),0 12px 22px rgba(0,0,0,.22)}
-    .btn:active:not(:disabled){transform:translateY(3px)}
-    .btn:disabled{opacity:.45;cursor:not-allowed}
-    .btn-blue{background:linear-gradient(180deg,#82b6ff,#4d8dff)}
-    .btn-green{background:linear-gradient(180deg,#4ef0a2,#1fc975);color:#052016}
-    .btn-red{background:linear-gradient(180deg,#ff8a94,#e84555)}
-    .btn-yellow{background:linear-gradient(180deg,#ffd67a,#f0b429);color:#2a1d00}
-    .btn-glass{background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text)}
-    .app{width:min(1180px,calc(100% - 30px));margin:auto;padding:34px 0 80px;opacity:0;transform:translateY(12px);transition:.45s;pointer-events:none}
-    .app.visible{opacity:1;transform:none;pointer-events:auto}
-    .hero{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
-    .hero h1{margin:0;font-size:clamp(28px,5vw,44px)}
-    .hero p{margin:6px 0 0;color:var(--muted)}
-    .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-    .tab{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;font-weight:700}
-    .tab.active{color:var(--text);background:rgba(110,168,255,.15);border-color:rgba(110,168,255,.4)}
-    .view{display:none}.view.active{display:block}
-    .panel{padding:18px;margin-bottom:16px;border-radius:var(--radius);border:1px solid var(--border);background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));box-shadow:var(--shadow)}
-    .servers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-    .card{padding:16px;border-radius:var(--radius);border:1px solid var(--border);background:rgba(255,255,255,.04)}
-    .card.online{border-color:rgba(47,226,138,.45);background:linear-gradient(155deg,rgba(47,226,138,.16),rgba(255,255,255,.03))}
-    .muted{color:var(--muted);font-size:13px}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
-    .box{padding:10px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.06);font-size:13px;word-break:break-word}
-    .actions{display:flex;gap:8px}.actions .btn{flex:1}
-    .fm{display:grid;grid-template-columns:260px 1fr;gap:12px;min-height:560px}
-    .fm-side,.fm-main{border:1px solid var(--border);border-radius:16px;background:rgba(0,0,0,.22);overflow:hidden}
-    .fm-side{padding:10px}
-    .fm-item{padding:9px 10px;border-radius:10px;cursor:pointer;font-size:13px}
-    .fm-item:hover{background:rgba(255,255,255,.06)}
-    .fm-item.active{background:rgba(110,168,255,.15)}
-    .fm-toolbar{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--border);flex-wrap:wrap}
-    .fm-toolbar span{margin-right:auto;font-size:13px;color:var(--muted)}
-    #fmEditor{width:100%;min-height:500px;border:0;resize:vertical;padding:14px;background:transparent;color:var(--text);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.45;outline:none}
-    .toast-box{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2000;width:min(420px,calc(100% - 28px))}
-    .toast{margin-top:8px;padding:12px 14px;border-radius:14px;border:1px solid var(--border);background:rgba(18,20,28,.92);font-weight:600;font-size:14px}
-    .ok{color:#9dffc9}.err{color:#ffb0b7}.info{color:#c5dbff}
-    .footer{margin-top:26px;text-align:center;color:#5d6572;font-size:12px}
-    @media(max-width:900px){.servers,.fm{grid-template-columns:1fr}}
+    :root {
+      --bg: #06070b;
+      --panel: rgba(20,22,30,0.75);
+      --border: rgba(255,255,255,0.12);
+      --text: #f3f5f8;
+      --muted: #9aa3b2;
+      --green: #2fe28a;
+      --red: #ff5f6d;
+      --yellow: #ffc857;
+      --blue: #6ea8ff;
+      --shadow: 0 25px 60px rgba(0,0,0,.55);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; font-family: Inter, system-ui, sans-serif;
+      color: var(--text); background: radial-gradient(circle at 15% 10%, rgba(80,110,255,.16), transparent 35%),
+      radial-gradient(circle at 85% 20%, rgba(47,226,138,.1), transparent 32%), var(--bg);
+    }
+    .login-modal {
+      position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
+      background: rgba(4,5,8,.72); backdrop-filter: blur(18px);
+    }
+    .login-card {
+      width: min(420px, calc(100%-32px)); padding: 32px 28px; border-radius: 28px;
+      border: 1px solid var(--border); background: linear-gradient(160deg, rgba(255,255,255,.1), rgba(255,255,255,.03));
+      box-shadow: var(--shadow); text-align: center;
+    }
+    .login-card h1 { margin: 0 0 8px; }
+    .login-input { width: 100%; padding: 13px 14px; border-radius: 14px; border: 1px solid var(--border);
+      background: rgba(0,0,0,.35); color: var(--text); margin-bottom: 12px; outline: none; }
+    .btn {
+      border: 0; cursor: pointer; font-weight: 700; border-radius: 14px; padding: 11px 14px; color: #fff;
+      box-shadow: 0 6px 0 rgba(0,0,0,.35), 0 12px 22px rgba(0,0,0,.22);
+    }
+    .btn:active:not(:disabled) { transform: translateY(3px); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-blue { background: linear-gradient(180deg, #82b6ff, #4d8dff); }
+    .btn-green { background: linear-gradient(180deg, #4ef0a2, #1fc975); }
+    .btn-red { background: linear-gradient(180deg, #ff8a94, #e84555); }
+    .btn-glass { background: rgba(255,255,255,.08); border: 1px solid var(--border); color: var(--text); }
+    .app { width: min(1180px, calc(100%-30px)); margin: auto; padding: 34px 0 80px; opacity: 0; transform: translateY(12px);
+      transition: .45s; pointer-events: none; }
+    .app.visible { opacity: 1; transform: none; pointer-events: auto; }
+    .hero { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+    .hero h1 { margin: 0; font-size: clamp(28px,5vw,44px); }
+    .hero p { margin: 6px 0 0; color: var(--muted); }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border);
+      background: rgba(255,255,255,.04); color: var(--muted); cursor: pointer; font-weight: 700; }
+    .tab.active { color: var(--text); background: rgba(110,168,255,.15); border-color: rgba(110,168,255,.4); }
+    .view { display: none; }
+    .view.active { display: block; }
+    .panel { padding: 18px; margin-bottom: 16px; border-radius: var(--radius); border: 1px solid var(--border);
+      background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.03)); box-shadow: var(--shadow); }
+    .servers { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+    .card { padding: 16px; border-radius: var(--radius); border: 1px solid var(--border);
+      background: rgba(255,255,255,.04); }
+    .card.online { border-color: rgba(47,226,138,.45); background: linear-gradient(155deg, rgba(47,226,138,.16), rgba(255,255,255,.03)); }
+    .muted { color: var(--muted); font-size: 13px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+    .box { padding: 10px; border-radius: 12px; background: rgba(0,0,0,.22); border: 1px solid rgba(255,255,255,.06);
+      font-size: 13px; word-break: break-word; }
+    .actions { display: flex; gap: 8px; }
+    .actions .btn { flex: 1; }
+    .toast-box { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 2000; width: min(420px, calc(100%-28px)); }
+    .toast { margin-top: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border);
+      background: rgba(18,20,28,.92); font-weight: 600; font-size: 14px; }
+    .ok { color: #9dffc9; }
+    .err { color: #ffb0b7; }
+    .info { color: #c5dbff; }
+    .footer { margin-top: 26px; text-align: center; color: #5d6572; font-size: 12px; }
+    @media (max-width: 900px) { .servers, .fm { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 <div id="loginModal" class="login-modal">
   <div class="login-card">
     <h1>HPanel</h1>
-    <p>Enter your GitHub token</p>
+    <p>Enter your GitHub token (will be saved in browser)</p>
     <input id="tokenInput" class="login-input" type="password" placeholder="github_pat_...">
     <button class="btn btn-blue" style="width:100%" onclick="connectGitHub()">Unlock</button>
+    <button class="btn btn-glass" style="margin-top:8px" onclick="logout()">Logout</button>
   </div>
 </div>
 
@@ -70,7 +95,7 @@
   <div class="hero">
     <div>
       <h1>HPanel</h1>
-      <p>Servers · edit ServerConfig.txt and Prime.txt in the repo</p>
+      <p>Map selector • Servers • Repo editor</p>
     </div>
     <div class="muted" id="connectionText">Connected</div>
   </div>
@@ -78,9 +103,11 @@
   <div class="tabs">
     <button class="tab active" onclick="switchView('servers')">Servers</button>
     <button class="tab" onclick="switchView('files')">File editor</button>
-    <button class="tab" onclick="switchView('setup')">Setup</button>
+    <button class="tab" onclick="switchView('setup')">Playit setup</button>
+    <button class="tab" onclick="switchView('maps')">Map selector</button>
   </div>
 
+  <!-- SERVERS VIEW -->
   <div id="view-servers" class="view active">
     <div style="display:flex;justify-content:space-between;margin-bottom:12px">
       <h2 style="margin:0">Servers</h2>
@@ -89,10 +116,20 @@
     <div id="servers" class="servers"></div>
   </div>
 
+  <!-- MAP SELECTOR VIEW -->
+  <div id="view-maps" class="view">
+    <div class="panel">
+      <h2 style="margin-top:0">Choose Server Map</h2>
+      <p class="muted">Click a button to instantly change the map on <strong>one server</strong> (default is editor:Prime)</p>
+      <div id="map-buttons" class="servers"></div>
+    </div>
+  </div>
+
+  <!-- FILE EDITOR VIEW (kept for now) -->
   <div id="view-files" class="view">
     <div class="panel">
       <h2 style="margin-top:0">Repo file editor</h2>
-      <p class="muted">Edits files in the GitHub repo. Next server start copies them to <code>/root/.config/unity3d/MA/LAC/</code>. Token needs <b>repo contents write</b>.</p>
+      <p class="muted">Edits files in the GitHub repo. Token needs <b>repo contents write</b>.</p>
       <div class="fm">
         <div class="fm-side" id="fmList"></div>
         <div class="fm-main">
@@ -107,6 +144,7 @@
     </div>
   </div>
 
+  <!-- SETUP VIEW -->
   <div id="view-setup" class="view">
     <div class="panel">
       <h2 style="margin-top:0">Playit setup</h2>
@@ -116,6 +154,7 @@
   </div>
   <div class="footer">HerculePanel © 2026</div>
 </div>
+
 <div class="toast-box" id="toasts"></div>
 
 <script>
@@ -127,7 +166,17 @@ const CONFIG = {
   gistFile: "servers.json",
   branch: "main",
   api: "https://api.github.com",
-  files: ["ServerConfig.txt", "Prime.txt"]
+  maps: [
+    "City",
+    "Garage",
+    "RagdollParty",
+    "TrainFacility",
+    "ZombieSurvival",
+    "NewTerrainRamps",
+    "Island",
+    "CarSoccer"
+  ],
+  defaultMap: "NewTerrainRamps"
 };
 
 let githubToken = "";
@@ -151,8 +200,9 @@ async function api(path, options={}) {
 }
 function switchView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active", ["servers","files","setup"][i]===name));
+  document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active", ["servers","files","setup","maps"][i]===name));
   document.getElementById(`view-${name}`).classList.add("active");
+  if (name==="maps") renderMapButtons();
   if (name==="files") { renderFileList(); loadRepoFile(currentFile); }
 }
 function esc(s){ return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
@@ -175,6 +225,15 @@ async function connectGitHub(){
   } catch(e){ githubToken=""; toast(e.message||"Auth failed","error"); }
 }
 
+async function logout(){
+  if (!confirm("Remove token from browser?")) return;
+  document.cookie = "github_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+  githubToken = "";
+  document.getElementById("app").classList.remove("visible");
+  document.getElementById("loginModal").classList.remove("hidden");
+  toast("Logged out","info");
+}
+
 async function loadServers(){
   const res = await api(`/gists/${CONFIG.gistId}`);
   if (!res.ok) throw new Error("Gist read failed");
@@ -195,18 +254,28 @@ function renderServers(data){
     card.className = `card ${status==="online"?"online":""}`;
     card.innerHTML = `
       <div style="font-size:20px;font-weight:700">Server ${esc(server.slot)}</div>
-      <div class="muted">${esc(status)} · map editor:Prime</div>
+      <div class="muted">${esc(status)} • map ${esc(server.map||"NewTerrainRamps")}</div>
       <div class="grid2">
         <div class="box"><div class="muted">Endpoint</div>${esc(server.endpoint||"—")}</div>
         <div class="box"><div class="muted">IP</div>${esc(server.ip||"—")}</div>
         <div class="box"><div class="muted">Local UDP</div>${esc(server.port||"—")}</div>
-        <div class="box"><div class="muted">Run ID</div>${esc(server.run_id||"—")}</div>
       </div>
       <div class="actions">
         <button class="btn btn-green" ${status!=="offline"?"disabled":""} onclick="startServer(${Number(server.slot)})">Turn ON</button>
         <button class="btn btn-red" ${status==="offline"?"disabled":""} onclick="stopServer(${Number(server.slot)})">Turn OFF</button>
       </div>`;
     root.appendChild(card);
+  });
+}
+function renderMapButtons(){
+  const root = document.getElementById("map-buttons");
+  root.innerHTML = "";
+  CONFIG.maps.forEach(map=>{
+    const btn = document.createElement("button");
+    btn.className = "btn btn-green";
+    btn.textContent = map;
+    btn.onclick = () => changeMap(map);
+    root.appendChild(btn);
   });
 }
 async function refreshDashboard(){
@@ -243,10 +312,25 @@ async function runSetup(){
   toast("Setup started","success");
 }
 
+// Map selector
+async function changeMap(map){
+  if (!serversData || !serversData.servers) return toast("No servers data","error");
+  const server = serversData.servers[0]; // first server
+  if (!server.run_id) return toast("Server not running","error");
+  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/${encodeURIComponent(CONFIG.workflow)}/dispatches`,{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ref:CONFIG.branch, inputs:{mode:"start", slot:server.slot, map:map}})
+  });
+  if (!res.ok) return toast(`Map change failed (${res.status})`,"error");
+  toast(`Map changed to ${map}`,"success");
+  setTimeout(refreshDashboard, 3000);
+}
+
+// File editor (unchanged from previous version)
 function renderFileList(){
   const list = document.getElementById("fmList");
   list.innerHTML = "";
-  CONFIG.files.forEach(name=>{
+  ["ServerConfig.txt", "Prime.txt"].forEach(name=>{ // Prime.txt kept for now
     const div = document.createElement("div");
     div.className = "fm-item" + (name===currentFile?" active":"");
     div.textContent = "📄 " + name;
@@ -296,4 +380,4 @@ document.getElementById("tokenInput").addEventListener("keydown", e=>{ if(e.key=
 window.onload = ()=>{ const t=getCookie(); if(t){ document.getElementById("tokenInput").value=t; connectGitHub(); } };
 </script>
 </body>
-  </html>
+    </html>
