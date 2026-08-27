@@ -6,191 +6,164 @@
   <title>HPanel</title>
   <style>
     :root {
-      --bg: #07080c;
-      --text: #f4f6fb;
-      --muted: #9aa3b5;
-      --border: rgba(255,255,255,.12);
-      --green: #3ee39a;
-      --red: #ff6b7a;
-      --orange: #ff9f43;
-      --blue: #5b8cff;
-      --radius: 22px;
-      --shadow: 0 24px 60px rgba(0,0,0,.5);
+      --bg: #0b0a09;
+      --text: #fff6ea;
+      --muted: #c3b09a;
+      --line: rgba(255, 186, 92, .22);
+      --gold: #ffb43a;
+      --mint: #3ee39a;
+      --rose: #ff5d73;
+      --ink: #140f0a;
+      --shadow: 0 28px 70px rgba(0,0,0,.55);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Inter, system-ui, sans-serif;
+      font-family: "Trebuchet MS", Inter, system-ui, sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at 12% 0%, rgba(91,140,255,.16), transparent 34%),
-        radial-gradient(circle at 88% 18%, rgba(62,227,154,.10), transparent 30%),
-        var(--bg);
+        radial-gradient(circle at 8% -10%, rgba(255,180,58,.18), transparent 32%),
+        radial-gradient(circle at 92% 12%, rgba(62,227,154,.10), transparent 28%),
+        linear-gradient(180deg, #120e0b, #070605);
     }
-    .login-modal {
+    .login-modal, .map-modal {
       position: fixed;
       inset: 0;
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(4,5,8,.78);
+      background: rgba(8,6,4,.78);
       backdrop-filter: blur(16px);
       opacity: 1;
       visibility: visible;
       transition: opacity .35s ease, visibility .35s ease;
     }
-    .login-modal.hidden {
+    .login-modal.hidden, .map-modal.hidden {
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
     }
-    .login-card, .map-card {
-      width: min(420px, calc(100% - 32px));
+    .card-box {
+      width: min(430px, calc(100% - 32px));
       padding: 30px 26px;
-      border-radius: 26px;
-      border: 1px solid var(--border);
-      background: linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: linear-gradient(165deg, rgba(255,180,58,.12), rgba(255,255,255,.03));
       box-shadow: var(--shadow);
       text-align: center;
     }
-    .login-card h1, .map-card h2 { margin: 0 0 8px; }
-    .login-card p, .map-card p { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
-    .login-input, .map-select {
+    h1, h2 { margin: 0 0 8px; }
+    .sub { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+    input, select {
       width: 100%;
       padding: 13px 14px;
       border-radius: 14px;
-      border: 1px solid var(--border);
-      background: rgba(0,0,0,.35);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.38);
       color: var(--text);
-      outline: none;
       margin-bottom: 12px;
+      outline: none;
     }
     .btn {
       border: 0;
       cursor: pointer;
-      font-weight: 700;
-      border-radius: 14px;
-      padding: 11px 14px;
-      color: #fff;
-      box-shadow: 0 6px 0 rgba(0,0,0,.32);
+      font-weight: 800;
+      border-radius: 16px;
+      padding: 12px 14px;
+      box-shadow: 0 6px 0 rgba(0,0,0,.35);
     }
-    .btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,.32); }
-    .btn:disabled { opacity: .45; cursor: not-allowed; }
-    .btn-blue { background: linear-gradient(180deg, #7aa8ff, #3d74ff); }
-    .btn-green { background: linear-gradient(180deg, #57f0b0, #1dbf74); color: #052016; }
-    .btn-red { background: linear-gradient(180deg, #ff8b96, #e23b4d); }
-    .btn-orange { background: linear-gradient(180deg, #ffb35a, #ff8a1f); color: #2a1600; }
-    .btn-glass { background: rgba(255,255,255,.08); border: 1px solid var(--border); color: var(--text); box-shadow: none; }
+    .btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,.35); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-gold { background: linear-gradient(180deg, #ffd27a, #ff9d1f); color: var(--ink); }
+    .btn-mint { background: linear-gradient(180deg, #6af3b8, #17c pen); color: #042016; }
+    .btn-mint { background: linear-gradient(180deg, #6af3b8, #17c77a); color: #042016; }
+    .btn-rose { background: linear-gradient(180deg, #ff8a97, #e23b4d); color: #fff; }
+    .btn-ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--line); box-shadow: none; }
     .app {
-      width: min(1180px, calc(100% - 30px));
+      width: min(1160px, calc(100% - 30px));
       margin: auto;
-      padding: 34px 0 80px;
+      padding: 36px 0 80px;
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(12px);
       pointer-events: none;
       transition: .35s ease;
     }
     .app.visible { opacity: 1; transform: none; pointer-events: auto; }
-    .hero { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
-    .hero h1 { margin: 0; font-size: clamp(28px, 5vw, 44px); }
-    .hero p { margin: 6px 0 0; color: var(--muted); }
+    .hero { display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 22px; }
+    .brand { font-size: clamp(30px, 6vw, 48px); letter-spacing: .04em; }
     .hero-actions { display: flex; gap: 8px; }
-    .servers { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
-    .card {
-      padding: 16px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.04);
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+    .server {
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
     }
-    .card.online {
-      border-color: rgba(62,227,154,.45);
-      background: linear-gradient(155deg, rgba(62,227,154,.16), rgba(255,255,255,.03));
+    .server.on {
+      border-color: rgba(62,227,154,.5);
+      background: linear-gradient(160deg, rgba(62,227,154,.16), rgba(255,180,58,.04));
     }
-    .muted { color: var(--muted); font-size: 13px; }
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
-    .box { padding: 10px; border-radius: 12px; background: rgba(0,0,0,.22); border: 1px solid rgba(255,255,255,.06); font-size: 13px; word-break: break-word; }
-    .actions { display: flex; gap: 8px; }
-    .actions .btn { flex: 1; }
-    .map-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 1100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(4,5,8,.72);
-      backdrop-filter: blur(12px);
-    }
-    .map-modal.hidden { display: none; }
-    .toast-box { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 2000; width: min(420px, calc(100% - 28px)); }
-    .toast { margin-top: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: rgba(18,20,28,.94); font-weight: 600; }
-    .ok { color: #9dffc9; }
-    .err { color: #ffb0b7; }
-    .info { color: #c5dbff; }
-    .footer { margin-top: 26px; text-align: center; color: #5d6572; font-size: 12px; }
-    @media (max-width: 900px) { .servers { grid-template-columns: 1fr; } }
+    .name { font-size: 22px; font-weight: 800; }
+    .bits { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+    .bit { padding: 10px; border-radius: 12px; background: rgba(0,0,0,.28); font-size: 13px; word-break: break-word; }
+    .row { display: flex; gap: 8px; }
+    .row .btn { flex: 1; }
+    .toast-box { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); width: min(420px, calc(100% - 28px)); z-index: 2000; }
+    .toast { margin-top: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(18,14,10,.94); font-weight: 700; }
+    .ok { color: #9dffc9; } .err { color: #ffb0b7; } .info { color: #ffd27a; }
+    .foot { margin-top: 28px; text-align: center; color: #7a6b5a; font-size: 12px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div id="loginModal" class="login-modal">
-    <div class="login-card">
+    <div class="card-box">
       <h1>HPanel</h1>
-      <p>Enter your GitHub token</p>
-      <input id="tokenInput" class="login-input" type="password" placeholder="github_pat_...">
-      <button class="btn btn-blue" style="width:100%" onclick="connectGitHub()">Unlock</button>
+      <p class="sub">GitHub token</p>
+      <input id="tokenInput" type="password" placeholder="github_pat_...">
+      <button class="btn btn-gold" style="width:100%" onclick="connectGitHub()">Unlock</button>
     </div>
   </div>
 
   <div id="mapModal" class="map-modal hidden">
-    <div class="map-card">
+    <div class="card-box">
       <h2>Choose map</h2>
-      <p id="mapSlotText">Pick an official map for this server.</p>
-      <select id="mapSelect" class="map-select"></select>
-      <button class="btn btn-green" style="width:100%" onclick="confirmStart()">Start server</button>
-      <button class="btn btn-glass" style="width:100%;margin-top:8px" onclick="closeMapModal()">Cancel</button>
+      <p class="sub" id="mapSlotText">Official map</p>
+      <select id="mapSelect"></select>
+      <button class="btn btn-mint" style="width:100%" onclick="confirmStart()">Start server</button>
+      <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="closeMapModal()">Cancel</button>
     </div>
   </div>
 
   <div class="app" id="app">
     <div class="hero">
       <div>
-        <h1>HPanel</h1>
-        <p>Official maps only</p>
+        <div class="brand">HPanel</div>
+        <p class="sub" style="margin:6px 0 0">HerculePanel servers</p>
       </div>
       <div class="hero-actions">
-        <button class="btn btn-glass" onclick="refreshDashboard()">Refresh</button>
-        <button class="btn btn-orange" onclick="logout()">Logout</button>
+        <button class="btn btn-ghost" onclick="refreshDashboard()">Refresh</button>
+        <button class="btn btn-rose" onclick="logout()">Logout</button>
       </div>
     </div>
-    <div id="servers" class="servers"></div>
-    <div class="footer">HerculePanel © 2026</div>
+    <div id="servers" class="grid"></div>
+    <div class="foot">HerculePanel © 2026</div>
   </div>
-
   <div class="toast-box" id="toasts"></div>
 
 <script>
 const CONFIG = {
-  owner: "LACServer",
+  owner: "HerculePanel",
   repo: "Dashboard",
   workflow: "main.yml",
   gistId: "cb2aaaece7a231ec707429d41e1457f4",
   gistFile: "servers.json",
   branch: "main",
   api: "https://api.github.com",
-  maps: [
-    "City",
-    "Garage",
-    "RagdollParty",
-    "TrainFacility",
-    "ZombieSurvival",
-    "NewTerrainRamps",
-    "Island",
-    "CarSoccer"
-  ]
+  maps: ["City","Garage","RagdollParty","TrainFacility","ZombieSurvival","NewTerrainRamps","Island","CarSoccer"]
 };
-
 const TOKEN_KEY = "hpanel_github_token";
 let githubToken = "";
 let serversData = null;
@@ -203,33 +176,28 @@ function toast(msg, type) {
   document.getElementById("toasts").appendChild(el);
   setTimeout(() => el.remove(), 3500);
 }
-
 function saveToken(token) {
   localStorage.setItem(TOKEN_KEY, token);
   document.cookie = "github_token=" + encodeURIComponent(token) + "; path=/; max-age=" + (30*24*60*60) + "; SameSite=Lax";
 }
-
 function loadToken() {
-  return localStorage.getItem(TOKEN_KEY)
-    || (document.cookie.split("; ").find(x => x.startsWith("github_token=")) || "").split("=")[1] && decodeURIComponent((document.cookie.split("; ").find(x => x.startsWith("github_token=")) || "").split("=")[1] || "")
-    || "";
+  const ls = localStorage.getItem(TOKEN_KEY);
+  if (ls) return ls;
+  const row = document.cookie.split("; ").find(x => x.startsWith("github_token="));
+  return row ? decodeURIComponent(row.split("=")[1] || "") : "";
 }
-
 function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
   document.cookie = "github_token=; path=/; max-age=0; SameSite=Lax";
 }
-
 function showApp() {
   document.getElementById("loginModal").classList.add("hidden");
   document.getElementById("app").classList.add("visible");
 }
-
 function hideApp() {
   document.getElementById("app").classList.remove("visible");
   document.getElementById("loginModal").classList.remove("hidden");
 }
-
 async function api(path, options) {
   options = options || {};
   const headers = Object.assign({
@@ -239,20 +207,18 @@ async function api(path, options) {
   if (githubToken) headers.Authorization = "Bearer " + githubToken;
   return fetch(CONFIG.api + path, Object.assign({}, options, { headers }));
 }
-
 function esc(s) {
   return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
 }
-
 async function connectGitHub() {
   const token = document.getElementById("tokenInput").value.trim() || loadToken();
   if (!token) return toast("Enter token", "error");
   githubToken = token;
   try {
     const r = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo);
-    if (!r.ok) throw new Error("Cannot access repo");
+    if (!r.ok) throw new Error("Cannot access repo (" + r.status + ")");
     const g = await api("/gists/" + CONFIG.gistId);
-    if (!g.ok) throw new Error("Cannot access gist");
+    if (!g.ok) throw new Error("Cannot access gist (" + g.status + ")");
     saveToken(token);
     showApp();
     toast("Unlocked", "success");
@@ -263,7 +229,6 @@ async function connectGitHub() {
     toast(e.message || "Auth failed", "error");
   }
 }
-
 function logout() {
   clearToken();
   githubToken = "";
@@ -271,7 +236,6 @@ function logout() {
   hideApp();
   toast("Logged out", "info");
 }
-
 async function loadServers() {
   const res = await api("/gists/" + CONFIG.gistId);
   if (!res.ok) throw new Error("Gist read failed");
@@ -282,7 +246,6 @@ async function loadServers() {
   if (file.truncated && file.raw_url) content = await (await fetch(file.raw_url)).text();
   return JSON.parse(content);
 }
-
 function renderServers(data) {
   serversData = data;
   const root = document.getElementById("servers");
@@ -290,30 +253,28 @@ function renderServers(data) {
   [...data.servers].sort((a,b) => a.slot - b.slot).forEach(server => {
     const status = String(server.status || "offline").toLowerCase();
     const card = document.createElement("div");
-    card.className = "card" + (status === "online" ? " online" : "");
+    card.className = "server" + (status === "online" ? " on" : "");
     card.innerHTML =
-      '<div style="font-size:20px;font-weight:700">Server ' + esc(server.slot) + '</div>' +
-      '<div class="muted">' + esc(status) + (server.map ? ' · ' + esc(server.map) : '') + '</div>' +
-      '<div class="grid2">' +
-        '<div class="box"><div class="muted">Endpoint</div>' + esc(server.endpoint || "—") + '</div>' +
-        '<div class="box"><div class="muted">IP</div>' + esc(server.ip || "—") + '</div>' +
-        '<div class="box"><div class="muted">Port</div>' + esc(server.port || "—") + '</div>' +
-        '<div class="box"><div class="muted">Run ID</div>' + esc(server.run_id || "—") + '</div>' +
+      '<div class="name">Server ' + esc(server.slot) + '</div>' +
+      '<div class="sub">' + esc(status) + (server.map ? " · " + esc(server.map) : "") + '</div>' +
+      '<div class="bits">' +
+        '<div class="bit">Endpoint<br>' + esc(server.endpoint || "—") + '</div>' +
+        '<div class="bit">IP<br>' + esc(server.ip || "—") + '</div>' +
+        '<div class="bit">Port<br>' + esc(server.port || "—") + '</div>' +
+        '<div class="bit">Run<br>' + esc(server.run_id || "—") + '</div>' +
       '</div>' +
-      '<div class="actions">' +
-        '<button class="btn btn-green"' + (status !== "offline" ? " disabled" : "") + ' onclick="openMapModal(' + Number(server.slot) + ')">Turn ON</button>' +
-        '<button class="btn btn-red"' + (status === "offline" ? " disabled" : "") + ' onclick="stopServer(' + Number(server.slot) + ')">Turn OFF</button>' +
+      '<div class="row">' +
+        '<button class="btn btn-mint"' + (status !== "offline" ? " disabled" : "") + ' onclick="openMapModal(' + Number(server.slot) + ')">Turn ON</button>' +
+        '<button class="btn btn-rose"' + (status === "offline" ? " disabled" : "") + ' onclick="stopServer(' + Number(server.slot) + ')">Turn OFF</button>' +
       '</div>';
     root.appendChild(card);
   });
 }
-
 async function refreshDashboard() {
   if (!githubToken) return;
   try { renderServers(await loadServers()); }
   catch (e) { toast(e.message || "Refresh failed", "error"); }
 }
-
 function openMapModal(slot) {
   pendingSlot = slot;
   document.getElementById("mapSlotText").textContent = "Official map for Server " + slot;
@@ -322,12 +283,10 @@ function openMapModal(slot) {
   select.value = "TrainFacility";
   document.getElementById("mapModal").classList.remove("hidden");
 }
-
 function closeMapModal() {
   pendingSlot = null;
   document.getElementById("mapModal").classList.add("hidden");
 }
-
 async function confirmStart() {
   const slot = pendingSlot;
   const map = document.getElementById("mapSelect").value;
@@ -339,31 +298,23 @@ async function confirmStart() {
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ref: CONFIG.branch,
-        inputs: { mode: "start", slot: String(slot), map: map }
-      })
+      body: JSON.stringify({ ref: CONFIG.branch, inputs: { mode: "start", slot: String(slot), map: map } })
     }
   );
   if (!res.ok) return toast("Start failed (" + res.status + ")", "error");
   toast("Server " + slot + " starting", "success");
   setTimeout(refreshDashboard, 2500);
 }
-
 async function stopServer(slot) {
   const server = serversData && serversData.servers && serversData.servers.find(s => Number(s.slot) === Number(slot));
   if (!server || !server.run_id) return toast("No run id", "error");
   if (!confirm("Stop server " + slot + "?")) return;
   const res = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/runs/" + encodeURIComponent(server.run_id) + "/cancel", { method: "POST" });
   if (!res.ok && res.status !== 409) return toast("Stop failed (" + res.status + ")", "error");
-  toast("Stop requested for " + slot, "success");
+  toast("Stop requested", "success");
   setTimeout(refreshDashboard, 3000);
 }
-
-document.getElementById("tokenInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") connectGitHub();
-});
-
+document.getElementById("tokenInput").addEventListener("keydown", e => { if (e.key === "Enter") connectGitHub(); });
 window.onload = function () {
   const saved = loadToken();
   if (saved) {
