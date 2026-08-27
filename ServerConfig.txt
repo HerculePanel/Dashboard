@@ -6,7 +6,7 @@
 #Editor Maps (editor:myMap)
 
 (Moderator)
-admin code=12345
+admin code=267267
 lock down=true
 
 (Basic)
