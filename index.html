@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HPanel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0b0a09;
@@ -12,7 +15,6 @@
       --line: rgba(255, 186, 92, .22);
       --gold: #ffb43a;
       --mint: #3ee39a;
-      --rose: #ff5d73;
       --ink: #140f0a;
       --shadow: 0 28px 70px rgba(0,0,0,.55);
     }
@@ -20,13 +22,14 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "Trebuchet MS", Inter, system-ui, sans-serif;
+      font-family: Lalezar, Tahoma, sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at 8% -10%, rgba(255,180,58,.18), transparent 32%),
-        radial-gradient(circle at 92% 12%, rgba(62,227,154,.10), transparent 28%),
+        radial-gradient(circle at 12% 0%, rgba(255,180,58,.18), transparent 32%),
+        radial-gradient(circle at 92% 18%, rgba(62,227,154,.10), transparent 28%),
         linear-gradient(180deg, #120e0b, #070605);
     }
+    .gold { color: var(--gold); }
     .login-modal, .map-modal {
       position: fixed;
       inset: 0;
@@ -55,7 +58,7 @@
       text-align: center;
     }
     h1, h2 { margin: 0 0 8px; }
-    .sub { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+    .sub { margin: 0 0 16px; color: var(--muted); font-size: 16px; }
     input, select {
       width: 100%;
       padding: 13px 14px;
@@ -65,19 +68,21 @@
       color: var(--text);
       margin-bottom: 12px;
       outline: none;
+      font-family: inherit;
+      font-size: 16px;
     }
     .btn {
       border: 0;
       cursor: pointer;
-      font-weight: 800;
       border-radius: 16px;
       padding: 12px 14px;
+      font-family: inherit;
+      font-size: 17px;
       box-shadow: 0 6px 0 rgba(0,0,0,.35);
     }
     .btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,.35); }
     .btn:disabled { opacity: .4; cursor: not-allowed; }
     .btn-gold { background: linear-gradient(180deg, #ffd27a, #ff9d1f); color: var(--ink); }
-    .btn-mint { background: linear-gradient(180deg, #6af3b8, #17c pen); color: #042016; }
     .btn-mint { background: linear-gradient(180deg, #6af3b8, #17c77a); color: #042016; }
     .btn-rose { background: linear-gradient(180deg, #ff8a97, #e23b4d); color: #fff; }
     .btn-ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--line); box-shadow: none; }
@@ -92,7 +97,7 @@
     }
     .app.visible { opacity: 1; transform: none; pointer-events: auto; }
     .hero { display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 22px; }
-    .brand { font-size: clamp(30px, 6vw, 48px); letter-spacing: .04em; }
+    .brand { font-size: clamp(30px, 6vw, 48px); }
     .hero-actions { display: flex; gap: 8px; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
     .server {
@@ -105,47 +110,47 @@
       border-color: rgba(62,227,154,.5);
       background: linear-gradient(160deg, rgba(62,227,154,.16), rgba(255,180,58,.04));
     }
-    .name { font-size: 22px; font-weight: 800; }
+    .name { font-size: 24px; }
     .bits { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
-    .bit { padding: 10px; border-radius: 12px; background: rgba(0,0,0,.28); font-size: 13px; word-break: break-word; }
+    .bit { padding: 10px; border-radius: 12px; background: rgba(0,0,0,.28); font-size: 15px; word-break: break-word; }
     .row { display: flex; gap: 8px; }
     .row .btn { flex: 1; }
     .toast-box { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); width: min(420px, calc(100% - 28px)); z-index: 2000; }
-    .toast { margin-top: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(18,14,10,.94); font-weight: 700; }
+    .toast { margin-top: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(18,14,10,.94); }
     .ok { color: #9dffc9; } .err { color: #ffb0b7; } .info { color: #ffd27a; }
-    .foot { margin-top: 28px; text-align: center; color: #7a6b5a; font-size: 12px; }
+    .foot { margin-top: 28px; text-align: center; color: #7a6b5a; font-size: 14px; }
     @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div id="loginModal" class="login-modal">
     <div class="card-box">
-      <h1>HPanel</h1>
-      <p class="sub">GitHub token</p>
+      <h1>HP<span class="gold">anel</span></h1>
+      <p class="sub">توکن گیت‌هاب را وارد کن</p>
       <input id="tokenInput" type="password" placeholder="github_pat_...">
-      <button class="btn btn-gold" style="width:100%" onclick="connectGitHub()">Unlock</button>
+      <button class="btn btn-gold" style="width:100%" onclick="connectGitHub()">ورود</button>
     </div>
   </div>
 
   <div id="mapModal" class="map-modal hidden">
     <div class="card-box">
-      <h2>Choose map</h2>
-      <p class="sub" id="mapSlotText">Official map</p>
+      <h2>انتخاب نقشه</h2>
+      <p class="sub" id="mapSlotText">نقشه رسمی این سرور</p>
       <select id="mapSelect"></select>
-      <button class="btn btn-mint" style="width:100%" onclick="confirmStart()">Start server</button>
-      <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="closeMapModal()">Cancel</button>
+      <button class="btn btn-mint" style="width:100%" onclick="confirmStart()">روشن کردن سرور</button>
+      <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="closeMapModal()">لغو</button>
     </div>
   </div>
 
   <div class="app" id="app">
     <div class="hero">
       <div>
-        <div class="brand">HPanel</div>
-        <p class="sub" style="margin:6px 0 0">HerculePanel servers</p>
+        <div class="brand">HP<span class="gold">anel</span></div>
+        <p class="sub" style="margin:6px 0 0">کنترل سرورهای لک</p>
       </div>
       <div class="hero-actions">
-        <button class="btn btn-ghost" onclick="refreshDashboard()">Refresh</button>
-        <button class="btn btn-rose" onclick="logout()">Logout</button>
+        <button class="btn btn-ghost" onclick="refreshDashboard()">تازه‌سازی</button>
+        <button class="btn btn-rose" onclick="logout()">خروج</button>
       </div>
     </div>
     <div id="servers" class="grid"></div>
@@ -210,23 +215,28 @@ async function api(path, options) {
 function esc(s) {
   return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
 }
+function statusFa(status) {
+  if (status === "online") return "آنلاین";
+  if (status === "starting") return "در حال روشن شدن";
+  return "خاموش";
+}
 async function connectGitHub() {
   const token = document.getElementById("tokenInput").value.trim() || loadToken();
-  if (!token) return toast("Enter token", "error");
+  if (!token) return toast("توکن را وارد کن", "error");
   githubToken = token;
   try {
     const r = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo);
-    if (!r.ok) throw new Error("Cannot access repo (" + r.status + ")");
+    if (!r.ok) throw new Error("دسترسی به ریپو نشد (" + r.status + ")");
     const g = await api("/gists/" + CONFIG.gistId);
-    if (!g.ok) throw new Error("Cannot access gist (" + g.status + ")");
+    if (!g.ok) throw new Error("دسترسی به گیست نشد (" + g.status + ")");
     saveToken(token);
     showApp();
-    toast("Unlocked", "success");
+    toast("وارد شدی", "success");
     refreshDashboard();
   } catch (e) {
     githubToken = "";
     hideApp();
-    toast(e.message || "Auth failed", "error");
+    toast(e.message || "ورود ناموفق", "error");
   }
 }
 function logout() {
@@ -234,14 +244,14 @@ function logout() {
   githubToken = "";
   document.getElementById("tokenInput").value = "";
   hideApp();
-  toast("Logged out", "info");
+  toast("خارج شدی", "info");
 }
 async function loadServers() {
   const res = await api("/gists/" + CONFIG.gistId);
-  if (!res.ok) throw new Error("Gist read failed");
+  if (!res.ok) throw new Error("خواندن گیست ناموفق");
   const data = await res.json();
   const file = data.files && data.files[CONFIG.gistFile];
-  if (!file) throw new Error("servers.json missing");
+  if (!file) throw new Error("servers.json نیست");
   let content = file.content;
   if (file.truncated && file.raw_url) content = await (await fetch(file.raw_url)).text();
   return JSON.parse(content);
@@ -255,17 +265,17 @@ function renderServers(data) {
     const card = document.createElement("div");
     card.className = "server" + (status === "online" ? " on" : "");
     card.innerHTML =
-      '<div class="name">Server ' + esc(server.slot) + '</div>' +
-      '<div class="sub">' + esc(status) + (server.map ? " · " + esc(server.map) : "") + '</div>' +
+      '<div class="name">سرور ' + esc(server.slot) + '</div>' +
+      '<div class="sub">' + esc(statusFa(status)) + (server.map ? " · " + esc(server.map) : "") + '</div>' +
       '<div class="bits">' +
-        '<div class="bit">Endpoint<br>' + esc(server.endpoint || "—") + '</div>' +
-        '<div class="bit">IP<br>' + esc(server.ip || "—") + '</div>' +
-        '<div class="bit">Port<br>' + esc(server.port || "—") + '</div>' +
-        '<div class="bit">Run<br>' + esc(server.run_id || "—") + '</div>' +
+        '<div class="bit">آدرس<br>' + esc(server.endpoint || "—") + '</div>' +
+        '<div class="bit">آی‌پی<br>' + esc(server.ip || "—") + '</div>' +
+        '<div class="bit">پورت<br>' + esc(server.port || "—") + '</div>' +
+        '<div class="bit">شناسه اجرا<br>' + esc(server.run_id || "—") + '</div>' +
       '</div>' +
       '<div class="row">' +
-        '<button class="btn btn-mint"' + (status !== "offline" ? " disabled" : "") + ' onclick="openMapModal(' + Number(server.slot) + ')">Turn ON</button>' +
-        '<button class="btn btn-rose"' + (status === "offline" ? " disabled" : "") + ' onclick="stopServer(' + Number(server.slot) + ')">Turn OFF</button>' +
+        '<button class="btn btn-mint"' + (status !== "offline" ? " disabled" : "") + ' onclick="openMapModal(' + Number(server.slot) + ')">روشن</button>' +
+        '<button class="btn btn-rose"' + (status === "offline" ? " disabled" : "") + ' onclick="stopServer(' + Number(server.slot) + ')">خاموش</button>' +
       '</div>';
     root.appendChild(card);
   });
@@ -273,11 +283,11 @@ function renderServers(data) {
 async function refreshDashboard() {
   if (!githubToken) return;
   try { renderServers(await loadServers()); }
-  catch (e) { toast(e.message || "Refresh failed", "error"); }
+  catch (e) { toast(e.message || "تازه‌سازی ناموفق", "error"); }
 }
 function openMapModal(slot) {
   pendingSlot = slot;
-  document.getElementById("mapSlotText").textContent = "Official map for Server " + slot;
+  document.getElementById("mapSlotText").textContent = "نقشه رسمی سرور " + slot;
   const select = document.getElementById("mapSelect");
   select.innerHTML = CONFIG.maps.map(m => '<option value="' + m + '">' + m + '</option>').join("");
   select.value = "TrainFacility";
@@ -292,7 +302,7 @@ async function confirmStart() {
   const map = document.getElementById("mapSelect").value;
   if (!slot) return;
   closeMapModal();
-  toast("Server " + slot + " queued on " + map, "info");
+  toast("سرور " + slot + " با نقشه " + map + " در صف است", "info");
   const res = await api(
     "/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/workflows/" + encodeURIComponent(CONFIG.workflow) + "/dispatches",
     {
@@ -301,17 +311,17 @@ async function confirmStart() {
       body: JSON.stringify({ ref: CONFIG.branch, inputs: { mode: "start", slot: String(slot), map: map } })
     }
   );
-  if (!res.ok) return toast("Start failed (" + res.status + ")", "error");
-  toast("Server " + slot + " starting", "success");
+  if (!res.ok) return toast("روشن نشد (" + res.status + ")", "error");
+  toast("سرور " + slot + " در حال روشن شدن", "success");
   setTimeout(refreshDashboard, 2500);
 }
 async function stopServer(slot) {
   const server = serversData && serversData.servers && serversData.servers.find(s => Number(s.slot) === Number(slot));
-  if (!server || !server.run_id) return toast("No run id", "error");
-  if (!confirm("Stop server " + slot + "?")) return;
+  if (!server || !server.run_id) return toast("شناسه اجرا نیست", "error");
+  if (!confirm("سرور " + slot + " خاموش شود؟")) return;
   const res = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/runs/" + encodeURIComponent(server.run_id) + "/cancel", { method: "POST" });
-  if (!res.ok && res.status !== 409) return toast("Stop failed (" + res.status + ")", "error");
-  toast("Stop requested", "success");
+  if (!res.ok && res.status !== 409) return toast("خاموش نشد (" + res.status + ")", "error");
+  toast("درخواست خاموشی ارسال شد", "success");
   setTimeout(refreshDashboard, 3000);
 }
 document.getElementById("tokenInput").addEventListener("keydown", e => { if (e.key === "Enter") connectGitHub(); });
@@ -324,4 +334,4 @@ window.onload = function () {
 };
 </script>
 </body>
-</html>
+  </html>
