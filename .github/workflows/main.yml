@@ -23,6 +23,21 @@ on:
           - "4"
         default: "1"
 
+      map:
+        description: "Official map"
+        required: false
+        type: choice
+        options:
+          - City
+          - Garage
+          - RagdollParty
+          - TrainFacility
+          - ZombieSurvival
+          - NewTerrainRamps
+          - Island
+          - CarSoccer
+        default: TrainFacility
+
 permissions:
   contents: read
 
@@ -119,6 +134,7 @@ jobs:
     timeout-minutes: 350
     env:
       SLOT: ${{ inputs.slot }}
+      MAP_NAME: ${{ inputs.map }}
 
     steps:
       - name: Configure server slot
@@ -126,6 +142,7 @@ jobs:
         run: |
           set -e
           PORT="7777"
+          MAP_NAME="${MAP_NAME:-TrainFacility}"
           case "$SLOT" in
             1) DOMAIN="drake-missy.tun.ply.gg"; IP="147.185.221.231"; PUBLIC_PORT="46049" ;;
             2) DOMAIN="drake-embraced.tun.ply.gg"; IP="147.185.221.231"; PUBLIC_PORT="47064" ;;
@@ -136,6 +153,8 @@ jobs:
           echo "PORT=$PORT" >> "$GITHUB_OUTPUT"
           echo "IP=$IP" >> "$GITHUB_OUTPUT"
           echo "ENDPOINT=${DOMAIN}:${PUBLIC_PORT}" >> "$GITHUB_OUTPUT"
+          echo "MAP_NAME=$MAP_NAME" >> "$GITHUB_OUTPUT"
+          echo "Slot $SLOT map $MAP_NAME"
 
       - name: Check required secrets
         env:
@@ -191,11 +210,12 @@ jobs:
           PORT: ${{ steps.config.outputs.PORT }}
           ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
           IP: ${{ steps.config.outputs.IP }}
+          MAP_NAME: ${{ steps.config.outputs.MAP_NAME }}
         run: |
           set -e
-          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" <<'PY'
+          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$MAP_NAME" <<'PY'
           import json, sys
-          path, slot, run_id, port, endpoint, ip = sys.argv[1], int(sys.argv[2]), str(sys.argv[3]), int(sys.argv[4]), sys.argv[5], sys.argv[6]
+          path, slot, run_id, port, endpoint, ip, map_name = sys.argv[1], int(sys.argv[2]), str(sys.argv[3]), int(sys.argv[4]), sys.argv[5], sys.argv[6], sys.argv[7]
           with open(path, "r", encoding="utf-8") as f:
               data = json.load(f)
           for server in data["servers"]:
@@ -204,7 +224,7 @@ jobs:
               current_run = server.get("run_id")
               if current_run not in (None, "", run_id):
                   raise SystemExit(f"Server {slot} owned by {current_run}")
-              server.update({"status": "starting", "run_id": run_id, "endpoint": endpoint, "ip": ip, "port": port})
+              server.update({"status": "starting", "run_id": run_id, "endpoint": endpoint, "ip": ip, "port": port, "map": map_name})
               break
           else:
               raise SystemExit(f"Slot {slot} missing")
@@ -244,28 +264,47 @@ jobs:
           chmod +x "$SERVER"
           echo "$SERVER" > "$GITHUB_WORKSPACE/server-path.txt"
 
-      - name: Install ServerConfig.txt and Prime map
+      - name: Write ServerConfig.txt for selected official map
+        env:
+          MAP_NAME: ${{ steps.config.outputs.MAP_NAME }}
         run: |
           set -e
-          [ -f "$GITHUB_WORKSPACE/ServerConfig.txt" ] || { echo "ServerConfig.txt missing"; exit 1; }
-          [ -f "$GITHUB_WORKSPACE/Prime.txt" ] || { echo "Prime.txt missing"; exit 1; }
+          MAP_NAME="${MAP_NAME:-TrainFacility}"
+          cat > "$GITHUB_WORKSPACE/ServerConfig.txt" <<EOF
+          #place config in /root/.config/unity3d/MA/LAC/ServerConfig.txt
+          #Maps (City, Garage, RagdollParty, TrainFacility)
+          #Maps (ZombieSurvival, NewTerrainRamps, Island, CarSoccer)
+
+          (Moderator)
+          admin code=12345
+          lock down=true
+
+          (Basic)
+          restart timer=never
+          max players=16
+          map name=${MAP_NAME}
+          starting port=7777
+
+          (Server List)
+          share to community=true
+          server language=English
+          server password=
+
+          (Roleplay)
+          username=HOST
+          password=0000
+          EOF
+          sed -i 's/^          //' "$GITHUB_WORKSPACE/ServerConfig.txt"
 
           install_tree() {
             local BASE="$1"
-            sudo mkdir -p "$BASE/editor/Prime"
+            sudo mkdir -p "$BASE"
             sudo cp "$GITHUB_WORKSPACE/ServerConfig.txt" "$BASE/ServerConfig.txt"
-            sudo cp "$GITHUB_WORKSPACE/Prime.txt" "$BASE/editor/Prime.txt"
-            if [ -d "$GITHUB_WORKSPACE/Prime" ]; then
-              sudo cp -a "$GITHUB_WORKSPACE/Prime/." "$BASE/editor/Prime/"
-            fi
             sudo chmod -R a+rX "$BASE"
           }
-
           install_tree /root/.config/unity3d/MA/LAC
           install_tree "$HOME/.config/unity3d/MA/LAC"
-
-          echo "===== installed ====="
-          sudo find /root/.config/unity3d/MA/LAC -print
+          echo "===== ServerConfig ====="
           sudo cat /root/.config/unity3d/MA/LAC/ServerConfig.txt
 
       - name: Start L.A. Crimes
@@ -273,24 +312,17 @@ jobs:
           set -e
           SERVER=$(cat "$GITHUB_WORKSPACE/server-path.txt")
           cd "$(dirname "$SERVER")"
-
           sudo -H env HOME=/root XDG_CONFIG_HOME=/root/.config \
             ./LAC_Linux_v1.9.6.x86_64 -batchmode -nographics \
             > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
-
           echo $! > "$GITHUB_WORKSPACE/lac.pid"
           sleep 25
-
           if ! kill -0 "$(cat "$GITHUB_WORKSPACE/lac.pid")" 2>/dev/null; then
-            echo "L.A. Crimes stopped"
             tail -300 "$GITHUB_WORKSPACE/lac-server.log" || true
             exit 1
           fi
-
           echo "PID=$(cat "$GITHUB_WORKSPACE/lac.pid")"
-          echo "===== listening ports ====="
           sudo ss -ulnp || true
-          echo "===== log tail ====="
           tail -80 "$GITHUB_WORKSPACE/lac-server.log" || true
 
       - name: Download Playit agent
@@ -328,11 +360,12 @@ jobs:
           PORT: ${{ steps.config.outputs.PORT }}
           ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
           IP: ${{ steps.config.outputs.IP }}
+          MAP_NAME: ${{ steps.config.outputs.MAP_NAME }}
         run: |
           set -e
-          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" <<'PY'
+          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$MAP_NAME" <<'PY'
           import json, sys
-          path, slot, run_id, port, endpoint, ip = sys.argv[1], int(sys.argv[2]), str(sys.argv[3]), int(sys.argv[4]), sys.argv[5], sys.argv[6]
+          path, slot, run_id, port, endpoint, ip, map_name = sys.argv[1], int(sys.argv[2]), str(sys.argv[3]), int(sys.argv[4]), sys.argv[5], sys.argv[6], sys.argv[7]
           with open(path, "r", encoding="utf-8") as f:
               data = json.load(f)
           for server in data["servers"]:
@@ -340,7 +373,7 @@ jobs:
                   continue
               if str(server.get("run_id")) != run_id:
                   raise SystemExit("ownership changed")
-              server.update({"status": "online", "run_id": run_id, "endpoint": endpoint, "ip": ip, "port": port})
+              server.update({"status": "online", "run_id": run_id, "endpoint": endpoint, "ip": ip, "port": port, "map": map_name})
               break
           with open(path, "w", encoding="utf-8") as f:
               json.dump(data, f, indent=2)
@@ -371,7 +404,7 @@ jobs:
           while true; do
             kill -0 "$(cat "$GITHUB_WORKSPACE/lac.pid")" 2>/dev/null || { tail -100 "$GITHUB_WORKSPACE/lac-server.log"; exit 1; }
             kill -0 "$(cat "$GITHUB_WORKSPACE/playit.pid")" 2>/dev/null || { cat "$GITHUB_WORKSPACE/playit.log"; exit 1; }
-            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT ONLINE"
+            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT MAP=${MAP_NAME:-TrainFacility} ONLINE"
             sleep 10
           done
 
@@ -399,6 +432,7 @@ jobs:
               server["endpoint"] = None
               server["ip"] = None
               server["port"] = None
+              server["map"] = None
               break
           with open(path, "w", encoding="utf-8") as f:
               json.dump(data, f, indent=2)
