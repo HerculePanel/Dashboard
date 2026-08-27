@@ -12,7 +12,7 @@ lock down=true
 (Basic)
 restart timer=never
 max players=16
-map name=editor:Prime
+map name=NewTerrainRamps
 starting port=7777
 
 (Server List)
