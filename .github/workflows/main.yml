@@ -91,8 +91,7 @@ jobs:
             mkdir -p "$HOME/.config/playit_gg"
             CLAIM_CODE=$("$GITHUB_WORKSPACE/playit-cli" claim generate 2>/dev/null | tr -d '\r\n' || true)
             if [ -z "$CLAIM_CODE" ] || [ ${#CLAIM_CODE} -lt 8 ]; then echo "claim generate failed"; exit 1; fi
-            CLAIM_URL="https://playit.gg/claim/$CLAIM_CODE"
-            echo "Open: $CLAIM_URL"
+            echo "Open: https://playit.gg/claim/$CLAIM_CODE"
             SECRET=""
             for i in $(seq 1 72); do
               sleep 10
@@ -185,7 +184,6 @@ jobs:
             --header "X-GitHub-Api-Version: 2022-11-28" \
             > "$GITHUB_WORKSPACE/gist-response.json"
           jq -r '.files["servers.json"].content' "$GITHUB_WORKSPACE/gist-response.json" > "$GITHUB_WORKSPACE/servers.json"
-          jq empty "$GITHUB_WORKSPACE/servers.json"
 
       - name: Mark server STARTING
         env:
@@ -215,21 +213,17 @@ jobs:
               f.write("\n")
           PY
           python3 - <<'PY'
-          import json, os
-          gist_id = os.environ["GIST_ID"]
-          token = os.environ["DASHBOARD_TOKEN"]
-          filename = os.environ["GIST_FILE"]
+          import json, os, urllib.request
           with open(os.path.join(os.environ["GITHUB_WORKSPACE"], "servers.json"), "r", encoding="utf-8") as f:
               content = f.read()
-          payload = {"files": {filename: {"content": content}}}
-          import urllib.request
+          payload = {"files": {os.environ["GIST_FILE"]: {"content": content}}}
           req = urllib.request.Request(
-              f"https://api.github.com/gists/{gist_id}",
+              "https://api.github.com/gists/" + os.environ["GIST_ID"],
               data=json.dumps(payload).encode("utf-8"),
               method="PATCH",
               headers={
                   "Accept": "application/vnd.github+json",
-                  "Authorization": f"Bearer {token}",
+                  "Authorization": "Bearer " + os.environ["DASHBOARD_TOKEN"],
                   "X-GitHub-Api-Version": "2022-11-28",
                   "Content-Type": "application/json",
               },
@@ -246,19 +240,15 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/lac"
           unzip -q "$GITHUB_WORKSPACE/LAC.zip" -d "$GITHUB_WORKSPACE/lac"
           SERVER=$(find "$GITHUB_WORKSPACE/lac" -type f -name "LAC_Linux_v1.9.6.x86_64" -print -quit)
-          [ -n "$SERVER" ] || { echo "Binary not found"; find "$GITHUB_WORKSPACE/lac" -maxdepth 4 -type f; exit 1; }
+          [ -n "$SERVER" ] || { echo "Binary not found"; exit 1; }
           chmod +x "$SERVER"
           echo "$SERVER" > "$GITHUB_WORKSPACE/server-path.txt"
-          echo "Binary: $SERVER"
 
-      - name: Install ServerConfig.txt and Prime map into every Unity path
+      - name: Install ServerConfig.txt and Prime map
         run: |
           set -e
-          [ -f "$GITHUB_WORKSPACE/ServerConfig.txt" ] || { echo "ServerConfig.txt missing in repo root"; exit 1; }
-          [ -f "$GITHUB_WORKSPACE/Prime.txt" ] || { echo "Prime.txt missing in repo root"; exit 1; }
-
-          grep -q '^map name=editor:Prime' "$GITHUB_WORKSPACE/ServerConfig.txt" \
-            || echo "WARNING: ServerConfig.txt does not contain map name=editor:Prime"
+          [ -f "$GITHUB_WORKSPACE/ServerConfig.txt" ] || { echo "ServerConfig.txt missing"; exit 1; }
+          [ -f "$GITHUB_WORKSPACE/Prime.txt" ] || { echo "Prime.txt missing"; exit 1; }
 
           install_tree() {
             local BASE="$1"
@@ -268,36 +258,24 @@ jobs:
             if [ -d "$GITHUB_WORKSPACE/Prime" ]; then
               sudo cp -a "$GITHUB_WORKSPACE/Prime/." "$BASE/editor/Prime/"
             fi
-            if [ -f "$GITHUB_WORKSPACE/prefs" ]; then
-              sudo cp "$GITHUB_WORKSPACE/prefs" "$BASE/prefs"
-            fi
             sudo chmod -R a+rX "$BASE"
           }
 
           install_tree /root/.config/unity3d/MA/LAC
           install_tree "$HOME/.config/unity3d/MA/LAC"
-          if [ -n "${XDG_CONFIG_HOME:-}" ]; then
-            install_tree "$XDG_CONFIG_HOME/unity3d/MA/LAC"
-          fi
 
-          echo "===== installed files ====="
+          echo "===== installed ====="
           sudo find /root/.config/unity3d/MA/LAC -print
-          find "$HOME/.config/unity3d/MA/LAC" -print
-          echo "===== ServerConfig ====="
           sudo cat /root/.config/unity3d/MA/LAC/ServerConfig.txt
 
-      - name: Start L.A. Crimes with forced config home
+      - name: Start L.A. Crimes
         run: |
           set -e
           SERVER=$(cat "$GITHUB_WORKSPACE/server-path.txt")
           cd "$(dirname "$SERVER")"
 
-          sudo -H env \
-            HOME=/root \
-            XDG_CONFIG_HOME=/root/.config \
-            XDG_DATA_HOME=/root/.local/share \
-            XDG_CACHE_HOME=/root/.cache \
-            ./LAC_Linux_v1.9.6.x86_64 \
+          sudo -H env HOME=/root XDG_CONFIG_HOME=/root/.config \
+            ./LAC_Linux_v1.9.6.x86_64 -batchmode -nographics \
             > "$GITHUB_WORKSPACE/lac-server.log" 2>&1 &
 
           echo $! > "$GITHUB_WORKSPACE/lac.pid"
@@ -310,10 +288,8 @@ jobs:
           fi
 
           echo "PID=$(cat "$GITHUB_WORKSPACE/lac.pid")"
-          echo "===== files after start ====="
-          sudo find /root/.config/unity3d/MA/LAC -print
-          echo "===== ServerConfig after start ====="
-          sudo cat /root/.config/unity3d/MA/LAC/ServerConfig.txt || true
+          echo "===== listening ports ====="
+          sudo ss -ulnp || true
           echo "===== log tail ====="
           tail -80 "$GITHUB_WORKSPACE/lac-server.log" || true
 
@@ -372,19 +348,16 @@ jobs:
           PY
           python3 - <<'PY'
           import json, os, urllib.request
-          gist_id = os.environ["GIST_ID"]
-          token = os.environ["DASHBOARD_TOKEN"]
-          filename = os.environ["GIST_FILE"]
           with open(os.path.join(os.environ["GITHUB_WORKSPACE"], "servers.json"), "r", encoding="utf-8") as f:
               content = f.read()
-          payload = {"files": {filename: {"content": content}}}
+          payload = {"files": {os.environ["GIST_FILE"]: {"content": content}}}
           req = urllib.request.Request(
-              f"https://api.github.com/gists/{gist_id}",
+              "https://api.github.com/gists/" + os.environ["GIST_ID"],
               data=json.dumps(payload).encode("utf-8"),
               method="PATCH",
               headers={
                   "Accept": "application/vnd.github+json",
-                  "Authorization": f"Bearer {token}",
+                  "Authorization": "Bearer " + os.environ["DASHBOARD_TOKEN"],
                   "X-GitHub-Api-Version": "2022-11-28",
                   "Content-Type": "application/json",
               },
@@ -433,27 +406,21 @@ jobs:
           PY
           python3 - <<'PY'
           import json, os, urllib.request
-          gist_id = os.environ.get("GIST_ID", "")
-          token = os.environ.get("DASHBOARD_TOKEN", "")
-          filename = os.environ.get("GIST_FILE", "servers.json")
-          if not gist_id or not token:
-              raise SystemExit(0)
-          path = os.path.join(os.environ["GITHUB_WORKSPACE"], "servers.json")
-          with open(path, "r", encoding="utf-8") as f:
-              content = f.read()
-          payload = {"files": {filename: {"content": content}}}
-          req = urllib.request.Request(
-              f"https://api.github.com/gists/{gist_id}",
-              data=json.dumps(payload).encode("utf-8"),
-              method="PATCH",
-              headers={
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": f"Bearer {token}",
-                  "X-GitHub-Api-Version": "2022-11-28",
-                  "Content-Type": "application/json",
-              },
-          )
           try:
+              with open(os.path.join(os.environ["GITHUB_WORKSPACE"], "servers.json"), "r", encoding="utf-8") as f:
+                  content = f.read()
+              payload = {"files": {os.environ.get("GIST_FILE", "servers.json"): {"content": content}}}
+              req = urllib.request.Request(
+                  "https://api.github.com/gists/" + os.environ["GIST_ID"],
+                  data=json.dumps(payload).encode("utf-8"),
+                  method="PATCH",
+                  headers={
+                      "Accept": "application/vnd.github+json",
+                      "Authorization": "Bearer " + os.environ["DASHBOARD_TOKEN"],
+                      "X-GitHub-Api-Version": "2022-11-28",
+                      "Content-Type": "application/json",
+                  },
+              )
               urllib.request.urlopen(req).read()
           except Exception:
               pass
