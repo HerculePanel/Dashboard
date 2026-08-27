@@ -6,156 +6,169 @@
   <title>HPanel</title>
   <style>
     :root {
-      --bg: #06070b;
-      --panel: rgba(20,22,30,0.75);
-      --border: rgba(255,255,255,0.12);
-      --text: #f3f5f8;
-      --muted: #9aa3b2;
-      --green: #2fe28a;
-      --red: #ff5f6d;
-      --yellow: #ffc857;
-      --blue: #6ea8ff;
-      --shadow: 0 25px 60px rgba(0,0,0,.55);
+      --bg: #07080c;
+      --text: #f4f6fb;
+      --muted: #9aa3b5;
+      --border: rgba(255,255,255,.12);
+      --green: #3ee39a;
+      --red: #ff6b7a;
+      --orange: #ff9f43;
+      --blue: #5b8cff;
       --radius: 22px;
+      --shadow: 0 24px 60px rgba(0,0,0,.5);
     }
     * { box-sizing: border-box; }
     body {
-      margin: 0; min-height: 100vh; font-family: Inter, system-ui, sans-serif;
-      color: var(--text); background: radial-gradient(circle at 15% 10%, rgba(80,110,255,.16), transparent 35%),
-      radial-gradient(circle at 85% 20%, rgba(47,226,138,.1), transparent 32%), var(--bg);
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(91,140,255,.16), transparent 34%),
+        radial-gradient(circle at 88% 18%, rgba(62,227,154,.10), transparent 30%),
+        var(--bg);
     }
     .login-modal {
-      position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
-      background: rgba(4,5,8,.72); backdrop-filter: blur(18px);
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(4,5,8,.78);
+      backdrop-filter: blur(16px);
+      opacity: 1;
+      visibility: visible;
+      transition: opacity .35s ease, visibility .35s ease;
     }
-    .login-card {
-      width: min(420px, calc(100%-32px)); padding: 32px 28px; border-radius: 28px;
-      border: 1px solid var(--border); background: linear-gradient(160deg, rgba(255,255,255,.1), rgba(255,255,255,.03));
-      box-shadow: var(--shadow); text-align: center;
+    .login-modal.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
     }
-    .login-card h1 { margin: 0 0 8px; }
-    .login-input { width: 100%; padding: 13px 14px; border-radius: 14px; border: 1px solid var(--border);
-      background: rgba(0,0,0,.35); color: var(--text); margin-bottom: 12px; outline: none; }
+    .login-card, .map-card {
+      width: min(420px, calc(100% - 32px));
+      padding: 30px 26px;
+      border-radius: 26px;
+      border: 1px solid var(--border);
+      background: linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .login-card h1, .map-card h2 { margin: 0 0 8px; }
+    .login-card p, .map-card p { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+    .login-input, .map-select {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.35);
+      color: var(--text);
+      outline: none;
+      margin-bottom: 12px;
+    }
     .btn {
-      border: 0; cursor: pointer; font-weight: 700; border-radius: 14px; padding: 11px 14px; color: #fff;
-      box-shadow: 0 6px 0 rgba(0,0,0,.35), 0 12px 22px rgba(0,0,0,.22);
+      border: 0;
+      cursor: pointer;
+      font-weight: 700;
+      border-radius: 14px;
+      padding: 11px 14px;
+      color: #fff;
+      box-shadow: 0 6px 0 rgba(0,0,0,.32);
     }
-    .btn:active:not(:disabled) { transform: translateY(3px); }
+    .btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,.32); }
     .btn:disabled { opacity: .45; cursor: not-allowed; }
-    .btn-blue { background: linear-gradient(180deg, #82b6ff, #4d8dff); }
-    .btn-green { background: linear-gradient(180deg, #4ef0a2, #1fc975); }
-    .btn-red { background: linear-gradient(180deg, #ff8a94, #e84555); }
-    .btn-glass { background: rgba(255,255,255,.08); border: 1px solid var(--border); color: var(--text); }
-    .app { width: min(1180px, calc(100%-30px)); margin: auto; padding: 34px 0 80px; opacity: 0; transform: translateY(12px);
-      transition: .45s; pointer-events: none; }
+    .btn-blue { background: linear-gradient(180deg, #7aa8ff, #3d74ff); }
+    .btn-green { background: linear-gradient(180deg, #57f0b0, #1dbf74); color: #052016; }
+    .btn-red { background: linear-gradient(180deg, #ff8b96, #e23b4d); }
+    .btn-orange { background: linear-gradient(180deg, #ffb35a, #ff8a1f); color: #2a1600; }
+    .btn-glass { background: rgba(255,255,255,.08); border: 1px solid var(--border); color: var(--text); box-shadow: none; }
+    .app {
+      width: min(1180px, calc(100% - 30px));
+      margin: auto;
+      padding: 34px 0 80px;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: .35s ease;
+    }
     .app.visible { opacity: 1; transform: none; pointer-events: auto; }
     .hero { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
-    .hero h1 { margin: 0; font-size: clamp(28px,5vw,44px); }
+    .hero h1 { margin: 0; font-size: clamp(28px, 5vw, 44px); }
     .hero p { margin: 6px 0 0; color: var(--muted); }
-    .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .tab { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border);
-      background: rgba(255,255,255,.04); color: var(--muted); cursor: pointer; font-weight: 700; }
-    .tab.active { color: var(--text); background: rgba(110,168,255,.15); border-color: rgba(110,168,255,.4); }
-    .view { display: none; }
-    .view.active { display: block; }
-    .panel { padding: 18px; margin-bottom: 16px; border-radius: var(--radius); border: 1px solid var(--border);
-      background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.03)); box-shadow: var(--shadow); }
+    .hero-actions { display: flex; gap: 8px; }
     .servers { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
-    .card { padding: 16px; border-radius: var(--radius); border: 1px solid var(--border);
-      background: rgba(255,255,255,.04); }
-    .card.online { border-color: rgba(47,226,138,.45); background: linear-gradient(155deg, rgba(47,226,138,.16), rgba(255,255,255,.03)); }
+    .card {
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+    }
+    .card.online {
+      border-color: rgba(62,227,154,.45);
+      background: linear-gradient(155deg, rgba(62,227,154,.16), rgba(255,255,255,.03));
+    }
     .muted { color: var(--muted); font-size: 13px; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
-    .box { padding: 10px; border-radius: 12px; background: rgba(0,0,0,.22); border: 1px solid rgba(255,255,255,.06);
-      font-size: 13px; word-break: break-word; }
+    .box { padding: 10px; border-radius: 12px; background: rgba(0,0,0,.22); border: 1px solid rgba(255,255,255,.06); font-size: 13px; word-break: break-word; }
     .actions { display: flex; gap: 8px; }
     .actions .btn { flex: 1; }
-    .toast-box { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 2000; width: min(420px, calc(100%-28px)); }
-    .toast { margin-top: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border);
-      background: rgba(18,20,28,.92); font-weight: 600; font-size: 14px; }
+    .map-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(4,5,8,.72);
+      backdrop-filter: blur(12px);
+    }
+    .map-modal.hidden { display: none; }
+    .toast-box { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 2000; width: min(420px, calc(100% - 28px)); }
+    .toast { margin-top: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: rgba(18,20,28,.94); font-weight: 600; }
     .ok { color: #9dffc9; }
     .err { color: #ffb0b7; }
     .info { color: #c5dbff; }
     .footer { margin-top: 26px; text-align: center; color: #5d6572; font-size: 12px; }
-    @media (max-width: 900px) { .servers, .fm { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .servers { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-<div id="loginModal" class="login-modal">
-  <div class="login-card">
-    <h1>HPanel</h1>
-    <p>Enter your GitHub token (will be saved in browser)</p>
-    <input id="tokenInput" class="login-input" type="password" placeholder="github_pat_...">
-    <button class="btn btn-blue" style="width:100%" onclick="connectGitHub()">Unlock</button>
-    <button class="btn btn-glass" style="margin-top:8px" onclick="logout()">Logout</button>
-  </div>
-</div>
-
-<div class="app" id="app">
-  <div class="hero">
-    <div>
+  <div id="loginModal" class="login-modal">
+    <div class="login-card">
       <h1>HPanel</h1>
-      <p>Map selector • Servers • Repo editor</p>
-    </div>
-    <div class="muted" id="connectionText">Connected</div>
-  </div>
-
-  <div class="tabs">
-    <button class="tab active" onclick="switchView('servers')">Servers</button>
-    <button class="tab" onclick="switchView('files')">File editor</button>
-    <button class="tab" onclick="switchView('setup')">Playit setup</button>
-    <button class="tab" onclick="switchView('maps')">Map selector</button>
-  </div>
-
-  <!-- SERVERS VIEW -->
-  <div id="view-servers" class="view active">
-    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
-      <h2 style="margin:0">Servers</h2>
-      <button class="btn btn-glass" onclick="refreshDashboard()">Refresh</button>
-    </div>
-    <div id="servers" class="servers"></div>
-  </div>
-
-  <!-- MAP SELECTOR VIEW -->
-  <div id="view-maps" class="view">
-    <div class="panel">
-      <h2 style="margin-top:0">Choose Server Map</h2>
-      <p class="muted">Click a button to instantly change the map on <strong>one server</strong> (default is editor:Prime)</p>
-      <div id="map-buttons" class="servers"></div>
+      <p>Enter your GitHub token</p>
+      <input id="tokenInput" class="login-input" type="password" placeholder="github_pat_...">
+      <button class="btn btn-blue" style="width:100%" onclick="connectGitHub()">Unlock</button>
     </div>
   </div>
 
-  <!-- FILE EDITOR VIEW (kept for now) -->
-  <div id="view-files" class="view">
-    <div class="panel">
-      <h2 style="margin-top:0">Repo file editor</h2>
-      <p class="muted">Edits files in the GitHub repo. Token needs <b>repo contents write</b>.</p>
-      <div class="fm">
-        <div class="fm-side" id="fmList"></div>
-        <div class="fm-main">
-          <div class="fm-toolbar">
-            <span id="fmLabel">No file selected</span>
-            <button class="btn btn-glass" onclick="loadRepoFile(currentFile)">Reload</button>
-            <button class="btn btn-green" onclick="saveRepoFile()">Save to repo</button>
-          </div>
-          <textarea id="fmEditor" spellcheck="false" placeholder="Select a file…"></textarea>
-        </div>
+  <div id="mapModal" class="map-modal hidden">
+    <div class="map-card">
+      <h2>Choose map</h2>
+      <p id="mapSlotText">Pick an official map for this server.</p>
+      <select id="mapSelect" class="map-select"></select>
+      <button class="btn btn-green" style="width:100%" onclick="confirmStart()">Start server</button>
+      <button class="btn btn-glass" style="width:100%;margin-top:8px" onclick="closeMapModal()">Cancel</button>
+    </div>
+  </div>
+
+  <div class="app" id="app">
+    <div class="hero">
+      <div>
+        <h1>HPanel</h1>
+        <p>Official maps only</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-glass" onclick="refreshDashboard()">Refresh</button>
+        <button class="btn btn-orange" onclick="logout()">Logout</button>
       </div>
     </div>
+    <div id="servers" class="servers"></div>
+    <div class="footer">HerculePanel © 2026</div>
   </div>
 
-  <!-- SETUP VIEW -->
-  <div id="view-setup" class="view">
-    <div class="panel">
-      <h2 style="margin-top:0">Playit setup</h2>
-      <p class="muted">Creates missing PLAYIT secrets. Check the Actions log for claim links.</p>
-      <button class="btn btn-yellow" onclick="runSetup()">Run Playit Setup</button>
-    </div>
-  </div>
-  <div class="footer">HerculePanel © 2026</div>
-</div>
-
-<div class="toast-box" id="toasts"></div>
+  <div class="toast-box" id="toasts"></div>
 
 <script>
 const CONFIG = {
@@ -175,209 +188,189 @@ const CONFIG = {
     "NewTerrainRamps",
     "Island",
     "CarSoccer"
-  ],
-  defaultMap: "NewTerrainRamps"
+  ]
 };
 
+const TOKEN_KEY = "hpanel_github_token";
 let githubToken = "";
 let serversData = null;
-let currentFile = "ServerConfig.txt";
-let fileSha = {};
+let pendingSlot = null;
 
-function toast(msg, type="info") {
+function toast(msg, type) {
   const el = document.createElement("div");
-  el.className = `toast ${type==="error"?"err":type==="success"?"ok":"info"}`;
+  el.className = "toast " + (type === "error" ? "err" : type === "success" ? "ok" : "info");
   el.textContent = msg;
   document.getElementById("toasts").appendChild(el);
   setTimeout(() => el.remove(), 3500);
 }
-function setCookie(token){ document.cookie = `github_token=${encodeURIComponent(token)}; path=/; max-age=${30*24*60*60}; SameSite=Lax`; }
-function getCookie(){ const r=document.cookie.split("; ").find(x=>x.startsWith("github_token=")); return r?decodeURIComponent(r.split("=")[1]||""):""; }
-async function api(path, options={}) {
-  const headers = {"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(options.headers||{})};
-  if (githubToken) headers.Authorization = `Bearer ${githubToken}`;
-  return fetch(`${CONFIG.api}${path}`, {...options, headers});
-}
-function switchView(name){
-  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active", ["servers","files","setup","maps"][i]===name));
-  document.getElementById(`view-${name}`).classList.add("active");
-  if (name==="maps") renderMapButtons();
-  if (name==="files") { renderFileList(); loadRepoFile(currentFile); }
-}
-function esc(s){ return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
 
-async function connectGitHub(){
-  const token = document.getElementById("tokenInput").value.trim() || getCookie();
-  if (!token) return toast("Enter token","error");
-  githubToken = token;
-  try {
-    const r = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}`);
-    if (!r.ok) throw new Error("Cannot access repo");
-    const g = await api(`/gists/${CONFIG.gistId}`);
-    if (!g.ok) throw new Error("Cannot access gist");
-    setCookie(token);
-    document.getElementById("loginModal").classList.add("hidden");
-    document.getElementById("app").classList.add("visible");
-    toast("Unlocked","success");
-    refreshDashboard();
-    setInterval(refreshDashboard, 10000);
-  } catch(e){ githubToken=""; toast(e.message||"Auth failed","error"); }
+function saveToken(token) {
+  localStorage.setItem(TOKEN_KEY, token);
+  document.cookie = "github_token=" + encodeURIComponent(token) + "; path=/; max-age=" + (30*24*60*60) + "; SameSite=Lax";
 }
 
-async function logout(){
-  if (!confirm("Remove token from browser?")) return;
-  document.cookie = "github_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
-  githubToken = "";
+function loadToken() {
+  return localStorage.getItem(TOKEN_KEY)
+    || (document.cookie.split("; ").find(x => x.startsWith("github_token=")) || "").split("=")[1] && decodeURIComponent((document.cookie.split("; ").find(x => x.startsWith("github_token=")) || "").split("=")[1] || "")
+    || "";
+}
+
+function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+  document.cookie = "github_token=; path=/; max-age=0; SameSite=Lax";
+}
+
+function showApp() {
+  document.getElementById("loginModal").classList.add("hidden");
+  document.getElementById("app").classList.add("visible");
+}
+
+function hideApp() {
   document.getElementById("app").classList.remove("visible");
   document.getElementById("loginModal").classList.remove("hidden");
-  toast("Logged out","info");
 }
 
-async function loadServers(){
-  const res = await api(`/gists/${CONFIG.gistId}`);
+async function api(path, options) {
+  options = options || {};
+  const headers = Object.assign({
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28"
+  }, options.headers || {});
+  if (githubToken) headers.Authorization = "Bearer " + githubToken;
+  return fetch(CONFIG.api + path, Object.assign({}, options, { headers }));
+}
+
+function esc(s) {
+  return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
+
+async function connectGitHub() {
+  const token = document.getElementById("tokenInput").value.trim() || loadToken();
+  if (!token) return toast("Enter token", "error");
+  githubToken = token;
+  try {
+    const r = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo);
+    if (!r.ok) throw new Error("Cannot access repo");
+    const g = await api("/gists/" + CONFIG.gistId);
+    if (!g.ok) throw new Error("Cannot access gist");
+    saveToken(token);
+    showApp();
+    toast("Unlocked", "success");
+    refreshDashboard();
+  } catch (e) {
+    githubToken = "";
+    hideApp();
+    toast(e.message || "Auth failed", "error");
+  }
+}
+
+function logout() {
+  clearToken();
+  githubToken = "";
+  document.getElementById("tokenInput").value = "";
+  hideApp();
+  toast("Logged out", "info");
+}
+
+async function loadServers() {
+  const res = await api("/gists/" + CONFIG.gistId);
   if (!res.ok) throw new Error("Gist read failed");
   const data = await res.json();
-  const file = data.files?.[CONFIG.gistFile];
+  const file = data.files && data.files[CONFIG.gistFile];
   if (!file) throw new Error("servers.json missing");
   let content = file.content;
   if (file.truncated && file.raw_url) content = await (await fetch(file.raw_url)).text();
   return JSON.parse(content);
 }
-function renderServers(data){
+
+function renderServers(data) {
   serversData = data;
   const root = document.getElementById("servers");
   root.innerHTML = "";
-  [...data.servers].sort((a,b)=>a.slot-b.slot).forEach(server=>{
-    const status = String(server.status||"offline").toLowerCase();
+  [...data.servers].sort((a,b) => a.slot - b.slot).forEach(server => {
+    const status = String(server.status || "offline").toLowerCase();
     const card = document.createElement("div");
-    card.className = `card ${status==="online"?"online":""}`;
-    card.innerHTML = `
-      <div style="font-size:20px;font-weight:700">Server ${esc(server.slot)}</div>
-      <div class="muted">${esc(status)} • map ${esc(server.map||"NewTerrainRamps")}</div>
-      <div class="grid2">
-        <div class="box"><div class="muted">Endpoint</div>${esc(server.endpoint||"—")}</div>
-        <div class="box"><div class="muted">IP</div>${esc(server.ip||"—")}</div>
-        <div class="box"><div class="muted">Local UDP</div>${esc(server.port||"—")}</div>
-      </div>
-      <div class="actions">
-        <button class="btn btn-green" ${status!=="offline"?"disabled":""} onclick="startServer(${Number(server.slot)})">Turn ON</button>
-        <button class="btn btn-red" ${status==="offline"?"disabled":""} onclick="stopServer(${Number(server.slot)})">Turn OFF</button>
-      </div>`;
+    card.className = "card" + (status === "online" ? " online" : "");
+    card.innerHTML =
+      '<div style="font-size:20px;font-weight:700">Server ' + esc(server.slot) + '</div>' +
+      '<div class="muted">' + esc(status) + (server.map ? ' · ' + esc(server.map) : '') + '</div>' +
+      '<div class="grid2">' +
+        '<div class="box"><div class="muted">Endpoint</div>' + esc(server.endpoint || "—") + '</div>' +
+        '<div class="box"><div class="muted">IP</div>' + esc(server.ip || "—") + '</div>' +
+        '<div class="box"><div class="muted">Port</div>' + esc(server.port || "—") + '</div>' +
+        '<div class="box"><div class="muted">Run ID</div>' + esc(server.run_id || "—") + '</div>' +
+      '</div>' +
+      '<div class="actions">' +
+        '<button class="btn btn-green"' + (status !== "offline" ? " disabled" : "") + ' onclick="openMapModal(' + Number(server.slot) + ')">Turn ON</button>' +
+        '<button class="btn btn-red"' + (status === "offline" ? " disabled" : "") + ' onclick="stopServer(' + Number(server.slot) + ')">Turn OFF</button>' +
+      '</div>';
     root.appendChild(card);
   });
 }
-function renderMapButtons(){
-  const root = document.getElementById("map-buttons");
-  root.innerHTML = "";
-  CONFIG.maps.forEach(map=>{
-    const btn = document.createElement("button");
-    btn.className = "btn btn-green";
-    btn.textContent = map;
-    btn.onclick = () => changeMap(map);
-    root.appendChild(btn);
-  });
-}
-async function refreshDashboard(){
+
+async function refreshDashboard() {
   if (!githubToken) return;
   try { renderServers(await loadServers()); }
-  catch(e){ toast(e.message||"Refresh failed","error"); }
+  catch (e) { toast(e.message || "Refresh failed", "error"); }
 }
-async function startServer(slot){
-  toast(`Server ${slot} queued…`,"info");
-  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/${encodeURIComponent(CONFIG.workflow)}/dispatches`,{
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ref:CONFIG.branch, inputs:{mode:"start", slot:String(slot)}})
-  });
-  if (!res.ok) return toast(`Start failed (${res.status})`,"error");
-  toast(`Server ${slot} starting`,"success");
+
+function openMapModal(slot) {
+  pendingSlot = slot;
+  document.getElementById("mapSlotText").textContent = "Official map for Server " + slot;
+  const select = document.getElementById("mapSelect");
+  select.innerHTML = CONFIG.maps.map(m => '<option value="' + m + '">' + m + '</option>').join("");
+  select.value = "TrainFacility";
+  document.getElementById("mapModal").classList.remove("hidden");
+}
+
+function closeMapModal() {
+  pendingSlot = null;
+  document.getElementById("mapModal").classList.add("hidden");
+}
+
+async function confirmStart() {
+  const slot = pendingSlot;
+  const map = document.getElementById("mapSelect").value;
+  if (!slot) return;
+  closeMapModal();
+  toast("Server " + slot + " queued on " + map, "info");
+  const res = await api(
+    "/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/workflows/" + encodeURIComponent(CONFIG.workflow) + "/dispatches",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ref: CONFIG.branch,
+        inputs: { mode: "start", slot: String(slot), map: map }
+      })
+    }
+  );
+  if (!res.ok) return toast("Start failed (" + res.status + ")", "error");
+  toast("Server " + slot + " starting", "success");
   setTimeout(refreshDashboard, 2500);
 }
-async function stopServer(slot){
-  const server = serversData?.servers?.find(s=>Number(s.slot)===Number(slot));
-  if (!server?.run_id) return toast("No run id","error");
-  if (!confirm(`Stop server ${slot}?`)) return;
-  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/actions/runs/${encodeURIComponent(server.run_id)}/cancel`,{method:"POST"});
-  if (!res.ok && res.status!==409) return toast(`Stop failed (${res.status})`,"error");
-  toast(`Stop requested for ${slot}`,"success");
-  setTimeout(refreshDashboard, 3000);
-}
-async function runSetup(){
-  if (!confirm("Run Playit setup?")) return;
-  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/${encodeURIComponent(CONFIG.workflow)}/dispatches`,{
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ref:CONFIG.branch, inputs:{mode:"setup", slot:"1"}})
-  });
-  if (!res.ok) return toast(`Setup failed (${res.status})`,"error");
-  toast("Setup started","success");
-}
 
-// Map selector
-async function changeMap(map){
-  if (!serversData || !serversData.servers) return toast("No servers data","error");
-  const server = serversData.servers[0]; // first server
-  if (!server.run_id) return toast("Server not running","error");
-  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/${encodeURIComponent(CONFIG.workflow)}/dispatches`,{
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ref:CONFIG.branch, inputs:{mode:"start", slot:server.slot, map:map}})
-  });
-  if (!res.ok) return toast(`Map change failed (${res.status})`,"error");
-  toast(`Map changed to ${map}`,"success");
+async function stopServer(slot) {
+  const server = serversData && serversData.servers && serversData.servers.find(s => Number(s.slot) === Number(slot));
+  if (!server || !server.run_id) return toast("No run id", "error");
+  if (!confirm("Stop server " + slot + "?")) return;
+  const res = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/runs/" + encodeURIComponent(server.run_id) + "/cancel", { method: "POST" });
+  if (!res.ok && res.status !== 409) return toast("Stop failed (" + res.status + ")", "error");
+  toast("Stop requested for " + slot, "success");
   setTimeout(refreshDashboard, 3000);
 }
 
-// File editor (unchanged from previous version)
-function renderFileList(){
-  const list = document.getElementById("fmList");
-  list.innerHTML = "";
-  ["ServerConfig.txt", "Prime.txt"].forEach(name=>{ // Prime.txt kept for now
-    const div = document.createElement("div");
-    div.className = "fm-item" + (name===currentFile?" active":"");
-    div.textContent = "📄 " + name;
-    div.onclick = ()=>loadRepoFile(name);
-    list.appendChild(div);
-  });
-}
-async function loadRepoFile(path){
-  currentFile = path;
-  renderFileList();
-  document.getElementById("fmLabel").textContent = "Loading " + path + "…";
-  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(CONFIG.branch)}`);
-  if (!res.ok) {
-    document.getElementById("fmLabel").textContent = path + " not found";
-    document.getElementById("fmEditor").value = "";
-    return toast(path + " missing in repo","error");
-  }
-  const data = await res.json();
-  fileSha[path] = data.sha;
-  const text = decodeURIComponent(escape(atob(data.content.replace(/\n/g,""))));
-  document.getElementById("fmEditor").value = text;
-  document.getElementById("fmLabel").textContent = path;
-}
-async function saveRepoFile(){
-  const path = currentFile;
-  const content = document.getElementById("fmEditor").value;
-  if (!path) return;
-  const body = {
-    message: `HPanel: update ${path}`,
-    content: btoa(unescape(encodeURIComponent(content))),
-    branch: CONFIG.branch
-  };
-  if (fileSha[path]) body.sha = fileSha[path];
-  const res = await api(`/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${encodeURIComponent(path)}`,{
-    method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(()=>({}));
-    return toast(err.message || `Save failed (${res.status})`,"error");
-  }
-  const data = await res.json();
-  fileSha[path] = data.content?.sha || fileSha[path];
-  toast(path + " saved. Restart a server to apply.","success");
-}
+document.getElementById("tokenInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") connectGitHub();
+});
 
-document.getElementById("tokenInput").addEventListener("keydown", e=>{ if(e.key==="Enter") connectGitHub(); });
-window.onload = ()=>{ const t=getCookie(); if(t){ document.getElementById("tokenInput").value=t; connectGitHub(); } };
+window.onload = function () {
+  const saved = loadToken();
+  if (saved) {
+    document.getElementById("tokenInput").value = saved;
+    connectGitHub();
+  }
+};
 </script>
 </body>
-    </html>
+</html>
