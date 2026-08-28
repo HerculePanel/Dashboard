@@ -131,10 +131,11 @@ jobs:
   server:
     if: ${{ inputs.mode == 'start' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 346
     env:
       SLOT: ${{ inputs.slot }}
       MAP_NAME: ${{ inputs.map }}
+      DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
 
     steps:
       - name: Configure server slot
@@ -154,11 +155,9 @@ jobs:
           echo "IP=$IP" >> "$GITHUB_OUTPUT"
           echo "ENDPOINT=${DOMAIN}:${PUBLIC_PORT}" >> "$GITHUB_OUTPUT"
           echo "MAP_NAME=$MAP_NAME" >> "$GITHUB_OUTPUT"
-          echo "Slot $SLOT map $MAP_NAME"
 
       - name: Check required secrets
         env:
-          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
           PLAYIT_SECRET_1: ${{ secrets.PLAYIT_SECRET_1 }}
           PLAYIT_SECRET_2: ${{ secrets.PLAYIT_SECRET_2 }}
           PLAYIT_SECRET_3: ${{ secrets.PLAYIT_SECRET_3 }}
@@ -192,8 +191,6 @@ jobs:
           sudo sysctl -w net.ipv6.conf.lo.disable_ipv6=1
 
       - name: Download server database
-        env:
-          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
         run: |
           set -e
           curl --fail --silent --show-error --request GET \
@@ -206,7 +203,6 @@ jobs:
 
       - name: Mark server STARTING
         env:
-          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
           PORT: ${{ steps.config.outputs.PORT }}
           ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
           IP: ${{ steps.config.outputs.IP }}
@@ -215,7 +211,10 @@ jobs:
           set -e
           python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$MAP_NAME" <<'PY'
           import json, sys
-          path, slot, run_id, port, endpoint, ip, map_name = sys.argv[1], int(sys.argv[2]), str(sys.argv[3]), int(sys.argv[4]), sys.argv[5], sys.argv[6], sys.argv[7]
+          from datetime import datetime, timezone
+          path, slot, run_id = sys.argv[1], int(sys.argv[2]), str(sys.argv[3])
+          port, endpoint, ip, map_name = int(sys.argv[4]), sys.argv[5], sys.argv[6], sys.argv[7]
+          now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
           with open(path, "r", encoding="utf-8") as f:
               data = json.load(f)
           for server in data["servers"]:
@@ -224,7 +223,15 @@ jobs:
               current_run = server.get("run_id")
               if current_run not in (None, "", run_id):
                   raise SystemExit(f"Server {slot} owned by {current_run}")
-              server.update({"status": "starting", "run_id": run_id, "endpoint": endpoint, "ip": ip, "port": port, "map": map_name})
+              server.update({
+                  "status": "starting",
+                  "run_id": run_id,
+                  "endpoint": endpoint,
+                  "ip": ip,
+                  "port": port,
+                  "map": map_name,
+                  "started_at": now
+              })
               break
           else:
               raise SystemExit(f"Slot {slot} missing")
@@ -295,7 +302,6 @@ jobs:
           password=0000
           EOF
           sed -i 's/^          //' "$GITHUB_WORKSPACE/ServerConfig.txt"
-
           install_tree() {
             local BASE="$1"
             sudo mkdir -p "$BASE"
@@ -304,7 +310,6 @@ jobs:
           }
           install_tree /root/.config/unity3d/MA/LAC
           install_tree "$HOME/.config/unity3d/MA/LAC"
-          echo "===== ServerConfig ====="
           sudo cat /root/.config/unity3d/MA/LAC/ServerConfig.txt
 
       - name: Start L.A. Crimes
@@ -356,7 +361,6 @@ jobs:
 
       - name: Mark server ONLINE
         env:
-          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
           PORT: ${{ steps.config.outputs.PORT }}
           ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
           IP: ${{ steps.config.outputs.IP }}
@@ -365,7 +369,10 @@ jobs:
           set -e
           python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$MAP_NAME" <<'PY'
           import json, sys
-          path, slot, run_id, port, endpoint, ip, map_name = sys.argv[1], int(sys.argv[2]), str(sys.argv[3]), int(sys.argv[4]), sys.argv[5], sys.argv[6], sys.argv[7]
+          from datetime import datetime, timezone
+          path, slot, run_id = sys.argv[1], int(sys.argv[2]), str(sys.argv[3])
+          port, endpoint, ip, map_name = int(sys.argv[4]), sys.argv[5], sys.argv[6], sys.argv[7]
+          now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
           with open(path, "r", encoding="utf-8") as f:
               data = json.load(f)
           for server in data["servers"]:
@@ -373,7 +380,15 @@ jobs:
                   continue
               if str(server.get("run_id")) != run_id:
                   raise SystemExit("ownership changed")
-              server.update({"status": "online", "run_id": run_id, "endpoint": endpoint, "ip": ip, "port": port, "map": map_name})
+              server.update({
+                  "status": "online",
+                  "run_id": run_id,
+                  "endpoint": endpoint,
+                  "ip": ip,
+                  "port": port,
+                  "map": map_name,
+                  "started_at": server.get("started_at") or now
+              })
               break
           with open(path, "w", encoding="utf-8") as f:
               json.dump(data, f, indent=2)
@@ -398,28 +413,184 @@ jobs:
           urllib.request.urlopen(req).read()
           PY
 
-      - name: Keep server alive
+      - name: Keep server alive and sync gist every minute
+        env:
+          PORT: ${{ steps.config.outputs.PORT }}
+          ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
+          IP: ${{ steps.config.outputs.IP }}
+          MAP_NAME: ${{ steps.config.outputs.MAP_NAME }}
         run: |
           set -e
+          START=$(date +%s)
+          LIMIT=$((5 * 3600 + 45 * 60))
+
+          snapshot_and_upload() {
+            python3 - <<'PY'
+          import json, os, subprocess
+          slot = os.environ.get("SLOT", "1")
+          def run(cmd):
+              try:
+                  return subprocess.check_output(cmd, shell=True, text=True, stderr=subprocess.STDOUT)
+              except Exception as e:
+                  return str(e)
+          out = {
+              "slot": int(slot),
+              "time": run("date -u +%Y-%m-%dT%H:%M:%SZ").strip(),
+              "files": {}
+          }
+          paths = [
+              "/root/.config/unity3d/MA/LAC",
+              "/root/.config/unity3d/MA/LAC/editor",
+              "/home/runner/.config/unity3d/MA/LAC"
+          ]
+          for p in paths:
+              out["files"][p] = {"type": "dir", "body": run("sudo ls -la " + p)}
+          ws = os.environ.get("GITHUB_WORKSPACE", "")
+          for f in [
+              "/root/.config/unity3d/MA/LAC/ServerConfig.txt",
+              os.path.join(ws, "lac-server.log"),
+              os.path.join(ws, "playit.log")
+          ]:
+              out["files"][f] = {"type": "file", "body": run("sudo tail -c 20000 " + f)[:20000]}
+          path = os.path.join(ws, "runtime-snapshot.json")
+          with open(path, "w", encoding="utf-8") as fh:
+              json.dump(out, fh, indent=2)
+          PY
+            python3 - <<'PY'
+          import json, os, urllib.request
+          slot = os.environ.get("SLOT", "1")
+          filename = "runtime-" + slot + ".json"
+          with open(os.path.join(os.environ["GITHUB_WORKSPACE"], "runtime-snapshot.json"), "r", encoding="utf-8") as f:
+              content = f.read()
+          payload = {"files": {filename: {"content": content}}}
+          req = urllib.request.Request(
+              "https://api.github.com/gists/" + os.environ["GIST_ID"],
+              data=json.dumps(payload).encode("utf-8"),
+              method="PATCH",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": "Bearer " + os.environ["DASHBOARD_TOKEN"],
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "Content-Type": "application/json",
+              },
+          )
+          try:
+              urllib.request.urlopen(req).read()
+          except Exception as e:
+              print("snapshot upload failed:", e)
+          PY
+          }
+
+          sync_gist_truth() {
+            python3 - "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$MAP_NAME" <<'PY'
+          import json, os, sys, urllib.request
+          slot, run_id = int(sys.argv[1]), str(sys.argv[2])
+          port, endpoint, ip, map_name = int(sys.argv[3]), sys.argv[4], sys.argv[5], sys.argv[6]
+          gist_id = os.environ["GIST_ID"]
+          token = os.environ["DASHBOARD_TOKEN"]
+          filename = os.environ["GIST_FILE"]
+          req = urllib.request.Request(
+              "https://api.github.com/gists/" + gist_id,
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": "Bearer " + token,
+                  "X-GitHub-Api-Version": "2022-11-28",
+              },
+          )
+          with urllib.request.urlopen(req) as resp:
+              gist = json.load(resp)
+          content = gist["files"][filename]["content"]
+          data = json.loads(content)
+          changed = False
+          for server in data["servers"]:
+              if int(server["slot"]) != slot:
+                  continue
+              wanted = {
+                  "status": "online",
+                  "run_id": run_id,
+                  "endpoint": endpoint,
+                  "ip": ip,
+                  "port": port,
+                  "map": map_name
+              }
+              for key, value in wanted.items():
+                  if server.get(key) != value:
+                      server[key] = value
+                      changed = True
+              if not server.get("started_at"):
+                  from datetime import datetime, timezone
+                  server["started_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+                  changed = True
+              break
+          if not changed:
+              print("Gist already truthful for slot", slot)
+              return
+          print("Gist was stale. Updating slot", slot)
+          payload = {"files": {filename: {"content": json.dumps(data, indent=2) + "\n"}}}
+          patch = urllib.request.Request(
+              "https://api.github.com/gists/" + gist_id,
+              data=json.dumps(payload).encode("utf-8"),
+              method="PATCH",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": "Bearer " + token,
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "Content-Type": "application/json",
+              },
+          )
+          urllib.request.urlopen(patch).read()
+          with open(os.path.join(os.environ["GITHUB_WORKSPACE"], "servers.json"), "w", encoding="utf-8") as f:
+              json.dump(data, f, indent=2)
+              f.write("\n")
+          PY
+          }
+
+          LAST_SYNC=0
           while true; do
+            NOW=$(date +%s)
+            if [ $((NOW - START)) -ge "$LIMIT" ]; then
+              echo "Auto-stop after 5h45m so gist cleanup can run."
+              exit 0
+            fi
             kill -0 "$(cat "$GITHUB_WORKSPACE/lac.pid")" 2>/dev/null || { tail -100 "$GITHUB_WORKSPACE/lac-server.log"; exit 1; }
             kill -0 "$(cat "$GITHUB_WORKSPACE/playit.pid")" 2>/dev/null || { cat "$GITHUB_WORKSPACE/playit.log"; exit 1; }
-            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT MAP=${MAP_NAME:-TrainFacility} ONLINE"
+            if [ $((NOW - LAST_SYNC)) -ge 60 ]; then
+              sync_gist_truth || true
+              snapshot_and_upload || true
+              LAST_SYNC=$NOW
+            fi
+            LEFT=$((LIMIT - (NOW - START)))
+            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT ONLINE left=${LEFT}s"
             sleep 10
           done
 
       - name: Cleanup server state
         if: always()
-        env:
-          DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
         run: |
           set +e
-          [ -f "$GITHUB_WORKSPACE/servers.json" ] || exit 0
-          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" <<'PY'
-          import json, sys
-          path, slot, run_id = sys.argv[1], int(sys.argv[2]), str(sys.argv[3])
-          with open(path, "r", encoding="utf-8") as f:
-              data = json.load(f)
+          python3 - "$SLOT" "$GITHUB_RUN_ID" <<'PY'
+          import json, os, sys, urllib.request
+          slot, run_id = int(sys.argv[1]), str(sys.argv[2])
+          gist_id = os.environ.get("GIST_ID", "")
+          token = os.environ.get("DASHBOARD_TOKEN", "")
+          filename = os.environ.get("GIST_FILE", "servers.json")
+          if not gist_id or not token:
+              sys.exit(0)
+          req = urllib.request.Request(
+              "https://api.github.com/gists/" + gist_id,
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": "Bearer " + token,
+                  "X-GitHub-Api-Version": "2022-11-28",
+              },
+          )
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  gist = json.load(resp)
+              data = json.loads(gist["files"][filename]["content"])
+          except Exception as e:
+              print("cleanup fetch failed:", e)
+              sys.exit(0)
           for server in data["servers"]:
               if int(server["slot"]) != slot:
                   continue
@@ -433,29 +604,23 @@ jobs:
               server["ip"] = None
               server["port"] = None
               server["map"] = None
+              server["started_at"] = None
               break
-          with open(path, "w", encoding="utf-8") as f:
-              json.dump(data, f, indent=2)
-              f.write("\n")
-          PY
-          python3 - <<'PY'
-          import json, os, urllib.request
+          payload = {"files": {filename: {"content": json.dumps(data, indent=2) + "\n"}}}
+          patch = urllib.request.Request(
+              "https://api.github.com/gists/" + gist_id,
+              data=json.dumps(payload).encode("utf-8"),
+              method="PATCH",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": "Bearer " + token,
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "Content-Type": "application/json",
+              },
+          )
           try:
-              with open(os.path.join(os.environ["GITHUB_WORKSPACE"], "servers.json"), "r", encoding="utf-8") as f:
-                  content = f.read()
-              payload = {"files": {os.environ.get("GIST_FILE", "servers.json"): {"content": content}}}
-              req = urllib.request.Request(
-                  "https://api.github.com/gists/" + os.environ["GIST_ID"],
-                  data=json.dumps(payload).encode("utf-8"),
-                  method="PATCH",
-                  headers={
-                      "Accept": "application/vnd.github+json",
-                      "Authorization": "Bearer " + os.environ["DASHBOARD_TOKEN"],
-                      "X-GitHub-Api-Version": "2022-11-28",
-                      "Content-Type": "application/json",
-                  },
-              )
-              urllib.request.urlopen(req).read()
-          except Exception:
-              pass
+              urllib.request.urlopen(patch).read()
+              print("Cleanup wrote offline to gist")
+          except Exception as e:
+              print("cleanup patch failed:", e)
           PY
