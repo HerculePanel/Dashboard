@@ -67,7 +67,7 @@
     .btn-gold { background: linear-gradient(180deg, #ffd27a, #ff9d1f); color: var(--ink); }
     .btn-mint { background: linear-gradient(180deg, #6af3b8, #17c77a); color: #042016; }
     .btn-rose { background: linear-gradient(180deg, #ff8a97, #e23b4d); color: #fff; }
-    .btn-home { background: linear-gradient(180deg, #8ab0ff, #4d7dff); color: #061018; }
+    .btn-home { background: linear-gradient(180deg, #8ab0ff, #4d7dff); color: #061018; text-decoration:none; }
     .btn-ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--line); box-shadow: none; }
     .spin {
       width: 16px; height: 16px; border-radius: 50%;
@@ -155,16 +155,16 @@
         <p class="sub" style="margin:6px 0 0">کنترل سرورهای لک</p>
       </div>
       <div class="hero-actions">
+        <button class="btn btn-rose" onclick="logout()">خروج</button>
         <a class="btn btn-home" href="https://herculepanel.github.io/">برگشت به صفحه نخست</a>
         <button class="btn btn-ghost" onclick="refreshDashboard()">تازه‌سازی</button>
-        <button class="btn btn-rose" onclick="logout()">خروج</button>
       </div>
     </div>
 
     <div class="tabs" id="tabs">
       <button class="tab on" style="font-family: Lalezar;" data-view="servers" onclick="switchView('servers')">سرورها</button>
-      <button class="tab admin-only" style="font-family: Lalezar;" data-view="gist" onclick="switchView('gist')" style="display:none">گیست</button>
-      <button class="tab admin-only" style="font-family: Lalezar;" data-view="flows" onclick="switchView('flows')" style="display:none">ورک‌فلوها</button>
+      <button class="tab admin-only" style="font-family: Lalezar; display:none;" data-view="gist" onclick="switchView('gist')">گیست</button>
+      <button class="tab admin-only" style="font-family: Lalezar; display:none;" data-view="flows" onclick="switchView('flows')">ورک‌فلوها</button>
     </div>
 
     <div id="view-servers" class="view on">
