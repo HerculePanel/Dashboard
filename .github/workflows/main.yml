@@ -101,7 +101,7 @@ jobs:
           check_secret "PLAYIT_SECRET_4" "$PLAYIT_SECRET_4" || MISSING+=("PLAYIT_SECRET_4")
           if [ ${#MISSING[@]} -eq 0 ]; then echo "All secrets present."; exit 0; fi
           create_agent() {
-            local SECRET_NAME="$1" SLOT_HINT="$2"
+            local SECRET_NAME="$1"
             rm -rf "$HOME/.config/playit_gg" "$HOME/.config/playit" 2>/dev/null || true
             mkdir -p "$HOME/.config/playit_gg"
             CLAIM_CODE=$("$GITHUB_WORKSPACE/playit-cli" claim generate 2>/dev/null | tr -d '\r\n' || true)
@@ -120,10 +120,10 @@ jobs:
           }
           for s in "${MISSING[@]}"; do
             case "$s" in
-              PLAYIT_SECRET_1) create_agent "PLAYIT_SECRET_1" "1" ;;
-              PLAYIT_SECRET_2) create_agent "PLAYIT_SECRET_2" "2" ;;
-              PLAYIT_SECRET_3) create_agent "PLAYIT_SECRET_3" "3" ;;
-              PLAYIT_SECRET_4) create_agent "PLAYIT_SECRET_4" "4" ;;
+              PLAYIT_SECRET_1) create_agent "PLAYIT_SECRET_1" ;;
+              PLAYIT_SECRET_2) create_agent "PLAYIT_SECRET_2" ;;
+              PLAYIT_SECRET_3) create_agent "PLAYIT_SECRET_3" ;;
+              PLAYIT_SECRET_4) create_agent "PLAYIT_SECRET_4" ;;
               DASHBOARD_TOKEN) echo "Add DASHBOARD_TOKEN" ;;
             esac
           done
@@ -433,27 +433,25 @@ jobs:
                   return subprocess.check_output(cmd, shell=True, text=True, stderr=subprocess.STDOUT)
               except Exception as e:
                   return str(e)
+          ws = os.environ.get("GITHUB_WORKSPACE", "")
           out = {
               "slot": int(slot),
               "time": run("date -u +%Y-%m-%dT%H:%M:%SZ").strip(),
               "files": {}
           }
-          paths = [
+          for p in [
               "/root/.config/unity3d/MA/LAC",
               "/root/.config/unity3d/MA/LAC/editor",
               "/home/runner/.config/unity3d/MA/LAC"
-          ]
-          for p in paths:
+          ]:
               out["files"][p] = {"type": "dir", "body": run("sudo ls -la " + p)}
-          ws = os.environ.get("GITHUB_WORKSPACE", "")
           for f in [
               "/root/.config/unity3d/MA/LAC/ServerConfig.txt",
               os.path.join(ws, "lac-server.log"),
               os.path.join(ws, "playit.log")
           ]:
               out["files"][f] = {"type": "file", "body": run("sudo tail -c 20000 " + f)[:20000]}
-          path = os.path.join(ws, "runtime-snapshot.json")
-          with open(path, "w", encoding="utf-8") as fh:
+          with open(os.path.join(ws, "runtime-snapshot.json"), "w", encoding="utf-8") as fh:
               json.dump(out, fh, indent=2)
           PY
             python3 - <<'PY'
@@ -484,6 +482,7 @@ jobs:
           sync_gist_truth() {
             python3 - "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$MAP_NAME" <<'PY'
           import json, os, sys, urllib.request
+          from datetime import datetime, timezone
           slot, run_id = int(sys.argv[1]), str(sys.argv[2])
           port, endpoint, ip, map_name = int(sys.argv[3]), sys.argv[4], sys.argv[5], sys.argv[6]
           gist_id = os.environ["GIST_ID"]
@@ -502,29 +501,33 @@ jobs:
           content = gist["files"][filename]["content"]
           data = json.loads(content)
           changed = False
+          found = False
           for server in data["servers"]:
               if int(server["slot"]) != slot:
                   continue
+              found = True
               wanted = {
                   "status": "online",
                   "run_id": run_id,
                   "endpoint": endpoint,
                   "ip": ip,
                   "port": port,
-                  "map": map_name
+                  "map": map_name,
               }
               for key, value in wanted.items():
                   if server.get(key) != value:
                       server[key] = value
                       changed = True
               if not server.get("started_at"):
-                  from datetime import datetime, timezone
                   server["started_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                   changed = True
               break
+          if not found:
+              print("Slot missing in gist")
+              sys.exit(0)
           if not changed:
               print("Gist already truthful for slot", slot)
-              return
+              sys.exit(0)
           print("Gist was stale. Updating slot", slot)
           payload = {"files": {filename: {"content": json.dumps(data, indent=2) + "\n"}}}
           patch = urllib.request.Request(
