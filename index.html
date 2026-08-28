@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HPanel Dashboard</title>
+  <title>HPanel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
@@ -30,54 +30,36 @@
         linear-gradient(180deg, #120e0b, #070605);
     }
     .gold { color: var(--gold); }
-    .login-modal, .map-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(8,6,4,.78);
-      backdrop-filter: blur(16px);
-      opacity: 1;
-      visibility: visible;
+    .login-modal, .map-modal, .fm-modal {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(8,6,4,.78); backdrop-filter: blur(16px);
+      opacity: 1; visibility: visible;
       transition: opacity .35s ease, visibility .35s ease;
     }
-    .login-modal.hidden, .map-modal.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
+    .login-modal.hidden, .map-modal.hidden, .fm-modal.hidden {
+      opacity: 0; visibility: hidden; pointer-events: none;
     }
     .card-box {
-      width: min(430px, calc(100% - 32px));
-      padding: 30px 26px;
-      border-radius: 28px;
+      width: min(520px, calc(100% - 32px));
+      padding: 30px 26px; border-radius: 28px;
       border: 1px solid var(--line);
       background: linear-gradient(165deg, rgba(255,180,58,.12), rgba(255,255,255,.03));
-      box-shadow: var(--shadow);
-      text-align: center;
+      box-shadow: var(--shadow); text-align: center;
     }
+    .fm-box { width: min(860px, calc(100% - 28px)); text-align: right; max-height: 86vh; overflow: auto; }
     h1, h2 { margin: 0 0 8px; }
     .sub { margin: 0 0 16px; color: var(--muted); font-size: 16px; }
-    input, select {
-      width: 100%;
-      padding: 13px 14px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: rgba(0,0,0,.38);
-      color: var(--text);
-      margin-bottom: 12px;
-      outline: none;
-      font-family: inherit;
-      font-size: 16px;
+    input, select, textarea {
+      width: 100%; padding: 13px 14px; border-radius: 14px;
+      border: 1px solid var(--line); background: rgba(0,0,0,.38);
+      color: var(--text); margin-bottom: 12px; outline: none;
+      font-family: inherit; font-size: 16px;
     }
+    textarea { min-height: 280px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
     .btn {
-      border: 0;
-      cursor: pointer;
-      border-radius: 16px;
-      padding: 12px 14px;
-      font-family: inherit;
-      font-size: 17px;
+      border: 0; cursor: pointer; border-radius: 16px; padding: 12px 14px;
+      font-family: inherit; font-size: 17px;
       box-shadow: 0 6px 0 rgba(0,0,0,.35);
     }
     .btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,.35); }
@@ -85,39 +67,52 @@
     .btn-gold { background: linear-gradient(180deg, #ffd27a, #ff9d1f); color: var(--ink); }
     .btn-mint { background: linear-gradient(180deg, #6af3b8, #17c77a); color: #042016; }
     .btn-rose { background: linear-gradient(180deg, #ff8a97, #e23b4d); color: #fff; }
+    .btn-home { background: linear-gradient(180deg, #8ab0ff, #4d7dff); color: #061018; }
     .btn-ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--line); box-shadow: none; }
+    .spin {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid rgba(20,15,10,.25); border-top-color: var(--ink);
+      display: inline-block; margin-left: 8px; vertical-align: -3px;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
     .app {
       width: min(1160px, calc(100% - 30px));
-      margin: auto;
-      padding: 36px 0 80px;
-      opacity: 0;
-      transform: translateY(12px);
-      pointer-events: none;
-      transition: .35s ease;
+      margin: auto; padding: 36px 0 80px;
+      opacity: 0; transform: translateY(12px); pointer-events: none; transition: .35s ease;
     }
     .app.visible { opacity: 1; transform: none; pointer-events: auto; }
-    .hero { display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 22px; }
+    .hero { display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
     .brand { font-size: clamp(30px, 6vw, 48px); }
-    .hero-actions { display: flex; gap: 8px; }
+    .hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .tab {
+      padding: 9px 13px; border-radius: 12px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.04); color: var(--muted); cursor: pointer;
+    }
+    .tab.on { color: var(--text); background: rgba(255,180,58,.14); border-color: rgba(255,180,58,.4); }
+    .view { display: none; }
+    .view.on { display: block; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
-    .server {
-      padding: 18px;
-      border-radius: 24px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.035);
-    }
-    .server.on {
-      border-color: rgba(62,227,154,.5);
-      background: linear-gradient(160deg, rgba(62,227,154,.16), rgba(255,180,58,.04));
-    }
-    a {text-decoration: none;}
+    .server { padding: 18px; border-radius: 24px; border: 1px solid var(--line); background: rgba(255,255,255,.035); }
+    .server.on { border-color: rgba(62,227,154,.5); background: linear-gradient(160deg, rgba(62,227,154,.16), rgba(255,180,58,.04)); }
     .name { font-size: 24px; }
     .bits { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
     .bit { padding: 10px; border-radius: 12px; background: rgba(0,0,0,.28); font-size: 15px; word-break: break-word; }
-    .row { display: flex; gap: 8px; }
-    .row .btn { flex: 1; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .row .btn { flex: 1; min-width: 90px; }
+    .panel { padding: 16px; border-radius: 22px; border: 1px solid var(--line); background: rgba(255,255,255,.03); }
+    .fm-item { padding: 8px 10px; border-radius: 10px; cursor: pointer; }
+    .fm-item:hover { background: rgba(255,255,255,.06); }
     .toast-box { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); width: min(420px, calc(100% - 28px)); z-index: 2000; }
-    .toast { margin-top: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(18,14,10,.94); }
+    .toast {
+      margin-top: 8px; padding: 12px 14px; border-radius: 14px;
+      border: 1px solid var(--line); background: rgba(18,14,10,.94);
+      animation: toastIn .25s ease;
+    }
+    .toast.out { animation: toastOut .28s ease forwards; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @keyframes toastOut { to { opacity: 0; transform: translateY(12px); } }
     .ok { color: #9dffc9; } .err { color: #ffb0b7; } .info { color: #ffd27a; }
     .foot { margin-top: 28px; text-align: center; color: #7a6b5a; font-size: 14px; }
     @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
@@ -127,9 +122,9 @@
   <div id="loginModal" class="login-modal">
     <div class="card-box">
       <h1><span class="gold">HP</span>anel</h1>
-      <p class="sub">رمز ورود رو وارد کن</p>
-      <input id="tokenInput" type="password" placeholder="والا نمیدونم">
-      <button class="btn btn-gold" style="width:100%" onclick="connectGitHub()">ورود</button>
+      <p class="sub">توکن گیت‌هاب را وارد کن</p>
+      <input id="tokenInput" type="password" placeholder="github_pat_...">
+      <button id="loginBtn" class="btn btn-gold" style="width:100%" onclick="connectGitHub()">ورود</button>
     </div>
   </div>
 
@@ -143,19 +138,53 @@
     </div>
   </div>
 
+  <div id="fmModal" class="fm-modal hidden">
+    <div class="card-box fm-box">
+      <h2 id="fmTitle">فایل‌های سرور</h2>
+      <p class="sub">فقط مشاهده فایل‌های رانر موقت</p>
+      <div id="fmList"></div>
+      <textarea id="fmEditor" readonly placeholder="یک فایل را انتخاب کن"></textarea>
+      <button class="btn btn-ghost" style="width:100%" onclick="closeFm()">بستن</button>
+    </div>
+  </div>
+
   <div class="app" id="app">
     <div class="hero">
       <div>
-        <div class="brand"><span class="gold">HP</span>anel</span></div>
+        <div class="brand"><span class="gold">HP</span>anel</div>
         <p class="sub" style="margin:6px 0 0">کنترل سرورهای لک</p>
       </div>
       <div class="hero-actions">
-        <a href="https://HerculePanel.github.io" class="btn btn-ghost">صفحه اصلی</a>
+        <a class="btn btn-home" href="https://herculepanel.github.io/">برگشت به صفحه نخست</a>
         <button class="btn btn-ghost" onclick="refreshDashboard()">تازه‌سازی</button>
-        <button class="btn btn-rose" onclick="logout()">خروج از ادمین</button>
+        <button class="btn btn-rose" onclick="logout()">خروج</button>
       </div>
     </div>
-    <div id="servers" class="grid"></div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-view="servers" onclick="switchView('servers')">سرورها</button>
+      <button class="tab admin-only" data-view="gist" onclick="switchView('gist')" style="display:none">گیست</button>
+      <button class="tab admin-only" data-view="flows" onclick="switchView('flows')" style="display:none">ورک‌فلوها</button>
+    </div>
+
+    <div id="view-servers" class="view on">
+      <div id="servers" class="grid"></div>
+    </div>
+    <div id="view-gist" class="view">
+      <div class="panel">
+        <h2>ویرایش servers.json</h2>
+        <textarea id="gistEditor"></textarea>
+        <button class="btn btn-gold" onclick="saveGist()">ذخیره گیست</button>
+      </div>
+    </div>
+    <div id="view-flows" class="view">
+      <div class="panel">
+        <h2>همه ورک‌فلوها</h2>
+        <button class="btn btn-ghost" onclick="loadWorkflows()">بارگذاری</button>
+        <div id="flowList" style="margin-top:12px"></div>
+      </div>
+    </div>
+
     <div class="foot"><span class="gold">H</span>ercule<span class="gold">P</span>anel © 2026</div>
   </div>
   <div class="toast-box" id="toasts"></div>
@@ -169,37 +198,49 @@ const CONFIG = {
   gistFile: "servers.json",
   branch: "main",
   api: "https://api.github.com",
+  home: "https://herculepanel.github.io/",
+  limitMs: (5 * 60 + 45) * 60 * 1000,
   maps: ["City","Garage","RagdollParty","TrainFacility","ZombieSurvival","NewTerrainRamps","Island","CarSoccer"]
 };
 const TOKEN_KEY = "hpanel_github_token";
+const ADMIN_KEY = "hpanel_is_admin";
+const ADMIN_SUFFIX = "_thisisadmin";
 let githubToken = "";
+let isAdmin = false;
 let serversData = null;
 let pendingSlot = null;
+let runtimeCache = {};
+let tickTimer = null;
 
 function toast(msg, type) {
   const el = document.createElement("div");
   el.className = "toast " + (type === "error" ? "err" : type === "success" ? "ok" : "info");
   el.textContent = msg;
   document.getElementById("toasts").appendChild(el);
-  setTimeout(() => el.remove(), 3500);
+  setTimeout(() => {
+    el.classList.add("out");
+    setTimeout(() => el.remove(), 280);
+  }, 3200);
 }
-function saveToken(token) {
+function saveSession(token, admin) {
   localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(ADMIN_KEY, admin ? "1" : "0");
   document.cookie = "github_token=" + encodeURIComponent(token) + "; path=/; max-age=" + (30*24*60*60) + "; SameSite=Lax";
 }
 function loadToken() {
-  const ls = localStorage.getItem(TOKEN_KEY);
-  if (ls) return ls;
-  const row = document.cookie.split("; ").find(x => x.startsWith("github_token="));
-  return row ? decodeURIComponent(row.split("=")[1] || "") : "";
+  return localStorage.getItem(TOKEN_KEY) || "";
 }
-function clearToken() {
+function clearSession() {
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(ADMIN_KEY);
   document.cookie = "github_token=; path=/; max-age=0; SameSite=Lax";
 }
 function showApp() {
   document.getElementById("loginModal").classList.add("hidden");
   document.getElementById("app").classList.add("visible");
+  document.querySelectorAll(".admin-only").forEach(el => {
+    el.style.display = isAdmin ? "" : "none";
+  });
 }
 function hideApp() {
   document.getElementById("app").classList.remove("visible");
@@ -222,41 +263,86 @@ function statusFa(status) {
   if (status === "starting") return "در حال روشن شدن";
   return "خاموش";
 }
+function parseLogin(raw) {
+  const value = (raw || "").trim();
+  if (value.endsWith(ADMIN_SUFFIX)) {
+    return { token: value.slice(0, -ADMIN_SUFFIX.length), admin: true };
+  }
+  return { token: value, admin: false };
+}
+function setLoginLoading(on) {
+  const btn = document.getElementById("loginBtn");
+  btn.disabled = on;
+  btn.innerHTML = on ? 'ورود<span class="spin"></span>' : "ورود";
+}
 async function connectGitHub() {
-  const token = document.getElementById("tokenInput").value.trim() || loadToken();
-  if (!token) return toast("توکن را وارد کن", "error");
-  githubToken = token;
+  const parsed = parseLogin(document.getElementById("tokenInput").value || loadToken());
+  if (!parsed.token) return toast("توکن را وارد کن", "error");
+  setLoginLoading(true);
+  githubToken = parsed.token;
+  isAdmin = parsed.admin;
   try {
     const r = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo);
     if (!r.ok) throw new Error("دسترسی به ریپو نشد (" + r.status + ")");
     const g = await api("/gists/" + CONFIG.gistId);
     if (!g.ok) throw new Error("دسترسی به گیست نشد (" + g.status + ")");
-    saveToken(token);
+    saveSession(parsed.token, parsed.admin);
     showApp();
-    toast("وارد شدی", "success");
+    toast(isAdmin ? "ورود ادمین" : "وارد شدی", "success");
     refreshDashboard();
+    if (!tickTimer) tickTimer = setInterval(refreshDashboard, 10000);
   } catch (e) {
     githubToken = "";
+    isAdmin = false;
     hideApp();
     toast(e.message || "ورود ناموفق", "error");
+  } finally {
+    setLoginLoading(false);
   }
 }
 function logout() {
-  clearToken();
+  clearSession();
   githubToken = "";
+  isAdmin = false;
   document.getElementById("tokenInput").value = "";
   hideApp();
+  switchView("servers");
   toast("خارج شدی", "info");
 }
-async function loadServers() {
+function switchView(name) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("on"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.getAttribute("data-view") === name));
+  document.getElementById("view-" + name).classList.add("on");
+  if (name === "gist") loadGistEditor();
+  if (name === "flows") loadWorkflows();
+}
+async function gistJson() {
   const res = await api("/gists/" + CONFIG.gistId);
   if (!res.ok) throw new Error("خواندن گیست ناموفق");
-  const data = await res.json();
-  const file = data.files && data.files[CONFIG.gistFile];
-  if (!file) throw new Error("servers.json نیست");
-  let content = file.content;
-  if (file.truncated && file.raw_url) content = await (await fetch(file.raw_url)).text();
+  return res.json();
+}
+async function gistFileContent(filename) {
+  const data = await gistJson();
+  const file = data.files && data.files[filename];
+  if (!file) return null;
+  if (file.truncated && file.raw_url) return await (await fetch(file.raw_url)).text();
+  return file.content || "";
+}
+async function loadServers() {
+  const content = await gistFileContent(CONFIG.gistFile);
+  if (!content) throw new Error("servers.json نیست");
   return JSON.parse(content);
+}
+function remainText(startedAt) {
+  if (!startedAt) return "—";
+  const end = new Date(startedAt).getTime() + CONFIG.limitMs;
+  const left = end - Date.now();
+  if (left <= 0) return "پایان زمان";
+  const s = Math.floor(left / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(sec).padStart(2,"0");
 }
 function renderServers(data) {
   serversData = data;
@@ -264,6 +350,7 @@ function renderServers(data) {
   root.innerHTML = "";
   [...data.servers].sort((a,b) => a.slot - b.slot).forEach(server => {
     const status = String(server.status || "offline").toLowerCase();
+    const running = status === "online" || status === "starting";
     const card = document.createElement("div");
     card.className = "server" + (status === "online" ? " on" : "");
     card.innerHTML =
@@ -273,11 +360,12 @@ function renderServers(data) {
         '<div class="bit">آدرس<br>' + esc(server.endpoint || "—") + '</div>' +
         '<div class="bit">آی‌پی<br>' + esc(server.ip || "—") + '</div>' +
         '<div class="bit">پورت<br>' + esc(server.port || "—") + '</div>' +
-        '<div class="bit">شناسه اجرا<br>' + esc(server.run_id || "—") + '</div>' +
+        '<div class="bit">باقی‌مانده<br>' + esc(remainText(server.started_at)) + '</div>' +
       '</div>' +
       '<div class="row">' +
         '<button class="btn btn-mint"' + (status !== "offline" ? " disabled" : "") + ' onclick="openMapModal(' + Number(server.slot) + ')">روشن</button>' +
         '<button class="btn btn-rose"' + (status === "offline" ? " disabled" : "") + ' onclick="stopServer(' + Number(server.slot) + ')">خاموش</button>' +
+        '<button class="btn btn-ghost"' + (running ? "" : " disabled") + ' onclick="openFiles(' + Number(server.slot) + ')">فایل‌ها</button>' +
       '</div>';
     root.appendChild(card);
   });
@@ -326,14 +414,75 @@ async function stopServer(slot) {
   toast("درخواست خاموشی ارسال شد", "success");
   setTimeout(refreshDashboard, 3000);
 }
+async function openFiles(slot) {
+  document.getElementById("fmTitle").textContent = "فایل‌های سرور " + slot;
+  document.getElementById("fmList").innerHTML = "در حال بارگذاری...";
+  document.getElementById("fmEditor").value = "";
+  document.getElementById("fmModal").classList.remove("hidden");
+  try {
+    const raw = await gistFileContent("runtime-" + slot + ".json");
+    if (!raw) {
+      document.getElementById("fmList").textContent = "هنوز اسنپ‌شاتی نیست. چند ثانیه بعد دوباره بزن.";
+      return;
+    }
+    const data = JSON.parse(raw);
+    runtimeCache = data.files || {};
+    const list = document.getElementById("fmList");
+    list.innerHTML = "";
+    Object.keys(runtimeCache).sort().forEach(path => {
+      const item = runtimeCache[path];
+      const div = document.createElement("div");
+      div.className = "fm-item";
+      div.textContent = (item && item.type === "dir" ? "📁 " : "📄 ") + path;
+      div.onclick = () => {
+        document.getElementById("fmEditor").value = item && item.body != null ? item.body : JSON.stringify(item, null, 2);
+      };
+      list.appendChild(div);
+    });
+  } catch (e) {
+    document.getElementById("fmList").textContent = e.message || "خطا";
+  }
+}
+function closeFm() { document.getElementById("fmModal").classList.add("hidden"); }
+
+async function loadGistEditor() {
+  try { document.getElementById("gistEditor").value = await gistFileContent(CONFIG.gistFile) || ""; }
+  catch (e) { toast(e.message, "error"); }
+}
+async function saveGist() {
+  const content = document.getElementById("gistEditor").value;
+  try { JSON.parse(content); } catch (_) { return toast("JSON نامعتبر است", "error"); }
+  const res = await api("/gists/" + CONFIG.gistId, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ files: { [CONFIG.gistFile]: { content } } })
+  });
+  if (!res.ok) return toast("ذخیره گیست ناموفق", "error");
+  toast("گیست ذخیره شد", "success");
+  refreshDashboard();
+}
+async function loadWorkflows() {
+  const box = document.getElementById("flowList");
+  box.textContent = "در حال بارگذاری...";
+  const res = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/runs?per_page=20");
+  if (!res.ok) { box.textContent = "خواندن ورک‌فلو ناموفق"; return; }
+  const data = await res.json();
+  box.innerHTML = (data.workflow_runs || []).map(run =>
+    '<div class="bit" style="margin-bottom:8px">' +
+      esc(run.name) + " · " + esc(run.status) + " / " + esc(run.conclusion || "—") +
+      "<br>#" + esc(run.id) + " · " + esc(run.html_url) +
+    "</div>"
+  ).join("") || "ورک‌فلویی نیست";
+}
+
 document.getElementById("tokenInput").addEventListener("keydown", e => { if (e.key === "Enter") connectGitHub(); });
 window.onload = function () {
   const saved = loadToken();
   if (saved) {
-    document.getElementById("tokenInput").value = saved;
+    document.getElementById("tokenInput").value = saved + (localStorage.getItem(ADMIN_KEY) === "1" ? ADMIN_SUFFIX : "");
     connectGitHub();
   }
 };
 </script>
 </body>
-  </html>
+    </html>
