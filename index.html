@@ -67,7 +67,7 @@
     .btn-gold { background: linear-gradient(180deg, #ffd27a, #ff9d1f); color: var(--ink); }
     .btn-mint { background: linear-gradient(180deg, #6af3b8, #17c77a); color: #042016; }
     .btn-rose { background: linear-gradient(180deg, #ff8a97, #e23b4d); color: #fff; }
-    .btn-home { background: linear-gradient(180deg, #8ab0ff, #4d7dff); color: #061018; }
+    .btn-home { background: linear-gradient(180deg, #8ab0ff, #4d7dff); color: #061018; text-decoration:none; }
     .btn-ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--line); box-shadow: none; }
     .spin {
       width: 16px; height: 16px; border-radius: 50%;
@@ -141,7 +141,7 @@
   <div id="fmModal" class="fm-modal hidden">
     <div class="card-box fm-box">
       <h2 id="fmTitle">فایل‌های سرور</h2>
-      <p class="sub">مدیر فایل واقعی (حلقه‌دار)</p>
+      <p class="sub">فقط مشاهده فایل‌های رانر موقت</p>
       <div id="fmList"></div>
       <textarea id="fmEditor" readonly placeholder="یک فایل را انتخاب کن"></textarea>
       <button class="btn btn-ghost" style="width:100%" onclick="closeFm()">بستن</button>
@@ -155,16 +155,16 @@
         <p class="sub" style="margin:6px 0 0">کنترل سرورهای لک</p>
       </div>
       <div class="hero-actions">
+        <button class="btn btn-rose" onclick="logout()">خروج</button>
         <a class="btn btn-home" href="https://herculepanel.github.io/">برگشت به صفحه نخست</a>
         <button class="btn btn-ghost" onclick="refreshDashboard()">تازه‌سازی</button>
-        <button class="btn btn-rose" onclick="logout()">خروج</button>
       </div>
     </div>
 
     <div class="tabs" id="tabs">
-      <button class="tab on" data-view="servers" onclick="switchView('servers')">سرورها</button>
-      <button class="tab admin-only" data-view="gist" onclick="switchView('gist')" style="display:none">گیست</button>
-      <button class="tab admin-only" data-view="flows" onclick="switchView('flows')" style="display:none">ورک‌فلوها</button>
+      <button class="tab on" style="font-family: Lalezar;" data-view="servers" onclick="switchView('servers')">سرورها</button>
+      <button class="tab admin-only" style="font-family: Lalezar; display:none;" data-view="gist" onclick="switchView('gist')">گیست</button>
+      <button class="tab admin-only" style="font-family: Lalezar; display:none;" data-view="flows" onclick="switchView('flows')">ورک‌فلوها</button>
     </div>
 
     <div id="view-servers" class="view on">
@@ -172,7 +172,7 @@
     </div>
     <div id="view-gist" class="view">
       <div class="panel">
-        <h2>ویرایش servers.json (پوشه معکوس اصلاح شد)</h2>
+        <h2>ویرایش servers.json</h2>
         <textarea id="gistEditor"></textarea>
         <button class="btn btn-gold" onclick="saveGist()">ذخیره گیست</button>
       </div>
@@ -429,53 +429,21 @@ async function openFiles(slot) {
     runtimeCache = data.files || {};
     const list = document.getElementById("fmList");
     list.innerHTML = "";
-    buildTree(runtimeCache, list, "");
+    Object.keys(runtimeCache).sort().forEach(path => {
+      const item = runtimeCache[path];
+      const div = document.createElement("div");
+      div.className = "fm-item";
+      div.textContent = (item && item.type === "dir" ? "📁 " : "📄 ") + path;
+      div.onclick = () => {
+        document.getElementById("fmEditor").value = item && item.body != null ? item.body : JSON.stringify(item, null, 2);
+      };
+      list.appendChild(div);
+    });
   } catch (e) {
     document.getElementById("fmList").textContent = e.message || "خطا";
   }
 }
 function closeFm() { document.getElementById("fmModal").classList.add("hidden"); }
-
-function buildTree(obj, container, prefix) {
-  Object.keys(obj).sort().forEach(key => {
-    const item = obj[key];
-    const fullPath = prefix ? prefix + "/" + key : key;
-    const div = document.createElement("div");
-    div.className = "fm-item";
-    if (item.type === "dir") {
-      div.innerHTML = "📁 " + key + " <span class='gold'>(باز کن)</span>";
-      div.onclick = () => openFolder(fullPath, container.parentNode || container);
-    } else {
-      div.innerHTML = "📄 " + key;
-      div.onclick = () => {
-        document.getElementById("fmEditor").value = item.body || JSON.stringify(item, null, 2);
-      };
-    }
-    container.appendChild(div);
-  });
-}
-function openFolder(path, container) {
-  const childDiv = document.createElement("div");
-  childDiv.style.paddingLeft = "20px";
-  childDiv.className = "fm-item";
-  childDiv.innerHTML = "📂 " + path.split("/").pop() + " <span class='gold'>(بستن)</span>";
-  childDiv.onclick = () => {
-    childDiv.parentNode.removeChild(childDiv);
-    refreshFolder(path, container);
-  };
-  container.appendChild(childDiv);
-  refreshFolder(path, container);
-}
-function refreshFolder(path, container) {
-  const list = document.createElement("div");
-  list.style.paddingLeft = "20px";
-  list.className = "fm-item";
-  list.innerHTML = "در حال بارگذاری...";
-  container.appendChild(list);
-  // در اینجا می‌توانی برای هر پاتری که می‌خواهی فایل واقعی را بگیری، کد را اضافه کن
-  // برای تست فقط یک پوشه فرضی نمایش می‌دهیم
-  list.innerHTML = "📁 " + path + " (محتوا نمایش داده شد - در نسخه واقعی از gist/raw_url استفاده کن)";
-}
 
 async function loadGistEditor() {
   try { document.getElementById("gistEditor").value = await gistFileContent(CONFIG.gistFile) || ""; }
@@ -517,4 +485,4 @@ window.onload = function () {
 };
 </script>
 </body>
-  </html>
+        </html>
