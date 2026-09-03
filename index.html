@@ -57,6 +57,7 @@
       font-family: inherit; font-size: 16px;
     }
     textarea { min-height: 280px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+    .ltr { direction: ltr; text-align: left; unicode-bidi: isolate; }
     .btn {
       border: 0; cursor: pointer; border-radius: 16px; padding: 12px 14px;
       font-family: inherit; font-size: 17px;
@@ -102,8 +103,19 @@
     .row { display: flex; gap: 8px; flex-wrap: wrap; }
     .row .btn { flex: 1; min-width: 90px; }
     .panel { padding: 16px; border-radius: 22px; border: 1px solid var(--line); background: rgba(255,255,255,.03); }
-    .fm-item { padding: 8px 10px; border-radius: 10px; cursor: pointer; }
+    .fm-item { padding: 8px 10px; border-radius: 10px; cursor: pointer; direction: ltr; text-align: left; }
     .fm-item:hover { background: rgba(255,255,255,.06); }
+    .crumb { direction: ltr; text-align: left; margin-bottom: 10px; color: var(--muted); }
+    .flow-card { padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: rgba(0,0,0,.22); margin-bottom: 10px; text-align: right; }
+    .flow-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .badge { padding: 4px 10px; border-radius: 999px; font-size: 13px; }
+    .badge.run { background: rgba(255,180,58,.16); color: var(--gold); }
+    .badge.ok { background: rgba(62,227,154,.16); color: var(--mint); }
+    .badge.bad { background: rgba(255,93,115,.16); color: #ff8a97; }
+    .flow-meta { color: var(--muted); font-size: 14px; margin-top: 6px; }
+    .flow-extra { display: none; margin-top: 10px; direction: ltr; text-align: left; font-size: 13px; color: var(--muted); }
+    .flow-card.open .flow-extra { display: block; }
+    .hidden-block { display: none; }
     .toast-box { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); width: min(420px, calc(100% - 28px)); z-index: 2000; }
     .toast {
       margin-top: 8px; padding: 12px 14px; border-radius: 14px;
@@ -130,9 +142,14 @@
 
   <div id="mapModal" class="map-modal hidden">
     <div class="card-box">
-      <h2>انتخاب نقشه</h2>
-      <p class="sub" id="mapSlotText">نقشه رسمی این سرور</p>
-      <select id="mapSelect"></select>
+      <h2>شروع سرور</h2>
+      <p class="sub" id="mapSlotText">نقشه و کد ادمین</p>
+      <select id="mapSelect" onchange="onMapTypeChange()"></select>
+      <input id="adminCodeInput" type="text" inputmode="numeric" value="12345" placeholder="کد ادمین">
+      <div id="customMapBox" class="hidden-block">
+        <input id="customMapName" class="ltr" type="text" placeholder="Prime.txt">
+        <textarea id="customMapBody" class="ltr" placeholder="محتوای نقشه را اینجا بچسبان"></textarea>
+      </div>
       <button class="btn btn-mint" style="width:100%" onclick="confirmStart()">روشن کردن سرور</button>
       <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="closeMapModal()">لغو</button>
     </div>
@@ -142,8 +159,9 @@
     <div class="card-box fm-box">
       <h2 id="fmTitle">فایل‌های سرور</h2>
       <p class="sub">فقط مشاهده فایل‌های رانر موقت</p>
-      <div id="fmList"></div>
-      <textarea id="fmEditor" readonly placeholder="یک فایل را انتخاب کن"></textarea>
+      <div id="fmCrumb" class="crumb ltr"></div>
+      <div id="fmList" class="ltr"></div>
+      <textarea id="fmEditor" class="ltr" readonly placeholder="یک فایل را انتخاب کن"></textarea>
       <button class="btn btn-ghost" style="width:100%" onclick="closeFm()">بستن</button>
     </div>
   </div>
@@ -173,7 +191,7 @@
     <div id="view-gist" class="view">
       <div class="panel">
         <h2>ویرایش servers.json</h2>
-        <textarea id="gistEditor"></textarea>
+        <textarea id="gistEditor" class="ltr"></textarea>
         <button class="btn btn-gold" onclick="saveGist()">ذخیره گیست</button>
       </div>
     </div>
@@ -200,7 +218,7 @@ const CONFIG = {
   api: "https://api.github.com",
   home: "https://herculepanel.github.io/",
   limitMs: (5 * 60 + 45) * 60 * 1000,
-  maps: ["City","Garage","RagdollParty","TrainFacility","ZombieSurvival","NewTerrainRamps","Island","CarSoccer"]
+  maps: ["City","Garage","RagdollParty","TrainFacility","ZombieSurvival","NewTerrainRamps","Island","CarSoccer","Custom"]
 };
 const TOKEN_KEY = "hpanel_github_token";
 const ADMIN_KEY = "hpanel_is_admin";
@@ -209,7 +227,8 @@ let githubToken = "";
 let isAdmin = false;
 let serversData = null;
 let pendingSlot = null;
-let runtimeCache = {};
+let fmTree = {};
+let fmPath = [];
 let tickTimer = null;
 
 function toast(msg, type) {
@@ -357,9 +376,9 @@ function renderServers(data) {
       '<div class="name">سرور ' + esc(server.slot) + '</div>' +
       '<div class="sub">' + esc(statusFa(status)) + (server.map ? " · " + esc(server.map) : "") + '</div>' +
       '<div class="bits">' +
-        '<div class="bit">آدرس<br>' + esc(server.endpoint || "—") + '</div>' +
-        '<div class="bit">آی‌پی<br>' + esc(server.ip || "—") + '</div>' +
-        '<div class="bit">پورت<br>' + esc(server.port || "—") + '</div>' +
+        '<div class="bit">آدرس<br><span class="ltr">' + esc(server.endpoint || "—") + '</span></div>' +
+        '<div class="bit">آی‌پی<br><span class="ltr">' + esc(server.ip || "—") + '</span></div>' +
+        '<div class="bit">پورت<br><span class="ltr">' + esc(server.port || "—") + '</span></div>' +
         '<div class="bit">باقی‌مانده<br>' + esc(remainText(server.started_at)) + '</div>' +
       '</div>' +
       '<div class="row">' +
@@ -377,28 +396,63 @@ async function refreshDashboard() {
 }
 function openMapModal(slot) {
   pendingSlot = slot;
-  document.getElementById("mapSlotText").textContent = "نقشه رسمی سرور " + slot;
+  document.getElementById("mapSlotText").textContent = "نقشه و کد ادمین سرور " + slot;
   const select = document.getElementById("mapSelect");
   select.innerHTML = CONFIG.maps.map(m => '<option value="' + m + '">' + m + '</option>').join("");
   select.value = "TrainFacility";
+  document.getElementById("adminCodeInput").value = "12345";
+  document.getElementById("customMapName").value = "";
+  document.getElementById("customMapBody").value = "";
+  onMapTypeChange();
   document.getElementById("mapModal").classList.remove("hidden");
+}
+function onMapTypeChange() {
+  const custom = document.getElementById("mapSelect").value === "Custom";
+  document.getElementById("customMapBox").classList.toggle("hidden-block", !custom);
 }
 function closeMapModal() {
   pendingSlot = null;
   document.getElementById("mapModal").classList.add("hidden");
 }
+function cleanMapName(name) {
+  return String(name || "").replace(/\.txt$/i, "").replace(/[^A-Za-z0-9_-]/g, "");
+}
 async function confirmStart() {
   const slot = pendingSlot;
   const map = document.getElementById("mapSelect").value;
+  const admin = (document.getElementById("adminCodeInput").value || "12345").trim();
   if (!slot) return;
+  if (!/^\d+$/.test(admin)) return toast("کد ادمین باید عدد باشد", "error");
+  let customName = "";
+  if (map === "Custom") {
+    customName = cleanMapName(document.getElementById("customMapName").value);
+    const body = document.getElementById("customMapBody").value;
+    if (!customName) return toast("نام نقشه سفارشی را بنویس", "error");
+    if (!body.trim()) return toast("محتوای نقشه خالی است", "error");
+    const gistRes = await api("/gists/" + CONFIG.gistId, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ files: { ["custom-map-" + slot + ".txt"]: { content: body } } })
+    });
+    if (!gistRes.ok) return toast("ذخیره نقشه سفارشی ناموفق", "error");
+  }
   closeMapModal();
-  toast("سرور " + slot + " با نقشه " + map + " در صف است", "info");
+  toast("سرور " + slot + " در صف است", "info");
   const res = await api(
     "/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/workflows/" + encodeURIComponent(CONFIG.workflow) + "/dispatches",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ref: CONFIG.branch, inputs: { mode: "start", slot: String(slot), map: map } })
+      body: JSON.stringify({
+        ref: CONFIG.branch,
+        inputs: {
+          mode: "start",
+          slot: String(slot),
+          map: map,
+          admin_code: admin,
+          custom_map_name: customName
+        }
+      })
     }
   );
   if (!res.ok) return toast("روشن نشد (" + res.status + ")", "error");
@@ -414,6 +468,66 @@ async function stopServer(slot) {
   toast("درخواست خاموشی ارسال شد", "success");
   setTimeout(refreshDashboard, 3000);
 }
+function pathsToTree(files) {
+  const root = {};
+  Object.keys(files || {}).forEach(path => {
+    const item = files[path] || {};
+    const parts = String(path).replace(/\\/g, "/").split("/").filter(Boolean);
+    if (!parts.length) return;
+    let node = root;
+    parts.forEach((part, i) => {
+      const last = i === parts.length - 1;
+      if (last && item.type !== "dir") {
+        node[part] = { type: "file", body: item.body != null ? item.body : JSON.stringify(item, null, 2) };
+      } else {
+        if (!node[part] || node[part].type !== "dir") node[part] = { type: "dir", children: node[part] && node[part].children ? node[part].children : {} };
+        node = node[part].children;
+      }
+    });
+  });
+  return root;
+}
+function currentFmNode() {
+  let node = fmTree;
+  fmPath.forEach(part => {
+    node = (node[part] && node[part].children) || {};
+  });
+  return node;
+}
+function renderFm() {
+  const list = document.getElementById("fmList");
+  const crumb = document.getElementById("fmCrumb");
+  list.innerHTML = "";
+  crumb.textContent = "/" + fmPath.join("/");
+  if (fmPath.length) {
+    const up = document.createElement("div");
+    up.className = "fm-item";
+    up.textContent = "..";
+    up.onclick = () => { fmPath.pop(); renderFm(); };
+    list.appendChild(up);
+  }
+  const node = currentFmNode();
+  Object.keys(node).sort((a,b) => {
+    const ad = node[a].type === "dir" ? 0 : 1;
+    const bd = node[b].type === "dir" ? 0 : 1;
+    return ad - bd || a.localeCompare(b);
+  }).forEach(name => {
+    const item = node[name];
+    const div = document.createElement("div");
+    div.className = "fm-item";
+    div.textContent = (item.type === "dir" ? "📁 " : "📄 ") + name;
+    div.onclick = () => {
+      if (item.type === "dir") {
+        fmPath.push(name);
+        document.getElementById("fmEditor").value = "";
+        renderFm();
+      } else {
+        document.getElementById("fmEditor").value = item.body || "";
+      }
+    };
+    list.appendChild(div);
+  });
+}
 async function openFiles(slot) {
   document.getElementById("fmTitle").textContent = "فایل‌های سرور " + slot;
   document.getElementById("fmList").innerHTML = "در حال بارگذاری...";
@@ -426,19 +540,9 @@ async function openFiles(slot) {
       return;
     }
     const data = JSON.parse(raw);
-    runtimeCache = data.files || {};
-    const list = document.getElementById("fmList");
-    list.innerHTML = "";
-    Object.keys(runtimeCache).sort().forEach(path => {
-      const item = runtimeCache[path];
-      const div = document.createElement("div");
-      div.className = "fm-item";
-      div.textContent = (item && item.type === "dir" ? "📁 " : "📄 ") + path;
-      div.onclick = () => {
-        document.getElementById("fmEditor").value = item && item.body != null ? item.body : JSON.stringify(item, null, 2);
-      };
-      list.appendChild(div);
-    });
+    fmTree = data.tree || pathsToTree(data.files || {});
+    fmPath = [];
+    renderFm();
   } catch (e) {
     document.getElementById("fmList").textContent = e.message || "خطا";
   }
@@ -461,6 +565,13 @@ async function saveGist() {
   toast("گیست ذخیره شد", "success");
   refreshDashboard();
 }
+function flowBadge(run) {
+  if (run.status === "in_progress" || run.status === "queued") return '<span class="badge run">در حال اجرا</span>';
+  if (run.conclusion === "success") return '<span class="badge ok">موفق</span>';
+  if (run.conclusion === "cancelled") return '<span class="badge run">لغو شده</span>';
+  if (run.conclusion) return '<span class="badge bad">' + esc(run.conclusion) + '</span>';
+  return '<span class="badge run">' + esc(run.status) + '</span>';
+}
 async function loadWorkflows() {
   const box = document.getElementById("flowList");
   box.textContent = "در حال بارگذاری...";
@@ -468,10 +579,11 @@ async function loadWorkflows() {
   if (!res.ok) { box.textContent = "خواندن ورک‌فلو ناموفق"; return; }
   const data = await res.json();
   box.innerHTML = (data.workflow_runs || []).map(run =>
-    '<div class="bit" style="margin-bottom:8px">' +
-      esc(run.name) + " · " + esc(run.status) + " / " + esc(run.conclusion || "—") +
-      "<br>#" + esc(run.id) + " · " + esc(run.html_url) +
-    "</div>"
+    '<div class="flow-card" onclick="this.classList.toggle(\'open\')">' +
+      '<div class="flow-top"><strong>' + esc(run.name) + '</strong>' + flowBadge(run) + '</div>' +
+      '<div class="flow-meta">' + esc(run.display_title || run.event) + ' · ' + esc((run.created_at || "").replace("T"," ").replace("Z","")) + '</div>' +
+      '<div class="flow-extra ltr">#' + esc(run.id) + '<br>' + esc(run.html_url) + '<br>branch: ' + esc(run.head_branch || "—") + '</div>' +
+    '</div>'
   ).join("") || "ورک‌فلویی نیست";
 }
 
@@ -485,4 +597,4 @@ window.onload = function () {
 };
 </script>
 </body>
-        </html>
+  </html>
