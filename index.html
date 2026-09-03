@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HPanel</title>
+  <title>HPanel v1.1</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
@@ -14,6 +14,7 @@
       --muted: #c3b09a;
       --line: rgba(255, 186, 92, .22);
       --gold: #ffb43a;
+      --gold2: #ffe08a;
       --mint: #3ee39a;
       --ink: #140f0a;
       --shadow: 0 28px 70px rgba(0,0,0,.55);
@@ -30,14 +31,14 @@
         linear-gradient(180deg, #120e0b, #070605);
     }
     .gold { color: var(--gold); }
-    .login-modal, .map-modal, .fm-modal {
+    .login-modal, .map-modal, .fm-modal, .stop-modal {
       position: fixed; inset: 0; z-index: 1000;
       display: flex; align-items: center; justify-content: center;
       background: rgba(8,6,4,.78); backdrop-filter: blur(16px);
       opacity: 1; visibility: visible;
       transition: opacity .35s ease, visibility .35s ease;
     }
-    .login-modal.hidden, .map-modal.hidden, .fm-modal.hidden {
+    .login-modal.hidden, .map-modal.hidden, .fm-modal.hidden, .stop-modal.hidden {
       opacity: 0; visibility: hidden; pointer-events: none;
     }
     .card-box {
@@ -50,7 +51,7 @@
     .fm-box { width: min(860px, calc(100% - 28px)); text-align: right; max-height: 86vh; overflow: auto; }
     h1, h2 { margin: 0 0 8px; }
     .sub { margin: 0 0 16px; color: var(--muted); font-size: 16px; }
-    input, select, textarea {
+    input, textarea {
       width: 100%; padding: 13px 14px; border-radius: 14px;
       border: 1px solid var(--line); background: rgba(0,0,0,.38);
       color: var(--text); margin-bottom: 12px; outline: none;
@@ -76,6 +77,7 @@
       display: inline-block; margin-left: 8px; vertical-align: -3px;
       animation: spin .7s linear infinite;
     }
+    .spin.light { border-color: rgba(255,255,255,.25); border-top-color: #fff6ea; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .app {
       width: min(1160px, calc(100% - 30px));
@@ -103,8 +105,36 @@
     .row { display: flex; gap: 8px; flex-wrap: wrap; }
     .row .btn { flex: 1; min-width: 90px; }
     .panel { padding: 16px; border-radius: 22px; border: 1px solid var(--line); background: rgba(255,255,255,.03); }
-    .fm-item { padding: 8px 10px; border-radius: 10px; cursor: pointer; direction: ltr; text-align: left; }
-    .fm-item:hover { background: rgba(255,255,255,.06); }
+    .picker { position: relative; margin-bottom: 12px; text-align: right; }
+    .picker-btn {
+      width: 100%; text-align: right;
+      background: rgba(0,0,0,.38); color: var(--text);
+      border: 1px solid var(--line); border-radius: 14px;
+      padding: 13px 14px; font-family: inherit; font-size: 16px; cursor: pointer;
+    }
+    .picker-menu {
+      display: none; position: absolute; right: 0; left: 0; top: calc(100% + 6px);
+      z-index: 20; max-height: 240px; overflow: auto;
+      border: 1px solid var(--line); border-radius: 14px;
+      background: #16110c; box-shadow: var(--shadow);
+    }
+    .picker.open .picker-menu { display: block; }
+    .picker-opt {
+      padding: 11px 14px; cursor: pointer; color: var(--text);
+    }
+    .picker-opt:hover { background: rgba(255,255,255,.06); }
+    .picker-opt.on { background: rgba(255,180,58,.14); }
+    .picker-opt.custom {
+      color: var(--ink);
+      background: linear-gradient(180deg, #ffe08a, #ffb43a);
+      font-weight: 700;
+    }
+    .fm-item {
+      padding: 10px 12px; border-radius: 12px; cursor: pointer;
+      direction: ltr; text-align: left; margin-bottom: 8px;
+      border: 1px solid var(--line); background: rgba(255,255,255,.04);
+    }
+    .fm-item:hover { background: rgba(255,255,255,.08); }
     .crumb { direction: ltr; text-align: left; margin-bottom: 10px; color: var(--muted); }
     .flow-card { padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: rgba(0,0,0,.22); margin-bottom: 10px; text-align: right; }
     .flow-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -133,7 +163,7 @@
 <body>
   <div id="loginModal" class="login-modal">
     <div class="card-box">
-      <h1><span class="gold">HP</span>anel</h1>
+      <h1><span class="gold">HP</span>anel <span class="gold">v1.1</span></h1>
       <p class="sub">توکن گیت‌هاب را وارد کن</p>
       <input id="tokenInput" type="password" placeholder="github_pat_...">
       <button id="loginBtn" class="btn btn-gold" style="width:100%" onclick="connectGitHub()">ورود</button>
@@ -144,14 +174,26 @@
     <div class="card-box">
       <h2>شروع سرور</h2>
       <p class="sub" id="mapSlotText">نقشه و کد ادمین</p>
-      <select id="mapSelect" onchange="onMapTypeChange()"></select>
+      <div class="picker" id="mapPicker">
+        <button type="button" class="picker-btn" id="mapPickerBtn" onclick="togglePicker()">TrainFacility</button>
+        <div class="picker-menu" id="mapPickerMenu"></div>
+      </div>
       <input id="adminCodeInput" type="text" inputmode="numeric" value="12345" placeholder="کد ادمین">
       <div id="customMapBox" class="hidden-block">
         <input id="customMapName" class="ltr" type="text" placeholder="Prime.txt">
         <textarea id="customMapBody" class="ltr" placeholder="محتوای نقشه را اینجا بچسبان"></textarea>
       </div>
-      <button class="btn btn-mint" style="width:100%" onclick="confirmStart()">روشن کردن سرور</button>
+      <button id="startBtn" class="btn btn-mint" style="width:100%" onclick="confirmStart()">روشن کردن سرور</button>
       <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="closeMapModal()">لغو</button>
+    </div>
+  </div>
+
+  <div id="stopModal" class="stop-modal hidden">
+    <div class="card-box">
+      <h2>خاموش کردن سرور</h2>
+      <p class="sub" id="stopSlotText">این سرور خاموش شود؟</p>
+      <button class="btn btn-rose" style="width:100%" onclick="confirmStop()">بله، خاموش کن</button>
+      <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="closeStopModal()">لغو</button>
     </div>
   </div>
 
@@ -169,7 +211,7 @@
   <div class="app" id="app">
     <div class="hero">
       <div>
-        <div class="brand"><span class="gold">HP</span>anel</div>
+        <div class="brand"><span class="gold">HP</span>anel <span class="gold">v1.1</span></div>
         <p class="sub" style="margin:6px 0 0">کنترل سرورهای لک</p>
       </div>
       <div class="hero-actions">
@@ -227,6 +269,8 @@ let githubToken = "";
 let isAdmin = false;
 let serversData = null;
 let pendingSlot = null;
+let pendingStopSlot = null;
+let selectedMap = "TrainFacility";
 let fmTree = {};
 let fmPath = [];
 let tickTimer = null;
@@ -293,6 +337,11 @@ function setLoginLoading(on) {
   const btn = document.getElementById("loginBtn");
   btn.disabled = on;
   btn.innerHTML = on ? 'ورود<span class="spin"></span>' : "ورود";
+}
+function setStartLoading(on) {
+  const btn = document.getElementById("startBtn");
+  btn.disabled = on;
+  btn.innerHTML = on ? 'در حال شروع<span class="spin light"></span>' : "روشن کردن سرور";
 }
 async function connectGitHub() {
   const parsed = parseLogin(document.getElementById("tokenInput").value || loadToken());
@@ -383,7 +432,7 @@ function renderServers(data) {
       '</div>' +
       '<div class="row">' +
         '<button class="btn btn-mint"' + (status !== "offline" ? " disabled" : "") + ' onclick="openMapModal(' + Number(server.slot) + ')">روشن</button>' +
-        '<button class="btn btn-rose"' + (status === "offline" ? " disabled" : "") + ' onclick="stopServer(' + Number(server.slot) + ')">خاموش</button>' +
+        '<button class="btn btn-rose"' + (status === "offline" ? " disabled" : "") + ' onclick="openStopModal(' + Number(server.slot) + ')">خاموش</button>' +
         '<button class="btn btn-ghost"' + (running ? "" : " disabled") + ' onclick="openFiles(' + Number(server.slot) + ')">فایل‌ها</button>' +
       '</div>';
     root.appendChild(card);
@@ -394,32 +443,70 @@ async function refreshDashboard() {
   try { renderServers(await loadServers()); }
   catch (e) { toast(e.message || "تازه‌سازی ناموفق", "error"); }
 }
+function buildMapPicker() {
+  const menu = document.getElementById("mapPickerMenu");
+  menu.innerHTML = "";
+  CONFIG.maps.forEach(m => {
+    const opt = document.createElement("div");
+    opt.className = "picker-opt" + (m === "Custom" ? " custom" : "") + (m === selectedMap ? " on" : "");
+    opt.textContent = m;
+    opt.onclick = function (e) {
+      e.stopPropagation();
+      chooseMap(m);
+    };
+    menu.appendChild(opt);
+  });
+  document.getElementById("mapPickerBtn").textContent = selectedMap;
+  document.getElementById("mapPickerBtn").style.background = selectedMap === "Custom"
+    ? "linear-gradient(180deg, #ffe08a, #ffb43a)"
+    : "rgba(0,0,0,.38)";
+  document.getElementById("mapPickerBtn").style.color = selectedMap === "Custom" ? "#140f0a" : "#fff6ea";
+}
+function togglePicker() {
+  document.getElementById("mapPicker").classList.toggle("open");
+}
+function chooseMap(map) {
+  selectedMap = map;
+  document.getElementById("mapPicker").classList.remove("open");
+  buildMapPicker();
+  onMapTypeChange();
+}
 function openMapModal(slot) {
   pendingSlot = slot;
+  selectedMap = "TrainFacility";
   document.getElementById("mapSlotText").textContent = "نقشه و کد ادمین سرور " + slot;
-  const select = document.getElementById("mapSelect");
-  select.innerHTML = CONFIG.maps.map(m => '<option value="' + m + '">' + m + '</option>').join("");
-  select.value = "TrainFacility";
   document.getElementById("adminCodeInput").value = "12345";
   document.getElementById("customMapName").value = "";
   document.getElementById("customMapBody").value = "";
+  setStartLoading(false);
+  buildMapPicker();
   onMapTypeChange();
   document.getElementById("mapModal").classList.remove("hidden");
 }
 function onMapTypeChange() {
-  const custom = document.getElementById("mapSelect").value === "Custom";
-  document.getElementById("customMapBox").classList.toggle("hidden-block", !custom);
+  document.getElementById("customMapBox").classList.toggle("hidden-block", selectedMap !== "Custom");
 }
 function closeMapModal() {
   pendingSlot = null;
+  setStartLoading(false);
+  document.getElementById("mapPicker").classList.remove("open");
   document.getElementById("mapModal").classList.add("hidden");
+}
+function openStopModal(slot) {
+  pendingStopSlot = slot;
+  document.getElementById("stopSlotText").textContent = "سرور " + slot + " خاموش شود؟";
+  document.getElementById("stopModal").classList.remove("hidden");
+}
+function closeStopModal() {
+  pendingStopSlot = null;
+  document.getElementById("stopModal").classList.add("hidden");
 }
 function cleanMapName(name) {
   return String(name || "").replace(/\.txt$/i, "").replace(/[^A-Za-z0-9_-]/g, "");
 }
 async function confirmStart() {
   const slot = pendingSlot;
-  const map = document.getElementById("mapSelect").value;
+  const map = selectedMap;
   const admin = (document.getElementById("adminCodeInput").value || "12345").trim();
   if (!slot) return;
   if (!/^\d+$/.test(admin)) return toast("کد ادمین باید عدد باشد", "error");
@@ -429,41 +516,54 @@ async function confirmStart() {
     const body = document.getElementById("customMapBody").value;
     if (!customName) return toast("نام نقشه سفارشی را بنویس", "error");
     if (!body.trim()) return toast("محتوای نقشه خالی است", "error");
-    const gistRes = await api("/gists/" + CONFIG.gistId, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ files: { ["custom-map-" + slot + ".txt"]: { content: body } } })
-    });
-    if (!gistRes.ok) return toast("ذخیره نقشه سفارشی ناموفق", "error");
   }
-  closeMapModal();
-  toast("سرور " + slot + " در صف است", "info");
-  const res = await api(
-    "/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/workflows/" + encodeURIComponent(CONFIG.workflow) + "/dispatches",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ref: CONFIG.branch,
-        inputs: {
-          mode: "start",
-          slot: String(slot),
-          map: map,
-          admin_code: admin,
-          custom_map_name: customName
-        }
-      })
+  setStartLoading(true);
+  try {
+    if (map === "Custom") {
+      const gistRes = await api("/gists/" + CONFIG.gistId, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ files: { ["custom-map-" + slot + ".txt"]: { content: document.getElementById("customMapBody").value } } })
+      });
+      if (!gistRes.ok) throw new Error("ذخیره نقشه سفارشی ناموفق");
     }
-  );
-  if (!res.ok) return toast("روشن نشد (" + res.status + ")", "error");
-  toast("سرور " + slot + " در حال روشن شدن", "success");
-  setTimeout(refreshDashboard, 2500);
+    toast("سرور " + slot + " در صف است", "info");
+    const res = await api(
+      "/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/workflows/" + encodeURIComponent(CONFIG.workflow) + "/dispatches",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ref: CONFIG.branch,
+          inputs: {
+            mode: "start",
+            slot: String(slot),
+            map: map,
+            admin_code: admin,
+            custom_map_name: customName
+          }
+        })
+      }
+    );
+    if (!res.ok) throw new Error("روشن نشد (" + res.status + ")");
+    toast("سرور " + slot + " در حال روشن شدن", "success");
+    closeMapModal();
+    setTimeout(refreshDashboard, 2500);
+  } catch (e) {
+    setStartLoading(false);
+    toast(e.message || "روشن نشد", "error");
+  }
 }
-async function stopServer(slot) {
+async function confirmStop() {
+  const slot = pendingStopSlot;
+  if (!slot) return;
   const server = serversData && serversData.servers && serversData.servers.find(s => Number(s.slot) === Number(slot));
-  if (!server || !server.run_id) return toast("شناسه اجرا نیست", "error");
-  if (!confirm("سرور " + slot + " خاموش شود؟")) return;
+  if (!server || !server.run_id) {
+    closeStopModal();
+    return toast("شناسه اجرا نیست", "error");
+  }
   const res = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/runs/" + encodeURIComponent(server.run_id) + "/cancel", { method: "POST" });
+  closeStopModal();
   if (!res.ok && res.status !== 409) return toast("خاموش نشد (" + res.status + ")", "error");
   toast("درخواست خاموشی ارسال شد", "success");
   setTimeout(refreshDashboard, 3000);
@@ -587,6 +687,10 @@ async function loadWorkflows() {
   ).join("") || "ورک‌فلویی نیست";
 }
 
+document.addEventListener("click", function (e) {
+  const picker = document.getElementById("mapPicker");
+  if (picker && !picker.contains(e.target)) picker.classList.remove("open");
+});
 document.getElementById("tokenInput").addEventListener("keydown", e => { if (e.key === "Enter") connectGitHub(); });
 window.onload = function () {
   const saved = loadToken();
@@ -597,4 +701,4 @@ window.onload = function () {
 };
 </script>
 </body>
-  </html>
+          </html>
