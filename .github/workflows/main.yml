@@ -11,20 +11,14 @@ on:
           - start
           - setup
         default: start
-
       slot:
         description: "Server slot (ignored for setup)"
         required: true
         type: choice
-        options:
-          - "1"
-          - "2"
-          - "3"
-          - "4"
+        options: ["1", "2", "3", "4"]
         default: "1"
-
       map:
-        description: "Official map"
+        description: "Official map or Custom"
         required: false
         type: choice
         options:
@@ -36,7 +30,16 @@ on:
           - NewTerrainRamps
           - Island
           - CarSoccer
+          - Custom
         default: TrainFacility
+      admin_code:
+        description: "Numeric admin code"
+        required: false
+        default: "12345"
+      custom_map_name:
+        description: "Custom map name without .txt"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -53,7 +56,6 @@ env:
   PLAYIT_AGENT_URL: "https://github.com/playit-cloud/playit-agent/releases/download/v1.0.10/playit-linux-amd64"
 
 jobs:
-
   setup:
     if: ${{ inputs.mode == 'setup' }}
     runs-on: ubuntu-latest
@@ -70,60 +72,48 @@ jobs:
           set -e
           sudo apt-get update -qq
           sudo apt-get install -y wget curl jq
-
       - name: Prepare directories
         run: |
           set -e
           sudo mkdir -p /run/playit
           sudo chmod 777 /run/playit
-          mkdir -p "$HOME/.config/playit_gg" "$HOME/.config/playit"
-
+          mkdir -p "$HOME/.config/playit_gg"
       - name: Download Playit CLI + Agent
         run: |
           set -e
           wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/playit-cli" "$PLAYIT_CLI_URL"
           wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/playit" "$PLAYIT_AGENT_URL"
           chmod +x "$GITHUB_WORKSPACE/playit-cli" "$GITHUB_WORKSPACE/playit"
-
       - name: Check secrets and create missing agents
         run: |
           set -e
-          check_secret() {
-            local name="$1" value="$2"
-            if [ -z "$value" ]; then echo "MISSING $name"; return 1
-            else echo "OK $name"; return 0; fi
-          }
           MISSING=()
-          check_secret "DASHBOARD_TOKEN" "$DASHBOARD_TOKEN" || MISSING+=("DASHBOARD_TOKEN")
-          check_secret "PLAYIT_SECRET_1" "$PLAYIT_SECRET_1" || MISSING+=("PLAYIT_SECRET_1")
-          check_secret "PLAYIT_SECRET_2" "$PLAYIT_SECRET_2" || MISSING+=("PLAYIT_SECRET_2")
-          check_secret "PLAYIT_SECRET_3" "$PLAYIT_SECRET_3" || MISSING+=("PLAYIT_SECRET_3")
-          check_secret "PLAYIT_SECRET_4" "$PLAYIT_SECRET_4" || MISSING+=("PLAYIT_SECRET_4")
+          [ -n "$DASHBOARD_TOKEN" ] || MISSING+=("DASHBOARD_TOKEN")
+          [ -n "$PLAYIT_SECRET_1" ] || MISSING+=("PLAYIT_SECRET_1")
+          [ -n "$PLAYIT_SECRET_2" ] || MISSING+=("PLAYIT_SECRET_2")
+          [ -n "$PLAYIT_SECRET_3" ] || MISSING+=("PLAYIT_SECRET_3")
+          [ -n "$PLAYIT_SECRET_4" ] || MISSING+=("PLAYIT_SECRET_4")
           if [ ${#MISSING[@]} -eq 0 ]; then echo "All secrets present."; exit 0; fi
           create_agent() {
             local SECRET_NAME="$1"
-            rm -rf "$HOME/.config/playit_gg" "$HOME/.config/playit" 2>/dev/null || true
+            rm -rf "$HOME/.config/playit_gg" 2>/dev/null || true
             mkdir -p "$HOME/.config/playit_gg"
             CLAIM_CODE=$("$GITHUB_WORKSPACE/playit-cli" claim generate 2>/dev/null | tr -d '\r\n' || true)
-            if [ -z "$CLAIM_CODE" ] || [ ${#CLAIM_CODE} -lt 8 ]; then echo "claim generate failed"; exit 1; fi
+            [ -n "$CLAIM_CODE" ] || { echo "claim generate failed"; exit 1; }
             echo "Open: https://playit.gg/claim/$CLAIM_CODE"
             SECRET=""
             for i in $(seq 1 72); do
               sleep 10
               SECRET=$("$GITHUB_WORKSPACE/playit-cli" claim exchange "$CLAIM_CODE" --wait 5 2>/dev/null | tail -n 15 | grep -oE '[0-9a-fA-F]{32,}' | tail -1 || true)
-              if [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ]; then break; fi
-              echo "waiting $((i*10))s"
+              [ -n "$SECRET" ] && [ ${#SECRET} -ge 32 ] && break
             done
-            if [ -z "$SECRET" ] || [ ${#SECRET} -lt 32 ]; then echo "Timed out"; exit 1; fi
+            [ -n "$SECRET" ] || { echo "Timed out"; exit 1; }
             echo "Secret name : $SECRET_NAME"
             echo "Secret value: $SECRET"
           }
           for s in "${MISSING[@]}"; do
             case "$s" in
-              PLAYIT_SECRET_1) create_agent "PLAYIT_SECRET_1" ;;
-              PLAYIT_SECRET_2) create_agent "PLAYIT_SECRET_2" ;;
-              PLAYIT_SECRET_3) create_agent "PLAYIT_SECRET_3" ;;
-              PLAYIT_SECRET_4) create_agent "PLAYIT_SECRET_4" ;;
+              PLAYIT_SECRET_*) create_agent "$s" ;;
               DASHBOARD_TOKEN) echo "Add DASHBOARD_TOKEN" ;;
             esac
           done
@@ -135,8 +125,9 @@ jobs:
     env:
       SLOT: ${{ inputs.slot }}
       MAP_NAME: ${{ inputs.map }}
+      ADMIN_CODE: ${{ inputs.admin_code }}
+      CUSTOM_MAP_NAME: ${{ inputs.custom_map_name }}
       DASHBOARD_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
-
     steps:
       - name: Configure server slot
         id: config
@@ -144,6 +135,10 @@ jobs:
           set -e
           PORT="7777"
           MAP_NAME="${MAP_NAME:-TrainFacility}"
+          ADMIN_CODE="${ADMIN_CODE:-12345}"
+          ADMIN_CODE=$(echo "$ADMIN_CODE" | tr -cd '0-9')
+          [ -n "$ADMIN_CODE" ] || ADMIN_CODE="12345"
+          CUSTOM_MAP_NAME=$(echo "${CUSTOM_MAP_NAME:-}" | sed 's/\.txt$//' | tr -cd 'A-Za-z0-9_-')
           case "$SLOT" in
             1) DOMAIN="drake-missy.tun.ply.gg"; IP="147.185.221.231"; PUBLIC_PORT="46049" ;;
             2) DOMAIN="drake-embraced.tun.ply.gg"; IP="147.185.221.231"; PUBLIC_PORT="47064" ;;
@@ -151,10 +146,19 @@ jobs:
             4) DOMAIN="drake-relativity.tun.ply.gg"; IP="147.185.221.230"; PUBLIC_PORT="49177" ;;
             *) echo "Invalid slot"; exit 1 ;;
           esac
+          if [ "$MAP_NAME" = "Custom" ]; then
+            [ -n "$CUSTOM_MAP_NAME" ] || { echo "custom_map_name missing"; exit 1; }
+            DISPLAY_MAP="editor:${CUSTOM_MAP_NAME}"
+          else
+            DISPLAY_MAP="$MAP_NAME"
+          fi
           echo "PORT=$PORT" >> "$GITHUB_OUTPUT"
           echo "IP=$IP" >> "$GITHUB_OUTPUT"
           echo "ENDPOINT=${DOMAIN}:${PUBLIC_PORT}" >> "$GITHUB_OUTPUT"
           echo "MAP_NAME=$MAP_NAME" >> "$GITHUB_OUTPUT"
+          echo "DISPLAY_MAP=$DISPLAY_MAP" >> "$GITHUB_OUTPUT"
+          echo "ADMIN_CODE=$ADMIN_CODE" >> "$GITHUB_OUTPUT"
+          echo "CUSTOM_MAP_NAME=$CUSTOM_MAP_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Check required secrets
         env:
@@ -172,7 +176,6 @@ jobs:
             4) PLAYIT_SECRET="$PLAYIT_SECRET_4" ;;
           esac
           [ -n "$PLAYIT_SECRET" ] || { echo "PLAYIT_SECRET_$SLOT missing"; exit 1; }
-          echo "::add-mask::$PLAYIT_SECRET"
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -181,7 +184,7 @@ jobs:
         run: |
           set -e
           sudo apt-get update
-          sudo apt-get install -y unzip wget curl ca-certificates iproute2 jq python3 screen libc6-i386 lib32stdc++6 || true
+          sudo apt-get install -y unzip wget curl ca-certificates iproute2 jq python3 libc6-i386 lib32stdc++6 || true
 
       - name: Disable IPv6
         run: |
@@ -206,10 +209,10 @@ jobs:
           PORT: ${{ steps.config.outputs.PORT }}
           ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
           IP: ${{ steps.config.outputs.IP }}
-          MAP_NAME: ${{ steps.config.outputs.MAP_NAME }}
+          DISPLAY_MAP: ${{ steps.config.outputs.DISPLAY_MAP }}
         run: |
           set -e
-          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$MAP_NAME" <<'PY'
+          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$DISPLAY_MAP" <<'PY'
           import json, sys
           from datetime import datetime, timezone
           path, slot, run_id = sys.argv[1], int(sys.argv[2]), str(sys.argv[3])
@@ -223,18 +226,10 @@ jobs:
               current_run = server.get("run_id")
               if current_run not in (None, "", run_id):
                   raise SystemExit(f"Server {slot} owned by {current_run}")
-              server.update({
-                  "status": "starting",
-                  "run_id": run_id,
-                  "endpoint": endpoint,
-                  "ip": ip,
-                  "port": port,
-                  "map": map_name,
-                  "started_at": now
-              })
+              server.update({"status":"starting","run_id":run_id,"endpoint":endpoint,"ip":ip,"port":port,"map":map_name,"started_at":now})
               break
           else:
-              raise SystemExit(f"Slot {slot} missing")
+              raise SystemExit("slot missing")
           with open(path, "w", encoding="utf-8") as f:
               json.dump(data, f, indent=2)
               f.write("\n")
@@ -244,25 +239,14 @@ jobs:
           with open(os.path.join(os.environ["GITHUB_WORKSPACE"], "servers.json"), "r", encoding="utf-8") as f:
               content = f.read()
           payload = {"files": {os.environ["GIST_FILE"]: {"content": content}}}
-          req = urllib.request.Request(
-              "https://api.github.com/gists/" + os.environ["GIST_ID"],
-              data=json.dumps(payload).encode("utf-8"),
-              method="PATCH",
-              headers={
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": "Bearer " + os.environ["DASHBOARD_TOKEN"],
-                  "X-GitHub-Api-Version": "2022-11-28",
-                  "Content-Type": "application/json",
-              },
-          )
+          req = urllib.request.Request("https://api.github.com/gists/" + os.environ["GIST_ID"], data=json.dumps(payload).encode(), method="PATCH", headers={"Accept":"application/vnd.github+json","Authorization":"Bearer "+os.environ["DASHBOARD_TOKEN"],"X-GitHub-Api-Version":"2022-11-28","Content-Type":"application/json"})
           urllib.request.urlopen(req).read()
           PY
 
       - name: Download L.A. Crimes
         run: |
           set -e
-          wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/LAC.zip" \
-            "https://lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
+          wget --timeout=60 --tries=5 -O "$GITHUB_WORKSPACE/LAC.zip" "https://lacrimesonline.com/builds/LAC_Linux_v1.9.6.zip"
           rm -rf "$GITHUB_WORKSPACE/lac"
           mkdir -p "$GITHUB_WORKSPACE/lac"
           unzip -q "$GITHUB_WORKSPACE/LAC.zip" -d "$GITHUB_WORKSPACE/lac"
@@ -271,25 +255,29 @@ jobs:
           chmod +x "$SERVER"
           echo "$SERVER" > "$GITHUB_WORKSPACE/server-path.txt"
 
-      - name: Write ServerConfig.txt for selected official map
+      - name: Install ServerConfig and optional custom map
         env:
           MAP_NAME: ${{ steps.config.outputs.MAP_NAME }}
+          DISPLAY_MAP: ${{ steps.config.outputs.DISPLAY_MAP }}
+          ADMIN_CODE: ${{ steps.config.outputs.ADMIN_CODE }}
+          CUSTOM_MAP_NAME: ${{ steps.config.outputs.CUSTOM_MAP_NAME }}
         run: |
           set -e
-          MAP_NAME="${MAP_NAME:-TrainFacility}"
           cat > "$GITHUB_WORKSPACE/ServerConfig.txt" <<EOF
           #place config in /root/.config/unity3d/MA/LAC/ServerConfig.txt
+          #place maps in   /root/.config/unity3d/MA/LAC/editor/myMap.txt
           #Maps (City, Garage, RagdollParty, TrainFacility)
           #Maps (ZombieSurvival, NewTerrainRamps, Island, CarSoccer)
+          #Editor Maps (editor:myMap)
 
           (Moderator)
-          admin code=12345
+          admin code=${ADMIN_CODE}
           lock down=true
 
           (Basic)
           restart timer=never
           max players=16
-          map name=${MAP_NAME}
+          map name=${DISPLAY_MAP}
           starting port=7777
 
           (Server List)
@@ -303,14 +291,43 @@ jobs:
           EOF
           sed -i 's/^          //' "$GITHUB_WORKSPACE/ServerConfig.txt"
           install_tree() {
-            local BASE="$1"
-            sudo mkdir -p "$BASE"
-            sudo cp "$GITHUB_WORKSPACE/ServerConfig.txt" "$BASE/ServerConfig.txt"
-            sudo chmod -R a+rX "$BASE"
+            sudo mkdir -p "$1/editor"
+            sudo cp "$GITHUB_WORKSPACE/ServerConfig.txt" "$1/ServerConfig.txt"
           }
           install_tree /root/.config/unity3d/MA/LAC
           install_tree "$HOME/.config/unity3d/MA/LAC"
+          if [ "$MAP_NAME" = "Custom" ]; then
+            python3 - "$SLOT" "$CUSTOM_MAP_NAME" <<'PY'
+          import json, os, sys, urllib.request
+          slot, name = sys.argv[1], sys.argv[2]
+          filename = "custom-map-%s.txt" % slot
+          req = urllib.request.Request(
+              "https://api.github.com/gists/" + os.environ["GIST_ID"],
+              headers={"Accept":"application/vnd.github+json","Authorization":"Bearer "+os.environ["DASHBOARD_TOKEN"],"X-GitHub-Api-Version":"2022-11-28"},
+          )
+          with urllib.request.urlopen(req) as resp:
+              gist = json.load(resp)
+          file = gist["files"].get(filename)
+          if not file or not file.get("content"):
+              raise SystemExit("custom map gist file missing: " + filename)
+          content = file["content"]
+          if file.get("truncated") and file.get("raw_url"):
+              content = urllib.request.urlopen(file["raw_url"]).read().decode("utf-8", "replace")
+          path = os.path.join(os.environ["GITHUB_WORKSPACE"], name + ".txt")
+          with open(path, "w", encoding="utf-8") as f:
+              f.write(content)
+          print("custom map bytes", len(content))
+          PY
+            sudo cp "$GITHUB_WORKSPACE/${CUSTOM_MAP_NAME}.txt" "/root/.config/unity3d/MA/LAC/editor/${CUSTOM_MAP_NAME}.txt"
+            sudo mkdir -p "/root/.config/unity3d/MA/LAC/editor/${CUSTOM_MAP_NAME}"
+            sudo cp "$GITHUB_WORKSPACE/${CUSTOM_MAP_NAME}.txt" "$HOME/.config/unity3d/MA/LAC/editor/${CUSTOM_MAP_NAME}.txt"
+            sudo mkdir -p "$HOME/.config/unity3d/MA/LAC/editor/${CUSTOM_MAP_NAME}"
+          fi
+          sudo chmod -R a+rX /root/.config/unity3d/MA/LAC "$HOME/.config/unity3d/MA/LAC"
+          echo "===== ServerConfig ====="
           sudo cat /root/.config/unity3d/MA/LAC/ServerConfig.txt
+          echo "===== editor ====="
+          sudo ls -la /root/.config/unity3d/MA/LAC/editor || true
 
       - name: Start L.A. Crimes
         run: |
@@ -326,7 +343,6 @@ jobs:
             tail -300 "$GITHUB_WORKSPACE/lac-server.log" || true
             exit 1
           fi
-          echo "PID=$(cat "$GITHUB_WORKSPACE/lac.pid")"
           sudo ss -ulnp || true
           tail -80 "$GITHUB_WORKSPACE/lac-server.log" || true
 
@@ -364,10 +380,10 @@ jobs:
           PORT: ${{ steps.config.outputs.PORT }}
           ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
           IP: ${{ steps.config.outputs.IP }}
-          MAP_NAME: ${{ steps.config.outputs.MAP_NAME }}
+          DISPLAY_MAP: ${{ steps.config.outputs.DISPLAY_MAP }}
         run: |
           set -e
-          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$MAP_NAME" <<'PY'
+          python3 - "$GITHUB_WORKSPACE/servers.json" "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$DISPLAY_MAP" <<'PY'
           import json, sys
           from datetime import datetime, timezone
           path, slot, run_id = sys.argv[1], int(sys.argv[2]), str(sys.argv[3])
@@ -380,15 +396,7 @@ jobs:
                   continue
               if str(server.get("run_id")) != run_id:
                   raise SystemExit("ownership changed")
-              server.update({
-                  "status": "online",
-                  "run_id": run_id,
-                  "endpoint": endpoint,
-                  "ip": ip,
-                  "port": port,
-                  "map": map_name,
-                  "started_at": server.get("started_at") or now
-              })
+              server.update({"status":"online","run_id":run_id,"endpoint":endpoint,"ip":ip,"port":port,"map":map_name,"started_at":server.get("started_at") or now})
               break
           with open(path, "w", encoding="utf-8") as f:
               json.dump(data, f, indent=2)
@@ -399,17 +407,7 @@ jobs:
           with open(os.path.join(os.environ["GITHUB_WORKSPACE"], "servers.json"), "r", encoding="utf-8") as f:
               content = f.read()
           payload = {"files": {os.environ["GIST_FILE"]: {"content": content}}}
-          req = urllib.request.Request(
-              "https://api.github.com/gists/" + os.environ["GIST_ID"],
-              data=json.dumps(payload).encode("utf-8"),
-              method="PATCH",
-              headers={
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": "Bearer " + os.environ["DASHBOARD_TOKEN"],
-                  "X-GitHub-Api-Version": "2022-11-28",
-                  "Content-Type": "application/json",
-              },
-          )
+          req = urllib.request.Request("https://api.github.com/gists/" + os.environ["GIST_ID"], data=json.dumps(payload).encode(), method="PATCH", headers={"Accept":"application/vnd.github+json","Authorization":"Bearer "+os.environ["DASHBOARD_TOKEN"],"X-GitHub-Api-Version":"2022-11-28","Content-Type":"application/json"})
           urllib.request.urlopen(req).read()
           PY
 
@@ -418,12 +416,11 @@ jobs:
           PORT: ${{ steps.config.outputs.PORT }}
           ENDPOINT: ${{ steps.config.outputs.ENDPOINT }}
           IP: ${{ steps.config.outputs.IP }}
-          MAP_NAME: ${{ steps.config.outputs.MAP_NAME }}
+          DISPLAY_MAP: ${{ steps.config.outputs.DISPLAY_MAP }}
         run: |
           set -e
           START=$(date +%s)
           LIMIT=$((5 * 3600 + 45 * 60))
-
           snapshot_and_upload() {
             python3 - <<'PY'
           import json, os, subprocess
@@ -434,86 +431,56 @@ jobs:
               except Exception as e:
                   return str(e)
           ws = os.environ.get("GITHUB_WORKSPACE", "")
-          out = {
-              "slot": int(slot),
-              "time": run("date -u +%Y-%m-%dT%H:%M:%SZ").strip(),
-              "files": {}
-          }
-          for p in [
-              "/root/.config/unity3d/MA/LAC",
-              "/root/.config/unity3d/MA/LAC/editor",
-              "/home/runner/.config/unity3d/MA/LAC"
-          ]:
-              out["files"][p] = {"type": "dir", "body": run("sudo ls -la " + p)}
-          for f in [
-              "/root/.config/unity3d/MA/LAC/ServerConfig.txt",
-              os.path.join(ws, "lac-server.log"),
-              os.path.join(ws, "playit.log")
-          ]:
-              out["files"][f] = {"type": "file", "body": run("sudo tail -c 20000 " + f)[:20000]}
+          files = {}
+          for p in ["/root/.config/unity3d/MA/LAC", "/root/.config/unity3d/MA/LAC/editor", "/home/runner/.config/unity3d/MA/LAC"]:
+              files[p] = {"type": "dir", "body": run("sudo ls -la " + p)}
+          listing = run("sudo find /root/.config/unity3d/MA/LAC -maxdepth 3 -printf '%y %p\\n'")
+          for line in listing.splitlines():
+              parts = line.split(" ", 1)
+              if len(parts) != 2:
+                  continue
+              kind, path = parts
+              if kind == "d":
+                  files[path] = {"type": "dir", "body": run("sudo ls -la " + path)}
+              elif kind == "f" and path.endswith((".txt", ".log", "prefs")):
+                  files[path] = {"type": "file", "body": run("sudo tail -c 20000 " + path)[:20000]}
+          for f in [os.path.join(ws, "lac-server.log"), os.path.join(ws, "playit.log")]:
+              files[f] = {"type": "file", "body": run("sudo tail -c 20000 " + f)[:20000]}
+          out = {"slot": int(slot), "time": run("date -u +%Y-%m-%dT%H:%M:%SZ").strip(), "files": files}
           with open(os.path.join(ws, "runtime-snapshot.json"), "w", encoding="utf-8") as fh:
               json.dump(out, fh, indent=2)
           PY
             python3 - <<'PY'
           import json, os, urllib.request
-          slot = os.environ.get("SLOT", "1")
-          filename = "runtime-" + slot + ".json"
+          filename = "runtime-" + os.environ.get("SLOT", "1") + ".json"
           with open(os.path.join(os.environ["GITHUB_WORKSPACE"], "runtime-snapshot.json"), "r", encoding="utf-8") as f:
               content = f.read()
           payload = {"files": {filename: {"content": content}}}
-          req = urllib.request.Request(
-              "https://api.github.com/gists/" + os.environ["GIST_ID"],
-              data=json.dumps(payload).encode("utf-8"),
-              method="PATCH",
-              headers={
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": "Bearer " + os.environ["DASHBOARD_TOKEN"],
-                  "X-GitHub-Api-Version": "2022-11-28",
-                  "Content-Type": "application/json",
-              },
-          )
+          req = urllib.request.Request("https://api.github.com/gists/" + os.environ["GIST_ID"], data=json.dumps(payload).encode(), method="PATCH", headers={"Accept":"application/vnd.github+json","Authorization":"Bearer "+os.environ["DASHBOARD_TOKEN"],"X-GitHub-Api-Version":"2022-11-28","Content-Type":"application/json"})
           try:
               urllib.request.urlopen(req).read()
           except Exception as e:
               print("snapshot upload failed:", e)
           PY
           }
-
           sync_gist_truth() {
-            python3 - "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$MAP_NAME" <<'PY'
+            python3 - "$SLOT" "$GITHUB_RUN_ID" "$PORT" "$ENDPOINT" "$IP" "$DISPLAY_MAP" <<'PY'
           import json, os, sys, urllib.request
           from datetime import datetime, timezone
           slot, run_id = int(sys.argv[1]), str(sys.argv[2])
           port, endpoint, ip, map_name = int(sys.argv[3]), sys.argv[4], sys.argv[5], sys.argv[6]
-          gist_id = os.environ["GIST_ID"]
-          token = os.environ["DASHBOARD_TOKEN"]
-          filename = os.environ["GIST_FILE"]
-          req = urllib.request.Request(
-              "https://api.github.com/gists/" + gist_id,
-              headers={
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": "Bearer " + token,
-                  "X-GitHub-Api-Version": "2022-11-28",
-              },
-          )
+          gist_id, token, filename = os.environ["GIST_ID"], os.environ["DASHBOARD_TOKEN"], os.environ["GIST_FILE"]
+          req = urllib.request.Request("https://api.github.com/gists/" + gist_id, headers={"Accept":"application/vnd.github+json","Authorization":"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28"})
           with urllib.request.urlopen(req) as resp:
               gist = json.load(resp)
-          content = gist["files"][filename]["content"]
-          data = json.loads(content)
+          data = json.loads(gist["files"][filename]["content"])
           changed = False
           found = False
           for server in data["servers"]:
               if int(server["slot"]) != slot:
                   continue
               found = True
-              wanted = {
-                  "status": "online",
-                  "run_id": run_id,
-                  "endpoint": endpoint,
-                  "ip": ip,
-                  "port": port,
-                  "map": map_name,
-              }
+              wanted = {"status":"online","run_id":run_id,"endpoint":endpoint,"ip":ip,"port":port,"map":map_name}
               for key, value in wanted.items():
                   if server.get(key) != value:
                       server[key] = value
@@ -522,37 +489,20 @@ jobs:
                   server["started_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                   changed = True
               break
-          if not found:
-              print("Slot missing in gist")
-              sys.exit(0)
-          if not changed:
+          if not found or not changed:
               print("Gist already truthful for slot", slot)
               sys.exit(0)
           print("Gist was stale. Updating slot", slot)
           payload = {"files": {filename: {"content": json.dumps(data, indent=2) + "\n"}}}
-          patch = urllib.request.Request(
-              "https://api.github.com/gists/" + gist_id,
-              data=json.dumps(payload).encode("utf-8"),
-              method="PATCH",
-              headers={
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": "Bearer " + token,
-                  "X-GitHub-Api-Version": "2022-11-28",
-                  "Content-Type": "application/json",
-              },
-          )
+          patch = urllib.request.Request("https://api.github.com/gists/" + gist_id, data=json.dumps(payload).encode(), method="PATCH", headers={"Accept":"application/vnd.github+json","Authorization":"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28","Content-Type":"application/json"})
           urllib.request.urlopen(patch).read()
-          with open(os.path.join(os.environ["GITHUB_WORKSPACE"], "servers.json"), "w", encoding="utf-8") as f:
-              json.dump(data, f, indent=2)
-              f.write("\n")
           PY
           }
-
           LAST_SYNC=0
           while true; do
             NOW=$(date +%s)
             if [ $((NOW - START)) -ge "$LIMIT" ]; then
-              echo "Auto-stop after 5h45m so gist cleanup can run."
+              echo "Auto-stop after 5h45m"
               exit 0
             fi
             kill -0 "$(cat "$GITHUB_WORKSPACE/lac.pid")" 2>/dev/null || { tail -100 "$GITHUB_WORKSPACE/lac-server.log"; exit 1; }
@@ -562,8 +512,7 @@ jobs:
               snapshot_and_upload || true
               LAST_SYNC=$NOW
             fi
-            LEFT=$((LIMIT - (NOW - START)))
-            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT ONLINE left=${LEFT}s"
+            echo "[$(date '+%H:%M:%S')] SERVER=$SLOT ONLINE left=$((LIMIT - (NOW - START)))s"
             sleep 10
           done
 
@@ -574,53 +523,26 @@ jobs:
           python3 - "$SLOT" "$GITHUB_RUN_ID" <<'PY'
           import json, os, sys, urllib.request
           slot, run_id = int(sys.argv[1]), str(sys.argv[2])
-          gist_id = os.environ.get("GIST_ID", "")
-          token = os.environ.get("DASHBOARD_TOKEN", "")
-          filename = os.environ.get("GIST_FILE", "servers.json")
+          gist_id, token, filename = os.environ.get("GIST_ID",""), os.environ.get("DASHBOARD_TOKEN",""), os.environ.get("GIST_FILE","servers.json")
           if not gist_id or not token:
               sys.exit(0)
-          req = urllib.request.Request(
-              "https://api.github.com/gists/" + gist_id,
-              headers={
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": "Bearer " + token,
-                  "X-GitHub-Api-Version": "2022-11-28",
-              },
-          )
+          req = urllib.request.Request("https://api.github.com/gists/" + gist_id, headers={"Accept":"application/vnd.github+json","Authorization":"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28"})
           try:
               with urllib.request.urlopen(req) as resp:
-                  gist = json.load(resp)
-              data = json.loads(gist["files"][filename]["content"])
+                  data = json.loads(json.load(resp)["files"][filename]["content"])
           except Exception as e:
               print("cleanup fetch failed:", e)
               sys.exit(0)
           for server in data["servers"]:
               if int(server["slot"]) != slot:
                   continue
-              current_run = server.get("run_id")
-              if current_run is not None and str(current_run) != run_id:
+              if server.get("run_id") not in (None, "", run_id) and str(server.get("run_id")) != run_id:
                   print("Cleanup ignored")
                   sys.exit(0)
-              server["status"] = "offline"
-              server["run_id"] = None
-              server["endpoint"] = None
-              server["ip"] = None
-              server["port"] = None
-              server["map"] = None
-              server["started_at"] = None
+              server.update({"status":"offline","run_id":None,"endpoint":None,"ip":None,"port":None,"map":None,"started_at":None})
               break
           payload = {"files": {filename: {"content": json.dumps(data, indent=2) + "\n"}}}
-          patch = urllib.request.Request(
-              "https://api.github.com/gists/" + gist_id,
-              data=json.dumps(payload).encode("utf-8"),
-              method="PATCH",
-              headers={
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": "Bearer " + token,
-                  "X-GitHub-Api-Version": "2022-11-28",
-                  "Content-Type": "application/json",
-              },
-          )
+          patch = urllib.request.Request("https://api.github.com/gists/" + gist_id, data=json.dumps(payload).encode(), method="PATCH", headers={"Accept":"application/vnd.github+json","Authorization":"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28","Content-Type":"application/json"})
           try:
               urllib.request.urlopen(patch).read()
               print("Cleanup wrote offline to gist")
