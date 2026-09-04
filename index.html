@@ -48,21 +48,33 @@
       background: linear-gradient(165deg, rgba(255,180,58,.12), rgba(255,255,255,.03));
       box-shadow: var(--shadow); text-align: center;
     }
-    .fm-box { width: min(860px, calc(100% - 28px)); text-align: right; max-height: 86vh; overflow: auto; }
+    .fm-box { width: min(920px, calc(100% - 28px)); text-align: right; max-height: 92vh; overflow: auto; }
     h1, h2 { margin: 0 0 8px; }
     .sub { margin: 0 0 16px; color: var(--muted); font-size: 16px; }
+    .field { text-align: right; margin-bottom: 10px; }
+    .field label { display: block; margin-bottom: 6px; color: var(--gold); font-size: 15px; }
     input, textarea {
       width: 100%; padding: 13px 14px; border-radius: 14px;
       border: 1px solid var(--line); background: rgba(0,0,0,.38);
-      color: var(--text); margin-bottom: 12px; outline: none;
+      color: var(--text); margin-bottom: 0; outline: none;
       font-family: inherit; font-size: 16px;
     }
-    textarea { min-height: 280px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+    textarea { min-height: 180px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+    #fmEditor {
+      min-height: 48vh;
+      max-height: none;
+      height: auto;
+      overflow: auto;
+      white-space: pre;
+      word-break: normal;
+      overflow-wrap: normal;
+    }
     .ltr { direction: ltr; text-align: left; unicode-bidi: isolate; }
     .btn {
       border: 0; cursor: pointer; border-radius: 16px; padding: 12px 14px;
       font-family: inherit; font-size: 17px;
       box-shadow: 0 6px 0 rgba(0,0,0,.35);
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
     }
     .btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,.35); }
     .btn:disabled { opacity: .4; cursor: not-allowed; }
@@ -70,11 +82,16 @@
     .btn-mint { background: linear-gradient(180deg, #6af3b8, #17c77a); color: #042016; }
     .btn-rose { background: linear-gradient(180deg, #ff8a97, #e23b4d); color: #fff; }
     .btn-home { background: linear-gradient(180deg, #8ab0ff, #4d7dff); color: #061018; text-decoration:none; }
+    .btn-refresh {
+      background: linear-gradient(180deg, #7dfff0, #19c4b8);
+      color: #04221f;
+      border: 1px solid rgba(125,255,240,.45);
+    }
     .btn-ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--line); box-shadow: none; }
     .spin {
       width: 16px; height: 16px; border-radius: 50%;
       border: 2px solid rgba(20,15,10,.25); border-top-color: var(--ink);
-      display: inline-block; margin-left: 8px; vertical-align: -3px;
+      display: inline-block; flex: 0 0 16px;
       animation: spin .7s linear infinite;
     }
     .spin.light { border-color: rgba(255,255,255,.25); border-top-color: #fff6ea; }
@@ -105,7 +122,7 @@
     .row { display: flex; gap: 8px; flex-wrap: wrap; }
     .row .btn { flex: 1; min-width: 90px; }
     .panel { padding: 16px; border-radius: 22px; border: 1px solid var(--line); background: rgba(255,255,255,.03); }
-    .picker { position: relative; margin-bottom: 12px; text-align: right; }
+    .picker { position: relative; }
     .picker-btn {
       width: 100%; text-align: right;
       background: rgba(0,0,0,.38); color: var(--text);
@@ -119,9 +136,7 @@
       background: #16110c; box-shadow: var(--shadow);
     }
     .picker.open .picker-menu { display: block; }
-    .picker-opt {
-      padding: 11px 14px; cursor: pointer; color: var(--text);
-    }
+    .picker-opt { padding: 11px 14px; cursor: pointer; color: var(--text); }
     .picker-opt:hover { background: rgba(255,255,255,.06); }
     .picker-opt.on { background: rgba(255,180,58,.14); }
     .picker-opt.custom {
@@ -174,16 +189,28 @@
     <div class="card-box">
       <h2>شروع سرور</h2>
       <p class="sub" id="mapSlotText">نقشه و کد ادمین</p>
-      <div class="picker" id="mapPicker">
-        <button type="button" class="picker-btn" id="mapPickerBtn" onclick="togglePicker()">TrainFacility</button>
-        <div class="picker-menu" id="mapPickerMenu"></div>
+      <div class="field">
+        <label for="mapPickerBtn">نقشه سرور</label>
+        <div class="picker" id="mapPicker">
+          <button type="button" class="picker-btn" id="mapPickerBtn" onclick="togglePicker()">TrainFacility</button>
+          <div class="picker-menu" id="mapPickerMenu"></div>
+        </div>
       </div>
-      <input id="adminCodeInput" type="text" inputmode="numeric" value="12345" placeholder="کد ادمین">
+      <div class="field">
+        <label for="adminCodeInput">کد ادمین</label>
+        <input id="adminCodeInput" type="text" inputmode="numeric" value="12345" placeholder="۱۲۳۴۵">
+      </div>
       <div id="customMapBox" class="hidden-block">
-        <input id="customMapName" class="ltr" type="text" placeholder="Prime.txt">
-        <textarea id="customMapBody" class="ltr" placeholder="محتوای نقشه را اینجا بچسبان"></textarea>
+        <div class="field">
+          <label for="customMapName">نام فایل نقشه</label>
+          <input id="customMapName" class="ltr" type="text" placeholder="Prime.txt">
+        </div>
+        <div class="field">
+          <label for="customMapBody">محتوای نقشه</label>
+          <textarea id="customMapBody" class="ltr" placeholder="محتوای نقشه را اینجا بچسبان"></textarea>
+        </div>
       </div>
-      <button id="startBtn" class="btn btn-mint" style="width:100%" onclick="confirmStart()">روشن کردن سرور</button>
+      <button id="startBtn" class="btn btn-mint" style="width:100%;margin-top:8px" onclick="confirmStart()">روشن کردن سرور</button>
       <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="closeMapModal()">لغو</button>
     </div>
   </div>
@@ -217,7 +244,7 @@
       <div class="hero-actions">
         <button class="btn btn-rose" onclick="logout()">خروج</button>
         <a class="btn btn-home" href="https://herculepanel.github.io/">برگشت به صفحه نخست</a>
-        <button class="btn btn-ghost" onclick="refreshDashboard()">تازه‌سازی</button>
+        <button class="btn btn-refresh" onclick="refreshDashboard()">تازه‌سازی</button>
       </div>
     </div>
 
@@ -260,7 +287,7 @@ const CONFIG = {
   api: "https://api.github.com",
   home: "https://herculepanel.github.io/",
   limitMs: (5 * 60 + 45) * 60 * 1000,
-  maps: ["City","Garage","RagdollParty","TrainFacility","ZombieSurvival","NewTerrainRamps","Island","CarSoccer","Custom"]
+  maps: ["Custom","City","Garage","RagdollParty","TrainFacility","ZombieSurvival","NewTerrainRamps","Island","CarSoccer"]
 };
 const TOKEN_KEY = "hpanel_github_token";
 const ADMIN_KEY = "hpanel_is_admin";
@@ -275,6 +302,9 @@ let fmTree = {};
 let fmPath = [];
 let tickTimer = null;
 
+function mapLabel(map) {
+  return map === "Custom" ? "سفارشی" : map;
+}
 function toast(msg, type) {
   const el = document.createElement("div");
   el.className = "toast " + (type === "error" ? "err" : type === "success" ? "ok" : "info");
@@ -449,18 +479,19 @@ function buildMapPicker() {
   CONFIG.maps.forEach(m => {
     const opt = document.createElement("div");
     opt.className = "picker-opt" + (m === "Custom" ? " custom" : "") + (m === selectedMap ? " on" : "");
-    opt.textContent = m;
+    opt.textContent = mapLabel(m);
     opt.onclick = function (e) {
       e.stopPropagation();
       chooseMap(m);
     };
     menu.appendChild(opt);
   });
-  document.getElementById("mapPickerBtn").textContent = selectedMap;
-  document.getElementById("mapPickerBtn").style.background = selectedMap === "Custom"
+  const btn = document.getElementById("mapPickerBtn");
+  btn.textContent = mapLabel(selectedMap);
+  btn.style.background = selectedMap === "Custom"
     ? "linear-gradient(180deg, #ffe08a, #ffb43a)"
     : "rgba(0,0,0,.38)";
-  document.getElementById("mapPickerBtn").style.color = selectedMap === "Custom" ? "#140f0a" : "#fff6ea";
+  btn.style.color = selectedMap === "Custom" ? "#140f0a" : "#fff6ea";
 }
 function togglePicker() {
   document.getElementById("mapPicker").classList.toggle("open");
@@ -594,6 +625,12 @@ function currentFmNode() {
   });
   return node;
 }
+function showFile(body) {
+  const editor = document.getElementById("fmEditor");
+  editor.value = body || "";
+  editor.style.height = "48vh";
+  editor.style.height = Math.max(editor.scrollHeight, editor.clientHeight) + "px";
+}
 function renderFm() {
   const list = document.getElementById("fmList");
   const crumb = document.getElementById("fmCrumb");
@@ -619,10 +656,10 @@ function renderFm() {
     div.onclick = () => {
       if (item.type === "dir") {
         fmPath.push(name);
-        document.getElementById("fmEditor").value = "";
+        showFile("");
         renderFm();
       } else {
-        document.getElementById("fmEditor").value = item.body || "";
+        showFile(item.body || "");
       }
     };
     list.appendChild(div);
@@ -631,7 +668,7 @@ function renderFm() {
 async function openFiles(slot) {
   document.getElementById("fmTitle").textContent = "فایل‌های سرور " + slot;
   document.getElementById("fmList").innerHTML = "در حال بارگذاری...";
-  document.getElementById("fmEditor").value = "";
+  showFile("");
   document.getElementById("fmModal").classList.remove("hidden");
   try {
     const raw = await gistFileContent("runtime-" + slot + ".json");
@@ -701,4 +738,4 @@ window.onload = function () {
 };
 </script>
 </body>
-          </html>
+      </html>
