@@ -51,6 +51,7 @@
     .fm-box { width: min(920px, calc(100% - 28px)); text-align: right; max-height: 92vh; overflow: auto; }
     h1, h2 { margin: 0 0 8px; }
     .sub { margin: 0 0 16px; color: var(--muted); font-size: 16px; }
+    .sub a { color: var(--gold); }
     .field { text-align: right; margin-bottom: 10px; }
     .field label { display: block; margin-bottom: 6px; color: var(--gold); font-size: 15px; }
     input, textarea {
@@ -60,10 +61,7 @@
       font-family: inherit; font-size: 16px;
     }
     textarea { min-height: 180px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
-    #fmEditor {
-      min-height: 48vh; max-height: none; height: auto;
-      overflow: auto; white-space: pre; word-break: normal; overflow-wrap: normal;
-    }
+    #fmEditor { min-height: 48vh; max-height: none; height: auto; overflow: auto; white-space: pre; }
     .ltr { direction: ltr; text-align: left; unicode-bidi: isolate; }
     .btn {
       border: 0; cursor: pointer; border-radius: 16px; padding: 12px 14px;
@@ -79,8 +77,7 @@
     .btn-home { background: linear-gradient(180deg, #8ab0ff, #4d7dff); color: #061018; text-decoration:none; }
     .btn-refresh {
       background: linear-gradient(180deg, #7dfff0, #19c4b8);
-      color: #04221f;
-      border: 1px solid rgba(125,255,240,.45);
+      color: #04221f; border: 1px solid rgba(125,255,240,.45);
     }
     .btn-ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--line); box-shadow: none; }
     .spin {
@@ -99,11 +96,16 @@
     .app.visible { opacity: 1; transform: none; pointer-events: auto; }
     .hero { display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
     .brand { font-size: clamp(28px, 5vw, 44px); }
+    .badge {
+      display: none; margin-top: 8px; padding: 5px 10px; border-radius: 999px;
+      background: rgba(62,227,154,.16); color: var(--mint); font-size: 14px;
+    }
+    .badge.on { display: inline-block; }
     .hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
     .tab {
       padding: 9px 13px; border-radius: 12px; border: 1px solid var(--line);
-      background: rgba(255,255,255,.04); color: var(--muted); cursor: pointer;
+      background: rgba(255,255,255,.04); color: var(--muted); cursor: pointer; font-family: inherit;
     }
     .tab.on { color: var(--text); background: rgba(255,180,58,.14); border-color: rgba(255,180,58,.4); }
     .view { display: none; }
@@ -149,10 +151,10 @@
     .crumb { direction: ltr; text-align: left; margin-bottom: 10px; color: var(--muted); }
     .flow-card { padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: rgba(0,0,0,.22); margin-bottom: 10px; text-align: right; }
     .flow-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .badge { padding: 4px 10px; border-radius: 999px; font-size: 13px; }
-    .badge.run { background: rgba(255,180,58,.16); color: var(--gold); }
-    .badge.ok { background: rgba(62,227,154,.16); color: var(--mint); }
-    .badge.bad { background: rgba(255,93,115,.16); color: #ff8a97; }
+    .badge-run, .badge-ok, .badge-bad { padding: 4px 10px; border-radius: 999px; font-size: 13px; }
+    .badge-run { background: rgba(255,180,58,.16); color: var(--gold); }
+    .badge-ok { background: rgba(62,227,154,.16); color: var(--mint); }
+    .badge-bad { background: rgba(255,93,115,.16); color: #ff8a97; }
     .flow-meta { color: var(--muted); font-size: 14px; margin-top: 6px; }
     .flow-extra { display: none; margin-top: 10px; direction: ltr; text-align: left; font-size: 13px; color: var(--muted); }
     .flow-card.open .flow-extra { display: block; }
@@ -175,9 +177,10 @@
   <div id="loginModal" class="login-modal">
     <div class="card-box">
       <h1><span class="gold">HP</span>anel <span class="gold">D</span>ashboard <span class="gold">v1.2</span></h1>
-      <p class="sub">توکن گیت‌هاب را وارد کن</p>
+      <p class="sub">اگر از گاوصندوق وارد شده باشی، همین‌جا باز می‌شود</p>
       <input id="tokenInput" type="password" placeholder="github_pat_...">
-      <button id="loginBtn" class="btn btn-gold" style="width:100%" onclick="connectGitHub()">ورود</button>
+      <button id="loginBtn" class="btn btn-gold" style="width:100%;margin-top:12px" onclick="connectGitHub()">ورود</button>
+      <a class="btn btn-ghost" style="width:100%;margin-top:8px" href="https://herculepanel.github.io/vault/">ورود از گاوصندوق</a>
     </div>
   </div>
 
@@ -201,7 +204,7 @@
       </div>
       <div class="field">
         <label for="adminCodeInput">کد ادمین</label>
-        <input id="adminCodeInput" type="text" inputmode="numeric" value="12345" placeholder="۱۲۳۴۵">
+        <input id="adminCodeInput" type="text" inputmode="numeric" value="12345">
       </div>
       <div id="customMapBox" class="hidden-block">
         <div class="field">
@@ -210,7 +213,7 @@
         </div>
         <div class="field">
           <label for="customMapBody">محتوای نقشه</label>
-          <textarea id="customMapBody" class="ltr" placeholder="محتوای نقشه را اینجا بچسبان"></textarea>
+          <textarea id="customMapBody" class="ltr"></textarea>
         </div>
       </div>
       <button id="startBtn" class="btn btn-mint" style="width:100%;margin-top:8px" onclick="confirmStart()">روشن کردن سرور</button>
@@ -230,10 +233,9 @@
   <div id="fmModal" class="fm-modal hidden">
     <div class="card-box fm-box">
       <h2 id="fmTitle">فایل‌های سرور</h2>
-      <p class="sub">فقط فایل‌های همین اجرا</p>
       <div id="fmCrumb" class="crumb ltr"></div>
       <div id="fmList" class="ltr"></div>
-      <textarea id="fmEditor" class="ltr" readonly placeholder="یک فایل را انتخاب کن"></textarea>
+      <textarea id="fmEditor" class="ltr" readonly></textarea>
       <button class="btn btn-ghost" style="width:100%" onclick="closeFm()">بستن</button>
     </div>
   </div>
@@ -242,7 +244,7 @@
     <div class="hero">
       <div>
         <div class="brand"><span class="gold">HP</span>anel <span class="gold">D</span>ashboard <span class="gold">v1.2</span></div>
-        <p class="sub" style="margin:6px 0 0">کنترل سرورهای لک</p>
+        <div id="verifyBadge" class="badge">تأیید شده</div>
       </div>
       <div class="hero-actions">
         <button class="btn btn-rose" onclick="logout()">خروج</button>
@@ -250,16 +252,12 @@
         <button class="btn btn-refresh" onclick="refreshDashboard()">تازه‌سازی</button>
       </div>
     </div>
-
-    <div class="tabs" id="tabs">
-      <button class="tab on" style="font-family: Lalezar;" data-view="servers" onclick="switchView('servers')">سرورها</button>
-      <button class="tab admin-only" style="font-family: Lalezar; display:none;" data-view="gist" onclick="switchView('gist')">گیست</button>
-      <button class="tab admin-only" style="font-family: Lalezar; display:none;" data-view="flows" onclick="switchView('flows')">ورک‌فلوها</button>
+    <div class="tabs">
+      <button class="tab on" data-view="servers" onclick="switchView('servers')">سرورها</button>
+      <button class="tab admin-only" style="display:none" data-view="gist" onclick="switchView('gist')">گیست</button>
+      <button class="tab admin-only" style="display:none" data-view="flows" onclick="switchView('flows')">ورک‌فلوها</button>
     </div>
-
-    <div id="view-servers" class="view on">
-      <div id="servers" class="grid"></div>
-    </div>
+    <div id="view-servers" class="view on"><div id="servers" class="grid"></div></div>
     <div id="view-gist" class="view">
       <div class="panel">
         <h2>ویرایش servers.json</h2>
@@ -274,7 +272,6 @@
         <div id="flowList" style="margin-top:12px"></div>
       </div>
     </div>
-
     <div class="foot"><span class="gold">H</span>ercule<span class="gold">P</span>anel © 2026</div>
   </div>
   <div class="toast-box" id="toasts"></div>
@@ -288,13 +285,12 @@ const CONFIG = {
   gistFile: "servers.json",
   branch: "main",
   api: "https://api.github.com",
-  home: "https://herculepanel.github.io/",
   limitMs: (5 * 60 + 45) * 60 * 1000,
   latestVersion: "1.9.7",
   versions: ["1.9.7", "1.9.6"],
   maps: ["Custom","City","Garage","RagdollParty","TrainFacility","ZombieSurvival","NewTerrainRamps","Island","CarSoccer"]
 };
-const TOKEN_KEY = "hpanel_github_token";
+const TOKEN_KEY = "hpanel_dashboard_token";
 const ADMIN_KEY = "hpanel_is_admin";
 const ADMIN_SUFFIX = "_thisisadmin";
 let githubToken = "";
@@ -308,9 +304,6 @@ let fmTree = {};
 let fmPath = [];
 let tickTimer = null;
 
-function brandHtml() {
-  return '<span class="gold">HP</span>anel <span class="gold">D</span>ashboard <span class="gold">v1.2</span>';
-}
 function mapLabel(map) { return map === "Custom" ? "سفارشی" : map; }
 function versionLabel(v) { return v === CONFIG.latestVersion ? v + " (آخرین)" : v; }
 function toast(msg, type) {
@@ -323,17 +316,21 @@ function toast(msg, type) {
 function saveSession(token, admin) {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(ADMIN_KEY, admin ? "1" : "0");
-  document.cookie = "github_token=" + encodeURIComponent(token) + "; path=/; max-age=" + (30*24*60*60) + "; SameSite=Lax";
+  document.cookie = TOKEN_KEY + "=" + encodeURIComponent(token) + "; path=/; max-age=" + (30*24*60*60) + "; SameSite=Lax";
 }
-function loadToken() { return localStorage.getItem(TOKEN_KEY) || ""; }
+function loadToken() {
+  return localStorage.getItem(TOKEN_KEY) || localStorage.getItem("hpanel_github_token") || "";
+}
 function clearSession() {
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem("hpanel_github_token");
   localStorage.removeItem(ADMIN_KEY);
-  document.cookie = "github_token=; path=/; max-age=0; SameSite=Lax";
+  document.cookie = TOKEN_KEY + "=; path=/; max-age=0; SameSite=Lax";
 }
 function showApp() {
   document.getElementById("loginModal").classList.add("hidden");
   document.getElementById("app").classList.add("visible");
+  document.getElementById("verifyBadge").classList.toggle("on", localStorage.getItem("hpanel_verified") === "1");
   document.querySelectorAll(".admin-only").forEach(el => { el.style.display = isAdmin ? "" : "none"; });
 }
 function hideApp() {
@@ -342,16 +339,11 @@ function hideApp() {
 }
 async function api(path, options) {
   options = options || {};
-  const headers = Object.assign({
-    "Accept": "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28"
-  }, options.headers || {});
+  const headers = Object.assign({ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }, options.headers || {});
   if (githubToken) headers.Authorization = "Bearer " + githubToken;
   return fetch(CONFIG.api + path, Object.assign({}, options, { headers }));
 }
-function esc(s) {
-  return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-}
+function esc(s) { return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
 function statusFa(status) {
   if (status === "online") return "آنلاین";
   if (status === "starting") return "در حال روشن شدن";
@@ -374,16 +366,16 @@ function setStartLoading(on) {
 }
 async function connectGitHub() {
   const parsed = parseLogin(document.getElementById("tokenInput").value || loadToken());
-  if (!parsed.token) return toast("توکن را وارد کن", "error");
+  if (!parsed.token) return toast("توکن نیست. از گاوصندوق وارد شو", "error");
   setLoginLoading(true);
   githubToken = parsed.token;
-  isAdmin = parsed.admin;
+  isAdmin = parsed.admin || localStorage.getItem(ADMIN_KEY) === "1";
   try {
     const r = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo);
     if (!r.ok) throw new Error("دسترسی به ریپو نشد (" + r.status + ")");
     const g = await api("/gists/" + CONFIG.gistId);
     if (!g.ok) throw new Error("دسترسی به گیست نشد (" + g.status + ")");
-    saveSession(parsed.token, parsed.admin);
+    saveSession(parsed.token, isAdmin);
     showApp();
     toast(isAdmin ? "ورود ادمین" : "وارد شدی", "success");
     refreshDashboard();
@@ -440,14 +432,12 @@ async function loadServers() {
 }
 function remainText(startedAt) {
   if (!startedAt) return "—";
-  const end = new Date(startedAt).getTime() + CONFIG.limitMs;
-  const left = end - Date.now();
+  const left = new Date(startedAt).getTime() + CONFIG.limitMs - Date.now();
   if (left <= 0) return "پایان زمان";
   const s = Math.floor(left / 1000);
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(sec).padStart(2,"0");
+  return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s % 60).padStart(2,"0");
 }
 function renderServers(data) {
   serversData = data;
@@ -456,15 +446,11 @@ function renderServers(data) {
   [...data.servers].sort((a,b) => a.slot - b.slot).forEach(server => {
     const status = String(server.status || "offline").toLowerCase();
     const running = status === "online";
-    const busy = status === "online" || status === "starting";
     const card = document.createElement("div");
     card.className = "server" + (status === "online" ? " on" : status === "starting" ? " starting" : "");
     card.innerHTML =
       '<div class="name">سرور ' + esc(server.slot) + '</div>' +
-      '<div class="sub">' + esc(statusFa(status)) +
-        (server.map ? " · " + esc(server.map) : "") +
-        (server.version ? " · v" + esc(server.version) : "") +
-      '</div>' +
+      '<div class="sub">' + esc(statusFa(status)) + (server.map ? " · " + esc(server.map) : "") + (server.version ? " · v" + esc(server.version) : "") + '</div>' +
       '<div class="bits">' +
         '<div class="bit">آدرس<br><span class="ltr">' + esc(server.endpoint || "—") + '</span></div>' +
         '<div class="bit">آی‌پی<br><span class="ltr">' + esc(server.ip || "—") + '</span></div>' +
@@ -485,9 +471,7 @@ async function refreshDashboard() {
   catch (e) { toast(e.message || "تازه‌سازی ناموفق", "error"); }
 }
 function togglePicker(id) {
-  document.querySelectorAll(".picker").forEach(p => {
-    if (p.id !== id) p.classList.remove("open");
-  });
+  document.querySelectorAll(".picker").forEach(p => { if (p.id !== id) p.classList.remove("open"); });
   document.getElementById(id).classList.toggle("open");
 }
 function buildPicker(menuId, btnId, items, selected, labelFn, customKey, onPick) {
@@ -511,7 +495,7 @@ function buildMapPicker() {
     selectedMap = v;
     document.getElementById("mapPicker").classList.remove("open");
     buildMapPicker();
-    onMapTypeChange();
+    document.getElementById("customMapBox").classList.toggle("hidden-block", selectedMap !== "Custom");
   });
 }
 function buildVerPicker() {
@@ -532,11 +516,8 @@ function openMapModal(slot) {
   setStartLoading(false);
   buildMapPicker();
   buildVerPicker();
-  onMapTypeChange();
+  document.getElementById("customMapBox").classList.add("hidden-block");
   document.getElementById("mapModal").classList.remove("hidden");
-}
-function onMapTypeChange() {
-  document.getElementById("customMapBox").classList.toggle("hidden-block", selectedMap !== "Custom");
 }
 function closeMapModal() {
   pendingSlot = null;
@@ -575,7 +556,6 @@ async function markStarting(slot, displayMap, version) {
     [CONFIG.gistFile]: { content: JSON.stringify(data, null, 2) + "\n" },
     ["runtime-" + slot + ".json"]: { content: JSON.stringify({ slot: Number(slot), status: "starting", time: now, files: {} }, null, 2) }
   });
-  serversData = data;
   renderServers(data);
 }
 async function confirmStart() {
@@ -600,7 +580,6 @@ async function confirmStart() {
       await patchGistFiles({ ["custom-map-" + slot + ".txt"]: { content: document.getElementById("customMapBody").value } });
     }
     await markStarting(slot, displayMap, version);
-    toast("سرور " + slot + " در صف است", "info");
     const res = await api(
       "/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/workflows/" + encodeURIComponent(CONFIG.workflow) + "/dispatches",
       {
@@ -608,14 +587,7 @@ async function confirmStart() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ref: CONFIG.branch,
-          inputs: {
-            mode: "start",
-            slot: String(slot),
-            map: map,
-            admin_code: admin,
-            custom_map_name: customName,
-            version: version
-          }
+          inputs: { mode: "start", slot: String(slot), map: map, admin_code: admin, custom_map_name: customName, version: version }
         })
       }
     );
@@ -634,7 +606,7 @@ async function confirmStop() {
   const server = serversData && serversData.servers && serversData.servers.find(s => Number(s.slot) === Number(slot));
   if (!server || !server.run_id) {
     closeStopModal();
-    return toast("شناسه اجرا نیست. اگر تازه روشن شده کمی صبر کن", "error");
+    return toast("شناسه اجرا نیست", "error");
   }
   const res = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/runs/" + encodeURIComponent(server.run_id) + "/cancel", { method: "POST" });
   closeStopModal();
@@ -647,14 +619,12 @@ function pathsToTree(files) {
   Object.keys(files || {}).forEach(path => {
     const item = files[path] || {};
     const parts = String(path).replace(/\\/g, "/").split("/").filter(Boolean);
-    if (!parts.length) return;
     let node = root;
     parts.forEach((part, i) => {
       const last = i === parts.length - 1;
-      if (last && item.type !== "dir") {
-        node[part] = { type: "file", body: item.body != null ? item.body : JSON.stringify(item, null, 2) };
-      } else {
-        if (!node[part] || node[part].type !== "dir") node[part] = { type: "dir", children: node[part] && node[part].children ? node[part].children : {} };
+      if (last && item.type !== "dir") node[part] = { type: "file", body: item.body != null ? item.body : "" };
+      else {
+        if (!node[part] || node[part].type !== "dir") node[part] = { type: "dir", children: (node[part] && node[part].children) || {} };
         node = node[part].children;
       }
     });
@@ -674,9 +644,8 @@ function showFile(body) {
 }
 function renderFm() {
   const list = document.getElementById("fmList");
-  const crumb = document.getElementById("fmCrumb");
+  document.getElementById("fmCrumb").textContent = "/" + fmPath.join("/");
   list.innerHTML = "";
-  crumb.textContent = "/" + fmPath.join("/");
   if (fmPath.length) {
     const up = document.createElement("div");
     up.className = "fm-item";
@@ -708,23 +677,13 @@ async function openFiles(slot) {
   document.getElementById("fmModal").classList.remove("hidden");
   try {
     const server = serversData && serversData.servers && serversData.servers.find(s => Number(s.slot) === Number(slot));
-    const status = String(server && server.status || "").toLowerCase();
-    if (status !== "online") {
-      document.getElementById("fmList").textContent = "فایل‌های این اجرا هنوز آماده نیست. صبر کن تا سرور آنلاین شود.";
+    if (String(server && server.status || "").toLowerCase() !== "online") {
+      document.getElementById("fmList").textContent = "فایل‌های این اجرا هنوز آماده نیست.";
       return;
     }
     const raw = await gistFileContent("runtime-" + slot + ".json");
-    if (!raw) {
-      document.getElementById("fmList").textContent = "هنوز اسنپ‌شاتی از این اجرا نیست.";
-      return;
-    }
+    if (!raw) { document.getElementById("fmList").textContent = "هنوز اسنپ‌شاتی نیست."; return; }
     const data = JSON.parse(raw);
-    const snapTime = Date.parse(data.time || "") || 0;
-    const startTime = Date.parse((server && server.started_at) || "") || 0;
-    if (data.status === "starting" || !data.files || !Object.keys(data.files).length || (startTime && snapTime && snapTime < startTime)) {
-      document.getElementById("fmList").textContent = "این اسنپ‌شات مال اجرای فعلی نیست. کمی بعد دوباره باز کن.";
-      return;
-    }
     fmTree = data.tree || pathsToTree(data.files || {});
     fmPath = [];
     renderFm();
@@ -747,11 +706,11 @@ async function saveGist() {
   } catch (e) { toast(e.message || "ذخیره گیست ناموفق", "error"); }
 }
 function flowBadge(run) {
-  if (run.status === "in_progress" || run.status === "queued") return '<span class="badge run">در حال اجرا</span>';
-  if (run.conclusion === "success") return '<span class="badge ok">موفق</span>';
-  if (run.conclusion === "cancelled") return '<span class="badge run">لغو شده</span>';
-  if (run.conclusion) return '<span class="badge bad">' + esc(run.conclusion) + '</span>';
-  return '<span class="badge run">' + esc(run.status) + '</span>';
+  if (run.status === "in_progress" || run.status === "queued") return '<span class="badge-run">در حال اجرا</span>';
+  if (run.conclusion === "success") return '<span class="badge-ok">موفق</span>';
+  if (run.conclusion === "cancelled") return '<span class="badge-run">لغو شده</span>';
+  if (run.conclusion) return '<span class="badge-bad">' + esc(run.conclusion) + '</span>';
+  return '<span class="badge-run">' + esc(run.status) + '</span>';
 }
 async function loadWorkflows() {
   const box = document.getElementById("flowList");
@@ -762,8 +721,8 @@ async function loadWorkflows() {
   box.innerHTML = (data.workflow_runs || []).map(run =>
     '<div class="flow-card" onclick="this.classList.toggle(\'open\')">' +
       '<div class="flow-top"><strong>' + esc(run.name) + '</strong>' + flowBadge(run) + '</div>' +
-      '<div class="flow-meta">' + esc(run.display_title || run.event) + ' · ' + esc((run.created_at || "").replace("T"," ").replace("Z","")) + '</div>' +
-      '<div class="flow-extra ltr">#' + esc(run.id) + '<br>' + esc(run.html_url) + '<br>branch: ' + esc(run.head_branch || "—") + '</div>' +
+      '<div class="flow-meta">' + esc(run.display_title || run.event) + '</div>' +
+      '<div class="flow-extra ltr">#' + esc(run.id) + '<br>' + esc(run.html_url) + '</div>' +
     '</div>'
   ).join("") || "ورک‌فلویی نیست";
 }
@@ -780,4 +739,4 @@ window.onload = function () {
 };
 </script>
 </body>
-  </html>
+                                                                                                     </html>
