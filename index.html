@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HPanel v1.1</title>
+  <title>HPanel Dashboard v1.2</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
@@ -61,13 +61,8 @@
     }
     textarea { min-height: 180px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
     #fmEditor {
-      min-height: 48vh;
-      max-height: none;
-      height: auto;
-      overflow: auto;
-      white-space: pre;
-      word-break: normal;
-      overflow-wrap: normal;
+      min-height: 48vh; max-height: none; height: auto;
+      overflow: auto; white-space: pre; word-break: normal; overflow-wrap: normal;
     }
     .ltr { direction: ltr; text-align: left; unicode-bidi: isolate; }
     .btn {
@@ -103,7 +98,7 @@
     }
     .app.visible { opacity: 1; transform: none; pointer-events: auto; }
     .hero { display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
-    .brand { font-size: clamp(30px, 6vw, 48px); }
+    .brand { font-size: clamp(28px, 5vw, 44px); }
     .hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
     .tab {
@@ -116,6 +111,7 @@
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
     .server { padding: 18px; border-radius: 24px; border: 1px solid var(--line); background: rgba(255,255,255,.035); }
     .server.on { border-color: rgba(62,227,154,.5); background: linear-gradient(160deg, rgba(62,227,154,.16), rgba(255,180,58,.04)); }
+    .server.starting { border-color: rgba(255,180,58,.5); }
     .name { font-size: 24px; }
     .bits { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
     .bit { padding: 10px; border-radius: 12px; background: rgba(0,0,0,.28); font-size: 15px; word-break: break-word; }
@@ -178,7 +174,7 @@
 <body>
   <div id="loginModal" class="login-modal">
     <div class="card-box">
-      <h1><span class="gold">HP</span>anel <span class="gold">v1.1</span></h1>
+      <h1><span class="gold">HP</span>anel <span class="gold">D</span>ashboard <span class="gold">v1.2</span></h1>
       <p class="sub">توکن گیت‌هاب را وارد کن</p>
       <input id="tokenInput" type="password" placeholder="github_pat_...">
       <button id="loginBtn" class="btn btn-gold" style="width:100%" onclick="connectGitHub()">ورود</button>
@@ -188,11 +184,18 @@
   <div id="mapModal" class="map-modal hidden">
     <div class="card-box">
       <h2>شروع سرور</h2>
-      <p class="sub" id="mapSlotText">نقشه و کد ادمین</p>
+      <p class="sub" id="mapSlotText">نسخه، نقشه و کد ادمین</p>
       <div class="field">
-        <label for="mapPickerBtn">نقشه سرور</label>
+        <label>نسخه سرور</label>
+        <div class="picker" id="verPicker">
+          <button type="button" class="picker-btn" id="verPickerBtn" onclick="togglePicker('verPicker')">1.9.7</button>
+          <div class="picker-menu" id="verPickerMenu"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>نقشه سرور</label>
         <div class="picker" id="mapPicker">
-          <button type="button" class="picker-btn" id="mapPickerBtn" onclick="togglePicker()">TrainFacility</button>
+          <button type="button" class="picker-btn" id="mapPickerBtn" onclick="togglePicker('mapPicker')">TrainFacility</button>
           <div class="picker-menu" id="mapPickerMenu"></div>
         </div>
       </div>
@@ -227,7 +230,7 @@
   <div id="fmModal" class="fm-modal hidden">
     <div class="card-box fm-box">
       <h2 id="fmTitle">فایل‌های سرور</h2>
-      <p class="sub">فقط مشاهده فایل‌های رانر موقت</p>
+      <p class="sub">فقط فایل‌های همین اجرا</p>
       <div id="fmCrumb" class="crumb ltr"></div>
       <div id="fmList" class="ltr"></div>
       <textarea id="fmEditor" class="ltr" readonly placeholder="یک فایل را انتخاب کن"></textarea>
@@ -238,7 +241,7 @@
   <div class="app" id="app">
     <div class="hero">
       <div>
-        <div class="brand"><span class="gold">HP</span>anel <span class="gold">v1.1</span></div>
+        <div class="brand"><span class="gold">HP</span>anel <span class="gold">D</span>ashboard <span class="gold">v1.2</span></div>
         <p class="sub" style="margin:6px 0 0">کنترل سرورهای لک</p>
       </div>
       <div class="hero-actions">
@@ -287,6 +290,8 @@ const CONFIG = {
   api: "https://api.github.com",
   home: "https://herculepanel.github.io/",
   limitMs: (5 * 60 + 45) * 60 * 1000,
+  latestVersion: "1.9.7",
+  versions: ["1.9.7", "1.9.6"],
   maps: ["Custom","City","Garage","RagdollParty","TrainFacility","ZombieSurvival","NewTerrainRamps","Island","CarSoccer"]
 };
 const TOKEN_KEY = "hpanel_github_token";
@@ -298,31 +303,29 @@ let serversData = null;
 let pendingSlot = null;
 let pendingStopSlot = null;
 let selectedMap = "TrainFacility";
+let selectedVersion = CONFIG.latestVersion;
 let fmTree = {};
 let fmPath = [];
 let tickTimer = null;
 
-function mapLabel(map) {
-  return map === "Custom" ? "سفارشی" : map;
+function brandHtml() {
+  return '<span class="gold">HP</span>anel <span class="gold">D</span>ashboard <span class="gold">v1.2</span>';
 }
+function mapLabel(map) { return map === "Custom" ? "سفارشی" : map; }
+function versionLabel(v) { return v === CONFIG.latestVersion ? v + " (آخرین)" : v; }
 function toast(msg, type) {
   const el = document.createElement("div");
   el.className = "toast " + (type === "error" ? "err" : type === "success" ? "ok" : "info");
   el.textContent = msg;
   document.getElementById("toasts").appendChild(el);
-  setTimeout(() => {
-    el.classList.add("out");
-    setTimeout(() => el.remove(), 280);
-  }, 3200);
+  setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 280); }, 3200);
 }
 function saveSession(token, admin) {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(ADMIN_KEY, admin ? "1" : "0");
   document.cookie = "github_token=" + encodeURIComponent(token) + "; path=/; max-age=" + (30*24*60*60) + "; SameSite=Lax";
 }
-function loadToken() {
-  return localStorage.getItem(TOKEN_KEY) || "";
-}
+function loadToken() { return localStorage.getItem(TOKEN_KEY) || ""; }
 function clearSession() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(ADMIN_KEY);
@@ -331,9 +334,7 @@ function clearSession() {
 function showApp() {
   document.getElementById("loginModal").classList.add("hidden");
   document.getElementById("app").classList.add("visible");
-  document.querySelectorAll(".admin-only").forEach(el => {
-    el.style.display = isAdmin ? "" : "none";
-  });
+  document.querySelectorAll(".admin-only").forEach(el => { el.style.display = isAdmin ? "" : "none"; });
 }
 function hideApp() {
   document.getElementById("app").classList.remove("visible");
@@ -358,9 +359,7 @@ function statusFa(status) {
 }
 function parseLogin(raw) {
   const value = (raw || "").trim();
-  if (value.endsWith(ADMIN_SUFFIX)) {
-    return { token: value.slice(0, -ADMIN_SUFFIX.length), admin: true };
-  }
+  if (value.endsWith(ADMIN_SUFFIX)) return { token: value.slice(0, -ADMIN_SUFFIX.length), admin: true };
   return { token: value, admin: false };
 }
 function setLoginLoading(on) {
@@ -426,6 +425,14 @@ async function gistFileContent(filename) {
   if (file.truncated && file.raw_url) return await (await fetch(file.raw_url)).text();
   return file.content || "";
 }
+async function patchGistFiles(files) {
+  const res = await api("/gists/" + CONFIG.gistId, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ files: files })
+  });
+  if (!res.ok) throw new Error("نوشتن گیست ناموفق (" + res.status + ")");
+}
 async function loadServers() {
   const content = await gistFileContent(CONFIG.gistFile);
   if (!content) throw new Error("servers.json نیست");
@@ -448,12 +455,16 @@ function renderServers(data) {
   root.innerHTML = "";
   [...data.servers].sort((a,b) => a.slot - b.slot).forEach(server => {
     const status = String(server.status || "offline").toLowerCase();
-    const running = status === "online" || status === "starting";
+    const running = status === "online";
+    const busy = status === "online" || status === "starting";
     const card = document.createElement("div");
-    card.className = "server" + (status === "online" ? " on" : "");
+    card.className = "server" + (status === "online" ? " on" : status === "starting" ? " starting" : "");
     card.innerHTML =
       '<div class="name">سرور ' + esc(server.slot) + '</div>' +
-      '<div class="sub">' + esc(statusFa(status)) + (server.map ? " · " + esc(server.map) : "") + '</div>' +
+      '<div class="sub">' + esc(statusFa(status)) +
+        (server.map ? " · " + esc(server.map) : "") +
+        (server.version ? " · v" + esc(server.version) : "") +
+      '</div>' +
       '<div class="bits">' +
         '<div class="bit">آدرس<br><span class="ltr">' + esc(server.endpoint || "—") + '</span></div>' +
         '<div class="bit">آی‌پی<br><span class="ltr">' + esc(server.ip || "—") + '</span></div>' +
@@ -473,44 +484,54 @@ async function refreshDashboard() {
   try { renderServers(await loadServers()); }
   catch (e) { toast(e.message || "تازه‌سازی ناموفق", "error"); }
 }
-function buildMapPicker() {
-  const menu = document.getElementById("mapPickerMenu");
+function togglePicker(id) {
+  document.querySelectorAll(".picker").forEach(p => {
+    if (p.id !== id) p.classList.remove("open");
+  });
+  document.getElementById(id).classList.toggle("open");
+}
+function buildPicker(menuId, btnId, items, selected, labelFn, customKey, onPick) {
+  const menu = document.getElementById(menuId);
   menu.innerHTML = "";
-  CONFIG.maps.forEach(m => {
+  items.forEach(v => {
     const opt = document.createElement("div");
-    opt.className = "picker-opt" + (m === "Custom" ? " custom" : "") + (m === selectedMap ? " on" : "");
-    opt.textContent = mapLabel(m);
-    opt.onclick = function (e) {
-      e.stopPropagation();
-      chooseMap(m);
-    };
+    opt.className = "picker-opt" + (v === customKey ? " custom" : "") + (v === selected ? " on" : "");
+    opt.textContent = labelFn(v);
+    opt.onclick = function (e) { e.stopPropagation(); onPick(v); };
     menu.appendChild(opt);
   });
-  const btn = document.getElementById("mapPickerBtn");
-  btn.textContent = mapLabel(selectedMap);
-  btn.style.background = selectedMap === "Custom"
-    ? "linear-gradient(180deg, #ffe08a, #ffb43a)"
-    : "rgba(0,0,0,.38)";
-  btn.style.color = selectedMap === "Custom" ? "#140f0a" : "#fff6ea";
+  const btn = document.getElementById(btnId);
+  btn.textContent = labelFn(selected);
+  const gold = selected === customKey;
+  btn.style.background = gold ? "linear-gradient(180deg, #ffe08a, #ffb43a)" : "rgba(0,0,0,.38)";
+  btn.style.color = gold ? "#140f0a" : "#fff6ea";
 }
-function togglePicker() {
-  document.getElementById("mapPicker").classList.toggle("open");
+function buildMapPicker() {
+  buildPicker("mapPickerMenu", "mapPickerBtn", CONFIG.maps, selectedMap, mapLabel, "Custom", function (v) {
+    selectedMap = v;
+    document.getElementById("mapPicker").classList.remove("open");
+    buildMapPicker();
+    onMapTypeChange();
+  });
 }
-function chooseMap(map) {
-  selectedMap = map;
-  document.getElementById("mapPicker").classList.remove("open");
-  buildMapPicker();
-  onMapTypeChange();
+function buildVerPicker() {
+  buildPicker("verPickerMenu", "verPickerBtn", CONFIG.versions, selectedVersion, versionLabel, null, function (v) {
+    selectedVersion = v;
+    document.getElementById("verPicker").classList.remove("open");
+    buildVerPicker();
+  });
 }
 function openMapModal(slot) {
   pendingSlot = slot;
   selectedMap = "TrainFacility";
-  document.getElementById("mapSlotText").textContent = "نقشه و کد ادمین سرور " + slot;
+  selectedVersion = CONFIG.latestVersion;
+  document.getElementById("mapSlotText").textContent = "نسخه، نقشه و کد ادمین سرور " + slot;
   document.getElementById("adminCodeInput").value = "12345";
   document.getElementById("customMapName").value = "";
   document.getElementById("customMapBody").value = "";
   setStartLoading(false);
   buildMapPicker();
+  buildVerPicker();
   onMapTypeChange();
   document.getElementById("mapModal").classList.remove("hidden");
 }
@@ -520,7 +541,7 @@ function onMapTypeChange() {
 function closeMapModal() {
   pendingSlot = null;
   setStartLoading(false);
-  document.getElementById("mapPicker").classList.remove("open");
+  document.querySelectorAll(".picker").forEach(p => p.classList.remove("open"));
   document.getElementById("mapModal").classList.add("hidden");
 }
 function openStopModal(slot) {
@@ -535,29 +556,50 @@ function closeStopModal() {
 function cleanMapName(name) {
   return String(name || "").replace(/\.txt$/i, "").replace(/[^A-Za-z0-9_-]/g, "");
 }
+async function markStarting(slot, displayMap, version) {
+  const data = await loadServers();
+  const now = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+  let found = false;
+  data.servers.forEach(server => {
+    if (Number(server.slot) !== Number(slot)) return;
+    found = true;
+    if (String(server.status || "").toLowerCase() !== "offline") throw new Error("این سرور الان خاموش نیست");
+    server.status = "starting";
+    server.map = displayMap;
+    server.version = version;
+    server.started_at = now;
+    server.run_id = null;
+  });
+  if (!found) throw new Error("اسلات پیدا نشد");
+  await patchGistFiles({
+    [CONFIG.gistFile]: { content: JSON.stringify(data, null, 2) + "\n" },
+    ["runtime-" + slot + ".json"]: { content: JSON.stringify({ slot: Number(slot), status: "starting", time: now, files: {} }, null, 2) }
+  });
+  serversData = data;
+  renderServers(data);
+}
 async function confirmStart() {
   const slot = pendingSlot;
   const map = selectedMap;
+  const version = selectedVersion || CONFIG.latestVersion;
   const admin = (document.getElementById("adminCodeInput").value || "12345").trim();
   if (!slot) return;
   if (!/^\d+$/.test(admin)) return toast("کد ادمین باید عدد باشد", "error");
   let customName = "";
+  let displayMap = map;
   if (map === "Custom") {
     customName = cleanMapName(document.getElementById("customMapName").value);
     const body = document.getElementById("customMapBody").value;
     if (!customName) return toast("نام نقشه سفارشی را بنویس", "error");
     if (!body.trim()) return toast("محتوای نقشه خالی است", "error");
+    displayMap = "editor:" + customName;
   }
   setStartLoading(true);
   try {
     if (map === "Custom") {
-      const gistRes = await api("/gists/" + CONFIG.gistId, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ files: { ["custom-map-" + slot + ".txt"]: { content: document.getElementById("customMapBody").value } } })
-      });
-      if (!gistRes.ok) throw new Error("ذخیره نقشه سفارشی ناموفق");
+      await patchGistFiles({ ["custom-map-" + slot + ".txt"]: { content: document.getElementById("customMapBody").value } });
     }
+    await markStarting(slot, displayMap, version);
     toast("سرور " + slot + " در صف است", "info");
     const res = await api(
       "/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/workflows/" + encodeURIComponent(CONFIG.workflow) + "/dispatches",
@@ -571,7 +613,8 @@ async function confirmStart() {
             slot: String(slot),
             map: map,
             admin_code: admin,
-            custom_map_name: customName
+            custom_map_name: customName,
+            version: version
           }
         })
       }
@@ -591,7 +634,7 @@ async function confirmStop() {
   const server = serversData && serversData.servers && serversData.servers.find(s => Number(s.slot) === Number(slot));
   if (!server || !server.run_id) {
     closeStopModal();
-    return toast("شناسه اجرا نیست", "error");
+    return toast("شناسه اجرا نیست. اگر تازه روشن شده کمی صبر کن", "error");
   }
   const res = await api("/repos/" + CONFIG.owner + "/" + CONFIG.repo + "/actions/runs/" + encodeURIComponent(server.run_id) + "/cancel", { method: "POST" });
   closeStopModal();
@@ -620,9 +663,7 @@ function pathsToTree(files) {
 }
 function currentFmNode() {
   let node = fmTree;
-  fmPath.forEach(part => {
-    node = (node[part] && node[part].children) || {};
-  });
+  fmPath.forEach(part => { node = (node[part] && node[part].children) || {}; });
   return node;
 }
 function showFile(body) {
@@ -654,13 +695,8 @@ function renderFm() {
     div.className = "fm-item";
     div.textContent = (item.type === "dir" ? "📁 " : "📄 ") + name;
     div.onclick = () => {
-      if (item.type === "dir") {
-        fmPath.push(name);
-        showFile("");
-        renderFm();
-      } else {
-        showFile(item.body || "");
-      }
+      if (item.type === "dir") { fmPath.push(name); showFile(""); renderFm(); }
+      else showFile(item.body || "");
     };
     list.appendChild(div);
   });
@@ -671,12 +707,24 @@ async function openFiles(slot) {
   showFile("");
   document.getElementById("fmModal").classList.remove("hidden");
   try {
+    const server = serversData && serversData.servers && serversData.servers.find(s => Number(s.slot) === Number(slot));
+    const status = String(server && server.status || "").toLowerCase();
+    if (status !== "online") {
+      document.getElementById("fmList").textContent = "فایل‌های این اجرا هنوز آماده نیست. صبر کن تا سرور آنلاین شود.";
+      return;
+    }
     const raw = await gistFileContent("runtime-" + slot + ".json");
     if (!raw) {
-      document.getElementById("fmList").textContent = "هنوز اسنپ‌شاتی نیست. چند ثانیه بعد دوباره بزن.";
+      document.getElementById("fmList").textContent = "هنوز اسنپ‌شاتی از این اجرا نیست.";
       return;
     }
     const data = JSON.parse(raw);
+    const snapTime = Date.parse(data.time || "") || 0;
+    const startTime = Date.parse((server && server.started_at) || "") || 0;
+    if (data.status === "starting" || !data.files || !Object.keys(data.files).length || (startTime && snapTime && snapTime < startTime)) {
+      document.getElementById("fmList").textContent = "این اسنپ‌شات مال اجرای فعلی نیست. کمی بعد دوباره باز کن.";
+      return;
+    }
     fmTree = data.tree || pathsToTree(data.files || {});
     fmPath = [];
     renderFm();
@@ -685,7 +733,6 @@ async function openFiles(slot) {
   }
 }
 function closeFm() { document.getElementById("fmModal").classList.add("hidden"); }
-
 async function loadGistEditor() {
   try { document.getElementById("gistEditor").value = await gistFileContent(CONFIG.gistFile) || ""; }
   catch (e) { toast(e.message, "error"); }
@@ -693,14 +740,11 @@ async function loadGistEditor() {
 async function saveGist() {
   const content = document.getElementById("gistEditor").value;
   try { JSON.parse(content); } catch (_) { return toast("JSON نامعتبر است", "error"); }
-  const res = await api("/gists/" + CONFIG.gistId, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ files: { [CONFIG.gistFile]: { content } } })
-  });
-  if (!res.ok) return toast("ذخیره گیست ناموفق", "error");
-  toast("گیست ذخیره شد", "success");
-  refreshDashboard();
+  try {
+    await patchGistFiles({ [CONFIG.gistFile]: { content } });
+    toast("گیست ذخیره شد", "success");
+    refreshDashboard();
+  } catch (e) { toast(e.message || "ذخیره گیست ناموفق", "error"); }
 }
 function flowBadge(run) {
   if (run.status === "in_progress" || run.status === "queued") return '<span class="badge run">در حال اجرا</span>';
@@ -723,10 +767,8 @@ async function loadWorkflows() {
     '</div>'
   ).join("") || "ورک‌فلویی نیست";
 }
-
 document.addEventListener("click", function (e) {
-  const picker = document.getElementById("mapPicker");
-  if (picker && !picker.contains(e.target)) picker.classList.remove("open");
+  document.querySelectorAll(".picker").forEach(p => { if (!p.contains(e.target)) p.classList.remove("open"); });
 });
 document.getElementById("tokenInput").addEventListener("keydown", e => { if (e.key === "Enter") connectGitHub(); });
 window.onload = function () {
@@ -738,4 +780,4 @@ window.onload = function () {
 };
 </script>
 </body>
-      </html>
+  </html>
