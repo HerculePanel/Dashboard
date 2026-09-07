@@ -1,105 +1,2196 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HerculePanel Dashboard v1.3</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HerculePanel Dashboard v1.4</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+
 <style>
-:root{--bg:#0b0a09;--text:#fff6ea;--muted:#c3b09a;--line:rgba(255,186,92,.22);--gold:#ffb43a;--mint:#3ee39a;--rose:#ff7180;--ink:#140f0a}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Lalezar,Tahoma;color:var(--text);background:radial-gradient(circle at 12% 0%,rgba(255,180,58,.23),transparent 32%),radial-gradient(circle at 88% 30%,rgba(62,227,154,.11),transparent 30%),linear-gradient(180deg,#120e0b,#070605)}.wrap{width:min(1160px,calc(100% - 30px));margin:auto;padding:35px 0 70px}.header{display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap}.brand{font-size:32px}.gold{color:var(--gold)}.badge{display:inline-block;padding:5px 10px;border-radius:999px;background:rgba(62,227,154,.15);color:var(--mint)}.actions,.row{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;cursor:pointer;border-radius:15px;padding:9px 13px;font:15px Lalezar;box-shadow:0 5px 0 rgba(0,0,0,.3)}.mint{background:linear-gradient(180deg,#6af3b8,#17c77a);color:#042016}.goldbtn{background:linear-gradient(180deg,#ffd27a,#ff9d1f);color:var(--ink)}.rose{background:linear-gradient(180deg,#ff8a97,#e23b4d);color:#fff}.home{background:linear-gradient(180deg,#8ab0ff,#4d7dff);color:#061018;text-decoration:none}.ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--line);box-shadow:none}.panel,.server{border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,180,58,.045),rgba(255,255,255,.025));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:15px;margin-top:13px;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 18px 45px rgba(0,0,0,.18)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.server.on{border-color:rgba(62,227,154,.5);background:linear-gradient(160deg,rgba(62,227,154,.16),rgba(255,180,58,.04))}.server.starting{border-color:rgba(255,180,58,.5)}.name{font-size:20px}.sub,.hint{color:var(--muted)}.bits{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.bit{padding:10px;border-radius:12px;background:rgba(0,0,0,.28);word-break:break-word}.tabbar{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.tab{padding:9px 13px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;font:14px Lalezar}.tab.on{color:var(--text);background:rgba(255,180,58,.14)}.view{display:none}.view.on{display:block}input,textarea{width:100%;padding:10px;border-radius:11px;border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--text);font:14px Lalezar}textarea{min-height:300px;direction:ltr;text-align:left}.modal{position:fixed;inset:0;background:rgba(8,6,4,.62);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;z-index:10;opacity:1;animation:modalIn .55s cubic-bezier(.22,1,.36,1)}.modal.closing{animation:modalOut .5s cubic-bezier(.55,0,.78,.18) forwards}.modal.hidden{display:none}.modalbox{animation:boxIn .6s cubic-bezier(.22,1,.36,1)}.modal.closing .modalbox{animation:boxOut .45s cubic-bezier(.55,0,.78,.18) forwards}@keyframes modalIn{from{opacity:0}to{opacity:1}}@keyframes modalOut{from{opacity:1}to{opacity:0}}@keyframes boxIn{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}@keyframes boxOut{to{opacity:0;transform:translateY(16px) scale(.96)}}.modalbox{width:min(560px,calc(100% - 30px));padding:20px;border-radius:20px;border:1px solid var(--line);background:rgba(22,17,12,.72);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 28px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08)}.field{margin:10px 0}.field label{display:block;color:var(--gold);margin-bottom:5px}.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,22px) scale(.96);padding:12px 18px;border-radius:14px;background:rgba(23,18,13,.68);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:0 18px 45px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08);z-index:20;opacity:0;animation:toastIn .55s cubic-bezier(.22,1,.36,1) forwards}.toast.hide{animation:toastOut .55s cubic-bezier(.55,0,.78,.18) forwards}@keyframes toastIn{to{opacity:1;transform:translate(-50%,0) scale(1)}}@keyframes toastOut{to{opacity:0;transform:translate(-50%,18px) scale(.94)}}.ok{color:#9dffc9}.err{color:#ffb0b7}.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,0,0,.25);border-top-color:#111;border-radius:50%;animation:s .7s linear infinite}@keyframes s{to{transform:rotate(360deg)}}@media(max-width:850px){.grid{grid-template-columns:1fr}.bits{grid-template-columns:1fr}}
- .loading{text-align:center;color:var(--muted)}.busy{position:fixed;inset:auto 50% 18px auto;transform:translateX(50%);display:flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--line);border-radius:13px;background:rgba(20,15,10,.92);backdrop-filter:blur(10px);z-index:50;box-shadow:0 8px 30px #0008}.busy.hidden{display:none}
-.fileItem{width:100%;display:flex;align-items:center;gap:9px;text-align:right;border:1px solid rgba(255,186,92,.12);border-radius:12px;background:rgba(255,255,255,.035);color:var(--text);padding:10px;margin:5px 0;cursor:pointer;font:14px Lalezar}.fileItem:hover{background:rgba(255,180,58,.11);border-color:var(--line);transform:translateY(-2px)}.fileIcon{width:24px;text-align:center}.fileName{direction:ltr;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.fileKind{color:var(--muted);font-size:11px}.dropdown{position:relative;width:100%;font:14px Lalezar;z-index:5}.dropdown.open{z-index:100}
-.dropdownBtn{width:100%;padding:10px;border:1px solid var(--line);border-radius:11px;background:rgba(18,14,10,.72);color:#fff;font:14px Lalezar;text-align:right;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:none}
-.dropdownBtn .arrow{transition:transform .45s cubic-bezier(.22,1,.36,1);font-size:12px;color:var(--gold)}
-.dropdown.open .dropdownBtn{border-color:var(--gold);box-shadow:0 0 0 3px #ffb43a22}
-.dropdown.open .arrow{transform:rotate(180deg)}
-.dropdownMenu{position:absolute;top:calc(100% + 7px);left:0;right:0;padding:6px;border:1px solid var(--line);border-radius:13px;background:rgba(23,18,13,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 20px 55px rgba(0,0,0,.5);opacity:0;visibility:hidden;transform:translateY(-8px) scale(.98);transform-origin:top;transition:opacity .4s ease,transform .45s cubic-bezier(.22,1,.36,1),visibility .4s;max-height:230px;overflow:auto}
-.dropdown.open .dropdownMenu{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
-.dropdownOption{width:100%;padding:9px 11px;border:0;border-radius:9px;background:transparent;color:#fff;font:14px Lalezar;text-align:right;cursor:pointer;box-shadow:none}
-.dropdownOption:hover{background:rgba(255,180,58,.12);color:var(--gold);transform:none}
-.dropdownOption.selected{background:rgba(255,180,58,.16);color:var(--gold)}
-button,a,input,textarea,.panel,.server,.tab,.modalbox{transition:transform .5s cubic-bezier(.22,1,.36,1),opacity .5s ease,border-color .5s ease,box-shadow .5s ease,background .5s ease}button:not(:disabled):hover,a.btn:hover,.tab:hover{transform:translateY(-3px)}button:disabled{opacity:.55;cursor:not-allowed}</style>
+:root{
+  --bg:#0b0a09;
+  --text:#fff6ea;
+  --muted:#c3b09a;
+  --line:rgba(255,186,92,.22);
+  --gold:#ffb43a;
+  --mint:#3ee39a;
+  --rose:#ff7180;
+  --ink:#140f0a
+}
+
+*{
+  box-sizing:border-box
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Lalezar,Tahoma;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 12% 0%,rgba(255,180,58,.23),transparent 32%),
+    radial-gradient(circle at 88% 30%,rgba(62,227,154,.11),transparent 30%),
+    linear-gradient(180deg,#120e0b,#070605)
+}
+
+.wrap{
+  width:min(1160px,calc(100% - 30px));
+  margin:auto;
+  padding:35px 0 70px
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  align-items:center;
+  flex-wrap:wrap
+}
+
+.brand{
+  font-size:32px
+}
+
+.gold{
+  color:var(--gold)
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:999px;
+  background:rgba(62,227,154,.15);
+  color:var(--mint)
+}
+
+.actions,
+.row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap
+}
+
+.btn{
+  border:0;
+  cursor:pointer;
+  border-radius:15px;
+  padding:9px 13px;
+  font:15px Lalezar;
+  box-shadow:0 5px 0 rgba(0,0,0,.3)
+}
+
+.mint{
+  background:linear-gradient(180deg,#6af3b8,#17c77a);
+  color:#042016
+}
+
+.goldbtn{
+  background:linear-gradient(180deg,#ffd27a,#ff9d1f);
+  color:var(--ink)
+}
+
+.rose{
+  background:linear-gradient(180deg,#ff8a97,#e23b4d);
+  color:#fff
+}
+
+.home{
+  background:linear-gradient(180deg,#8ab0ff,#4d7dff);
+  color:#061018;
+  text-decoration:none
+}
+
+.ghost{
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  border:1px solid var(--line);
+  box-shadow:none
+}
+
+.panel,
+.server{
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.085),
+      rgba(255,180,58,.045),
+      rgba(255,255,255,.025)
+    );
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  padding:15px;
+  margin-top:13px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 18px 45px rgba(0,0,0,.18)
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px
+}
+
+.server.on{
+  border-color:rgba(62,227,154,.5);
+  background:
+    linear-gradient(
+      160deg,
+      rgba(62,227,154,.16),
+      rgba(255,180,58,.04)
+    )
+}
+
+.server.starting{
+  border-color:rgba(255,180,58,.5)
+}
+
+.name{
+  font-size:20px
+}
+
+.sub,
+.hint{
+  color:var(--muted)
+}
+
+.bits{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:12px 0
+}
+
+.bit{
+  padding:10px;
+  border-radius:12px;
+  background:rgba(0,0,0,.28);
+  word-break:break-word
+}
+
+.tabbar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:16px 0
+}
+
+.tab{
+  padding:9px 13px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.04);
+  color:var(--muted);
+  cursor:pointer;
+  font:14px Lalezar
+}
+
+.tab.on{
+  color:var(--text);
+  background:rgba(255,180,58,.14)
+}
+
+.view{
+  display:none
+}
+
+.view.on{
+  display:block
+}
+
+input,
+textarea{
+  width:100%;
+  padding:10px;
+  border-radius:11px;
+  border:1px solid var(--line);
+  background:rgba(0,0,0,.35);
+  color:var(--text);
+  font:14px Lalezar
+}
+
+textarea{
+  min-height:300px;
+  direction:ltr;
+  text-align:left
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(8,6,4,.62);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10;
+  opacity:1;
+  animation:modalIn .55s cubic-bezier(.22,1,.36,1)
+}
+
+.modal.closing{
+  animation:modalOut .5s cubic-bezier(.55,0,.78,.18) forwards
+}
+
+.modal.hidden{
+  display:none
+}
+
+.modalbox{
+  animation:boxIn .6s cubic-bezier(.22,1,.36,1);
+  width:min(560px,calc(100% - 30px));
+  padding:20px;
+  border-radius:20px;
+  border:1px solid var(--line);
+  background:rgba(22,17,12,.72);
+  backdrop-filter:blur(22px);
+  -webkit-backdrop-filter:blur(22px);
+  box-shadow:
+    0 28px 80px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.08)
+}
+
+.modal.closing .modalbox{
+  animation:boxOut .45s cubic-bezier(.55,0,.78,.18) forwards
+}
+
+@keyframes modalIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+@keyframes modalOut{
+  from{opacity:1}
+  to{opacity:0}
+}
+
+@keyframes boxIn{
+  from{
+    opacity:0;
+    transform:translateY(18px) scale(.96)
+  }
+  to{
+    opacity:1;
+    transform:none
+  }
+}
+
+@keyframes boxOut{
+  to{
+    opacity:0;
+    transform:translateY(16px) scale(.96)
+  }
+}
+
+.field{
+  margin:10px 0
+}
+
+.field label{
+  display:block;
+  color:var(--gold);
+  margin-bottom:5px
+}
+
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translate(-50%,22px) scale(.96);
+  padding:12px 18px;
+  border-radius:14px;
+  background:rgba(23,18,13,.68);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border:1px solid var(--line);
+  box-shadow:
+    0 18px 45px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  z-index:20;
+  opacity:0;
+  animation:toastIn .55s cubic-bezier(.22,1,.36,1) forwards
+}
+
+.toast.hide{
+  animation:toastOut .55s cubic-bezier(.55,0,.78,.18) forwards
+}
+
+@keyframes toastIn{
+  to{
+    opacity:1;
+    transform:translate(-50%,0) scale(1)
+  }
+}
+
+@keyframes toastOut{
+  to{
+    opacity:0;
+    transform:translate(-50%,18px) scale(.94)
+  }
+}
+
+.ok{
+  color:#9dffc9
+}
+
+.err{
+  color:#ffb0b7
+}
+
+.spin{
+  display:inline-block;
+  width:16px;
+  height:16px;
+  border:2px solid rgba(0,0,0,.25);
+  border-top-color:#111;
+  border-radius:50%;
+  animation:s .7s linear infinite
+}
+
+@keyframes s{
+  to{transform:rotate(360deg)}
+}
+
+.loading{
+  text-align:center;
+  color:var(--muted)
+}
+
+.busy{
+  position:fixed;
+  inset:auto 50% 18px auto;
+  transform:translateX(50%);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 14px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:rgba(20,15,10,.92);
+  backdrop-filter:blur(10px);
+  z-index:50;
+  box-shadow:0 8px 30px #0008
+}
+
+.busy.hidden{
+  display:none
+}
+
+/* Custom dropdown */
+
+.drop{
+  position:relative;
+  width:100%
+}
+
+.dropBtn{
+  width:100%;
+  padding:10px 13px;
+  border-radius:11px;
+  border:1px solid var(--line);
+  background:rgba(18,14,10,.72);
+  color:#fff;
+  font:14px Lalezar;
+  outline:none;
+  cursor:pointer;
+  text-align:right;
+  display:flex;
+  align-items:center;
+  justify-content:space-between
+}
+
+.dropBtn::after{
+  content:"⌄";
+  color:var(--gold);
+  font-size:18px;
+  transition:transform .35s ease
+}
+
+.drop.open .dropBtn::after{
+  transform:rotate(180deg)
+}
+
+.dropMenu{
+  position:absolute;
+  z-index:30;
+  top:calc(100% + 7px);
+  left:0;
+  right:0;
+  padding:6px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:rgba(22,17,12,.94);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  box-shadow:0 20px 50px rgba(0,0,0,.45);
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(-8px) scale(.98);
+  transition:
+    opacity .35s ease,
+    transform .35s ease,
+    visibility .35s ease
+}
+
+.drop.open .dropMenu{
+  opacity:1;
+  visibility:visible;
+  transform:none
+}
+
+.dropItem{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:var(--text);
+  padding:9px 11px;
+  border-radius:9px;
+  font:14px Lalezar;
+  text-align:right;
+  cursor:pointer
+}
+
+.dropItem:hover{
+  background:rgba(255,180,58,.13);
+  transform:none
+}
+
+.dropItem.custom{
+  color:var(--gold);
+  font-weight:bold
+}
+
+/* File manager */
+
+.fileItem{
+  width:100%;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:10px;
+  text-align:right;
+  border:1px solid rgba(255,186,92,.13);
+  background:rgba(255,255,255,.035);
+  color:var(--text);
+  border-radius:12px;
+  padding:10px 12px;
+  margin:6px 0;
+  font:14px Lalezar;
+  cursor:pointer
+}
+
+.fileItem:hover{
+  background:rgba(255,180,58,.10);
+  border-color:var(--line);
+  transform:translateY(-2px)
+}
+
+.fileIcon{
+  font-family:Tahoma;
+  font-size:18px;
+  direction:ltr
+}
+
+.fileName{
+  direction:ltr;
+  text-align:left;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+
+.fileKind{
+  color:var(--muted);
+  font-size:12px
+}
+
+.filePath{
+  direction:ltr;
+  text-align:left;
+  word-break:break-all
+}
+
+#fileModal .modalbox{
+  width:min(760px,calc(100% - 24px))
+}
+
+button,
+a,
+input,
+textarea,
+select,
+.panel,
+.server,
+.tab,
+.modalbox{
+  transition:
+    transform .5s cubic-bezier(.22,1,.36,1),
+    opacity .5s ease,
+    border-color .5s ease,
+    box-shadow .5s ease,
+    background .5s ease
+}
+
+button:not(:disabled):hover,
+a.btn:hover,
+.tab:hover{
+  transform:translateY(-3px)
+}
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed
+}
+
+@media(max-width:850px){
+  .grid{
+    grid-template-columns:1fr
+  }
+
+  .bits{
+    grid-template-columns:1fr
+  }
+}
+</style>
 </head>
+
 <body>
+
 <div class="wrap">
-<div class="header"><div><div class="brand"><span class="gold">HP</span>anel Dashboard <span class="gold">v1.2</span></div><span id="role" class="badge"></span></div><div class="actions"><button class="btn rose" onclick="logout()">خروج</button><a class="btn home" href="https://herculepanel.github.io/">منوی اصلی</a><button class="btn ghost" onclick="refreshDashboard()">تازه‌سازی</button></div></div>
-<div id="loading" class="panel loading">checking login data... <span class="spin"></span></div><div id="busy" class="busy hidden"><span class="spin"></span><span id="busyText">در حال انجام...</span></div>
-<div id="app" style="display:none">
-<div class="tabbar"><button class="tab on" onclick="tab('servers',this)">سرورها</button><button id="gistTab" class="tab" style="display:none" onclick="tab('gist',this)">گیست</button><button id="flowTab" class="tab" style="display:none" onclick="tab('flows',this)">ورک‌فلوها</button></div>
-<section id="servers" class="view on"><div id="serverGrid" class="grid"></div></section>
-<section id="gist" class="view"><div class="panel"><h2>servers.json</h2><textarea id="gistEditor"></textarea><button class="btn goldbtn" onclick="saveGist()">ذخیره گیست</button></div></section>
-<section id="flows" class="view"><div class="panel"><button class="btn ghost" onclick="loadFlows()">بارگذاری ورک‌فلوها</button><div id="flowsList"></div></div></section>
+
+  <div class="header">
+    <div>
+      <div class="brand">
+        <span class="gold">H</span>ercule
+        <span class="gold">P</span>anel
+        <span class="gold">D</span>ashboard
+        <span class="gold">v1.4</span>
+      </div>
+
+      <span id="role" class="badge"></span>
+    </div>
+
+    <div class="actions">
+      <button class="btn rose" onclick="logout()">خروج</button>
+      <a class="btn home" href="https://herculepanel.github.io/">منوی اصلی</a>
+      <button class="btn ghost" onclick="refreshDashboard()">تازه‌سازی</button>
+    </div>
+  </div>
+
+  <div id="loading" class="panel loading">
+    checking login data...
+    <span class="spin"></span>
+  </div>
+
+  <div id="busy" class="busy hidden">
+    <span class="spin"></span>
+    <span id="busyText">در حال انجام...</span>
+  </div>
+
+  <div id="app" style="display:none">
+
+    <div class="tabbar">
+      <button class="tab on" onclick="tab('servers',this)">سرورها</button>
+      <button id="gistTab" class="tab" style="display:none" onclick="tab('gist',this)">گیست</button>
+      <button id="flowTab" class="tab" style="display:none" onclick="tab('flows',this)">ورک‌فلوها</button>
+    </div>
+
+    <section id="servers" class="view on">
+      <div id="serverGrid" class="grid"></div>
+    </section>
+
+    <section id="gist" class="view">
+      <div class="panel">
+        <h2>servers.json</h2>
+        <textarea id="gistEditor"></textarea>
+        <button class="btn goldbtn" onclick="saveGist()">ذخیره گیست</button>
+      </div>
+    </section>
+
+    <section id="flows" class="view">
+      <div class="panel">
+        <button class="btn ghost" onclick="loadFlows()">بارگذاری ورک‌فلوها</button>
+        <div id="flowsList"></div>
+      </div>
+    </section>
+
+  </div>
 </div>
+
+<!-- Start server modal -->
+
+<div id="startModal" class="modal hidden">
+
+  <div class="modalbox">
+
+    <h2>شروع سرور</h2>
+
+    <div class="field">
+      <label>نسخه</label>
+
+      <div class="drop" id="versionDrop">
+
+        <button
+          type="button"
+          class="dropBtn"
+          onclick="toggleDrop('versionDrop')"
+        >
+          <span id="versionText">انتخاب نسخه</span>
+        </button>
+
+        <div class="dropMenu">
+
+          <button
+            type="button"
+            class="dropItem"
+            onclick="chooseDrop('versionDrop','version','1.9.7','1.9.7')"
+          >
+            1.9.7
+          </button>
+
+          <button
+            type="button"
+            class="dropItem"
+            onclick="chooseDrop('versionDrop','version','1.9.6','1.9.6')"
+          >
+            1.9.6
+          </button>
+
+        </div>
+      </div>
+
+      <input type="hidden" id="version" value="">
+    </div>
+
+    <div class="field">
+      <label>نقشه</label>
+
+      <div class="drop" id="mapDrop">
+
+        <button
+          type="button"
+          class="dropBtn"
+          onclick="toggleDrop('mapDrop')"
+        >
+          <span id="mapText">انتخاب نقشه</span>
+        </button>
+
+        <div class="dropMenu">
+
+          <button type="button" class="dropItem"
+            onclick="chooseDrop('mapDrop','map','City','City')">
+            City
+          </button>
+
+          <button type="button" class="dropItem"
+            onclick="chooseDrop('mapDrop','map','Garage','Garage')">
+            Garage
+          </button>
+
+          <button type="button" class="dropItem"
+            onclick="chooseDrop('mapDrop','map','RagdollParty','RagdollParty')">
+            RagdollParty
+          </button>
+
+          <button type="button" class="dropItem"
+            onclick="chooseDrop('mapDrop','map','TrainFacility','TrainFacility')">
+            TrainFacility
+          </button>
+
+          <button type="button" class="dropItem"
+            onclick="chooseDrop('mapDrop','map','ZombieSurvival','ZombieSurvival')">
+            ZombieSurvival
+          </button>
+
+          <button type="button" class="dropItem"
+            onclick="chooseDrop('mapDrop','map','NewTerrainRamps','NewTerrainRamps')">
+            NewTerrainRamps
+          </button>
+
+          <button type="button" class="dropItem"
+            onclick="chooseDrop('mapDrop','map','Island','Island')">
+            Island
+          </button>
+
+          <button type="button" class="dropItem"
+            onclick="chooseDrop('mapDrop','map','CarSoccer','CarSoccer')">
+            CarSoccer
+          </button>
+
+          <button type="button"
+            class="dropItem custom"
+            onclick="chooseDrop('mapDrop','map','Custom','سفارشی')">
+            سفارشی
+          </button>
+
+        </div>
+      </div>
+
+      <input type="hidden" id="map" value="">
+    </div>
+
+    <div class="field">
+      <label>کد ادمین سرور</label>
+      <input id="adminCode" value="12345">
+    </div>
+
+    <div class="field" id="customBox" style="display:none">
+
+      <label>نام فایل نقشه</label>
+      <input id="customName" placeholder="Prime.txt">
+
+      <label>محتوای نقشه</label>
+      <textarea id="customBody"></textarea>
+
+    </div>
+
+    <button class="btn mint" onclick="startServer()">
+      روشن کردن سرور
+    </button>
+
+    <button class="btn ghost" onclick="closeModal()">
+      لغو
+    </button>
+
+  </div>
 </div>
-<div id="fileModal" class="modal hidden"><div class="modalbox" style="width:min(820px,calc(100% - 30px));max-height:90vh;overflow:auto">
-<div class="row" style="justify-content:space-between;align-items:center"><h2 id="fileTitle">فایل‌های سرور</h2><button class="btn ghost" onclick="closeFileModal()">بستن</button></div>
-<div class="panel" style="margin-top:10px;padding:10px"><div id="filePath" class="sub" style="direction:ltr;text-align:left;word-break:break-all">/</div></div>
-<div class="row" style="margin:10px 0"><button class="btn ghost" id="parentBtn" onclick="fileParent()">⬆ پوشه قبل</button><button class="btn ghost" onclick="refreshFiles()">↻ تازه‌سازی</button></div>
-<div id="fileList" class="panel" style="margin-top:0;max-height:42vh;overflow:auto"></div>
-<div id="fileViewer" class="panel" style="display:none;margin-top:10px"><div id="viewerTitle" class="gold"></div><pre id="viewerText" style="direction:ltr;text-align:left;white-space:pre-wrap;word-break:break-word;max-height:35vh;overflow:auto;font:12px/1.7 monospace"></pre></div>
-<div class="hint" style="font-size:12px;margin-top:10px">فایل‌ها از runtime snapshot مربوط به همین Runner خوانده می‌شوند.</div>
-</div></div>
-<div id="startModal" class="modal hidden"><div class="modalbox"><h2>شروع سرور</h2>
-<div class="field"><label>نسخه</label><div class="dropdown" id="versionDrop" data-value="">
-<button type="button" class="dropdownBtn" onclick="toggleDrop('versionDrop')"><span class="dropText">انتخاب نسخه</span><span class="arrow">⌄</span></button>
-<div class="dropdownMenu">
-<button type="button" class="dropdownOption" data-value="" onclick="chooseDrop('versionDrop',this)">انتخاب نسخه</button>
-<button type="button" class="dropdownOption" data-value="1.9.7" onclick="chooseDrop('versionDrop',this)">1.9.7</button>
-<button type="button" class="dropdownOption" data-value="1.9.6" onclick="chooseDrop('versionDrop',this)">1.9.6</button>
-</div></div></div>
-<div class="field"><label>نقشه</label><div class="dropdown" id="mapDrop" data-value="">
-<button type="button" class="dropdownBtn" onclick="toggleDrop('mapDrop')"><span class="dropText">انتخاب نقشه</span><span class="arrow">⌄</span></button>
-<div class="dropdownMenu">
-<button type="button" class="dropdownOption" data-value="" onclick="chooseDrop('mapDrop',this)">انتخاب نقشه</button>
-<button type="button" class="dropdownOption" data-value="City" onclick="chooseDrop('mapDrop',this)">City</button>
-<button type="button" class="dropdownOption" data-value="Garage" onclick="chooseDrop('mapDrop',this)">Garage</button>
-<button type="button" class="dropdownOption" data-value="RagdollParty" onclick="chooseDrop('mapDrop',this)">RagdollParty</button>
-<button type="button" class="dropdownOption" data-value="TrainFacility" onclick="chooseDrop('mapDrop',this)">TrainFacility</button>
-<button type="button" class="dropdownOption" data-value="ZombieSurvival" onclick="chooseDrop('mapDrop',this)">ZombieSurvival</button>
-<button type="button" class="dropdownOption" data-value="NewTerrainRamps" onclick="chooseDrop('mapDrop',this)">NewTerrainRamps</button>
-<button type="button" class="dropdownOption" data-value="Island" onclick="chooseDrop('mapDrop',this)">Island</button>
-<button type="button" class="dropdownOption" data-value="CarSoccer" onclick="chooseDrop('mapDrop',this)">CarSoccer</button>
-<button type="button" class="dropdownOption" data-value="Custom" onclick="chooseDrop('mapDrop',this)">سفارشی</button>
-</div></div></div>
-<div class="field"><label>کد ادمین سرور</label><input id="adminCode" value="12345"></div>
-<div class="field" id="customBox" style="display:none"><label>نام فایل نقشه</label><input id="customName" placeholder="Prime.txt"><label>محتوای نقشه</label><textarea id="customBody"></textarea></div>
-<button class="btn mint" onclick="startServer()">روشن کردن سرور</button><button class="btn ghost" onclick="closeModal()">لغو</button></div></div>
+
+<!-- File manager modal -->
+
+<div id="fileModal" class="modal hidden">
+
+  <div class="modalbox">
+
+    <div class="header">
+
+      <div>
+        <h2 id="fileTitle">فایل‌های Runner</h2>
+
+        <div id="filePath" class="sub filePath">
+          /
+        </div>
+      </div>
+
+      <button class="btn ghost" onclick="closeFileModal()">
+        بستن
+      </button>
+
+    </div>
+
+    <!-- IMPORTANT:
+         The ".." button is rendered INSIDE #fileList.
+    -->
+
+    <div
+      id="fileBrowser"
+      class="panel"
+      style="margin-top:13px;max-height:50vh;overflow:auto;padding:10px"
+    >
+      <div id="fileList"></div>
+    </div>
+
+    <div
+      id="fileViewer"
+      class="panel"
+      style="display:none;margin-top:10px"
+    >
+
+      <div
+        class="row"
+        style="justify-content:space-between;align-items:center"
+      >
+
+        <b id="viewerTitle" class="gold"></b>
+
+        <button
+          class="btn ghost"
+          onclick="document.getElementById('fileViewer').style.display='none'"
+        >
+          بستن فایل
+        </button>
+
+      </div>
+
+      <pre
+        id="viewerText"
+        style="
+          direction:ltr;
+          text-align:left;
+          white-space:pre-wrap;
+          word-break:break-word;
+          max-height:35vh;
+          overflow:auto;
+          font:12px/1.7 monospace;
+          margin:10px 0 0
+        "
+      ></pre>
+
+    </div>
+
+    <div class="row" style="margin-top:10px">
+
+      <button class="btn ghost" onclick="refreshFiles()">
+        ↻ تازه‌سازی
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
 <script>
-const C={owner:"HerculePanel",repo:"Dashboard",workflow:"main.yml",gist:"cb2aaaece7a231ec707429d41e1457f4",file:"servers.json",branch:"main"};
-const AUTH="hpanel_auth",DT="hpanel_dashboard_token";let token="",admin=false,data=null,pending=null;
-function getAuth(){try{return JSON.parse(localStorage.getItem(AUTH)||"null")}catch{return null}}
-function busy(on,text="در حال انجام..."){document.getElementById("busyText").textContent=text;document.getElementById("busy").classList.toggle("hidden",!on)}
-function toast(t,c=""){const x=document.createElement("div");x.className="toast "+c;x.textContent=t;document.body.appendChild(x);setTimeout(()=>{x.classList.add("hide");setTimeout(()=>x.remove(),550)},3000)}
-function api(path,opt={}){return fetch("https://api.github.com"+path,{...opt,headers:{"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28","Authorization":"Bearer "+token,...(opt.headers||{})}})}
-async function json(path,opt={}){const r=await api(path,opt),d=await r.json().catch(()=>null);if(!r.ok)throw Error(d?.message||"GitHub API "+r.status);return d}
-async function gist(){const d=await json("/gists/"+C.gist);return d.files?.[C.file]?.content||""}
-async function refreshDashboard(){busy(true,"در حال تازه‌سازی...");try{data=JSON.parse(await gist());render();toast("داشبورد تازه شد","ok")}catch(e){toast(e.message,"err")}finally{busy(false)}}
-function render(){const root=document.getElementById("serverGrid");root.innerHTML="";(data?.servers||[]).forEach(s=>{const st=String(s.status||"offline").toLowerCase(),on=st==="online";const d=document.createElement("div");d.className="server "+(on?"on":st==="starting"?"starting":"");d.innerHTML=`<div class="name">سرور ${s.slot}</div><div class="sub">${st}${s.map?" · "+s.map:""}${s.version?" · v"+s.version:""}</div><div class="bits"><div class="bit">آدرس<br>${s.endpoint||"—"}</div><div class="bit">IP<br>${s.ip||"—"}</div><div class="bit">پورت<br>${s.port||"—"}</div><div class="bit">وضعیت<br>${st}</div></div><div class="row"><button class="btn mint" ${st!=="offline"?"disabled":""} onclick="openStart(${s.slot})">روشن</button><button class="btn rose" ${st==="offline"?"disabled":""} onclick="stopServer(${s.slot},${s.run_id||"null"})">خاموش</button><button class="btn ghost" ${st!=="online"?"disabled":""} onclick="openFiles(${s.slot})">📁 مشاهده فایل‌ها</button></div>`;root.appendChild(d)})}
-function tab(id,b){document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));document.getElementById(id).classList.add("on");b.classList.add("on");if(id==="gist")loadGistEditor()}
-async function loadGistEditor(){busy(true,"در حال بارگذاری گیست...");try{document.getElementById("gistEditor").value=await gist()}finally{busy(false)}}
-async function saveGist(){busy(true,"در حال ذخیره گیست...");try{JSON.parse(document.getElementById("gistEditor").value);await json("/gists/"+C.gist,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({files:{[C.file]:{content:document.getElementById("gistEditor").value}}})});toast("گیست ذخیره شد","ok");refreshDashboard()}catch(e){toast(e.message,"err")}finally{busy(false)}}
-function openStart(slot){pending=slot;document.getElementById("adminCode").value="12345";document.getElementById("customName").value="";document.getElementById("customBody").value="";resetDrops();document.getElementById("customBox").style.display="none";document.getElementById("startModal").classList.remove("hidden")}
-function closeModal(){const m=document.getElementById("startModal");if(m.classList.contains("hidden"))return;m.classList.add("closing");setTimeout(()=>m.classList.add("hidden"),500)}
-function toggleDrop(id){const d=document.getElementById(id);document.querySelectorAll(".dropdown.open").forEach(x=>{if(x!==d)x.classList.remove("open")});d.classList.toggle("open")}
-function chooseDrop(id,b){const d=document.getElementById(id);d.dataset.value=b.dataset.value;d.querySelector(".dropText").textContent=b.textContent;d.querySelectorAll(".dropdownOption").forEach(x=>x.classList.toggle("selected",x===b));d.classList.remove("open");if(id==="mapDrop")document.getElementById("customBox").style.display=b.dataset.value==="Custom"?"block":"none"}
-function dropValue(id){return document.getElementById(id).dataset.value}
-function resetDrops(){chooseDrop("versionDrop",document.querySelector('#versionDrop .dropdownOption[data-value=""]'));chooseDrop("mapDrop",document.querySelector('#mapDrop .dropdownOption[data-value=""]'))}
-document.addEventListener("click",e=>{if(!e.target.closest(".dropdown"))document.querySelectorAll(".dropdown.open").forEach(x=>x.classList.remove("open"))});
-async function startServer(){const slot=pending,map=dropValue("mapDrop"),version=dropValue("versionDrop"),code=document.getElementById("adminCode").value.trim();if(!version)return toast("نسخه را انتخاب کن","err");if(!map)return toast("نقشه را انتخاب کن","err");if(!/^\d+$/.test(code))return toast("کد ادمین باید عدد باشد","err");let name="",body="";if(map==="Custom"){name=document.getElementById("customName").value.trim();body=document.getElementById("customBody").value;if(!name||!body.trim())return toast("نقشه سفارشی کامل نیست","err")}busy(true,"در حال ارسال درخواست...");try{if(map==="Custom")await json("/gists/"+C.gist,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({files:{["custom-map-"+slot+".txt"]:{content:body}}})});await json(`/repos/${C.owner}/${C.repo}/actions/workflows/${encodeURIComponent(C.workflow)}/dispatches`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ref:C.branch,inputs:{mode:"start",slot:String(slot),map,admin_code:code,custom_map_name:name,version}})});toast("درخواست روشن شدن ارسال شد","ok");closeModal();setTimeout(refreshDashboard,2500)}catch(e){toast(e.message,"err")}finally{busy(false)}}
-async function stopServer(slot,run){if(!run)return toast("شناسه اجرا پیدا نشد","err");if(!confirm("سرور خاموش شود؟"))return;busy(true,"در حال خاموش کردن سرور...");try{const r=await api(`/repos/${C.owner}/${C.repo}/actions/runs/${run}/cancel`,{method:"POST"});if(!r.ok&&r.status!==409)throw Error("خاموش نشد");toast("درخواست خاموشی ارسال شد","ok");setTimeout(refreshDashboard,2500)}catch(e){toast(e.message,"err")}finally{busy(false)}}
-let fileSlot=null,fileSnapshot=null,filePath="/";
-function normPath(p){p=String(p||"/").replace(/\\/g,"/").replace(/\\+/g,"/");if(!p.startsWith("/"))p="/"+p;if(p.length>1)p=p.replace(/\/$/,"");return p}
-function pathParent(p){p=normPath(p);if(p==="/")return "/";let a=p.split("/").filter(Boolean);a.pop();return "/"+a.join("/")}
-function fileOpen(slot){fileSlot=slot;filePath="/";document.getElementById("fileTitle").textContent="فایل‌های Runner · سرور "+slot;document.getElementById("fileModal").classList.remove("hidden");refreshFiles()}
-function closeFileModal(){const m=document.getElementById("fileModal");if(m.classList.contains("hidden"))return;m.classList.add("closing");setTimeout(()=>{m.classList.add("hidden");m.classList.remove("closing")},500)}
-function openFiles(slot){if(!data?.servers?.find(x=>Number(x.slot)===Number(slot)&&String(x.status).toLowerCase()==="online"))return toast("سرور باید روشن باشد","err");fileOpen(slot)}
-async function refreshFiles(){if(!fileSlot)return;document.getElementById("fileList").innerHTML='<div class="loading">در حال دریافت فایل‌های Runner... <span class="spin"></span></div>';document.getElementById("fileViewer").style.display="none";try{const d=await json("/gists/"+C.gist);const f=d.files?.["runtime-"+fileSlot+".json"];if(!f)throw Error("runtime snapshot این سرور هنوز ساخته نشده است");fileSnapshot=JSON.parse(f.content);if(String(fileSnapshot.status).toLowerCase()!=="online")throw Error("این Runner دیگر آنلاین نیست");renderFiles()}catch(e){document.getElementById("fileList").innerHTML='<div class="loading err">'+esc(e.message)+'</div>'}}
-function renderFiles(){const all=fileSnapshot?.files||{};const entries=[];const seen=new Set();const base=normPath(filePath);for(const raw of Object.keys(all)){const p=normPath(raw);if(base!=="/"&&!p.startsWith(base+"/"))continue;if(base==="/"&&!p.startsWith("/"))continue;const rel=base==="/"?p.slice(1):p.slice(base.length+1);if(!rel)continue;const parts=rel.split("/");if(parts.length>1){if(!seen.has(parts[0])){seen.add(parts[0]);entries.push({dir:true,name:parts[0],path:normPath(base+"/"+parts[0])})}}else entries.push({dir:false,name:parts[0],path:p,data:all[raw]})}entries.sort((a,b)=>a.dir!==b.dir?(a.dir?-1:1):a.name.localeCompare(b.name));document.getElementById("filePath").textContent=base;document.getElementById("parentBtn").disabled=base==="/";const box=document.getElementById("fileList");if(!entries.length){box.innerHTML='<div class="loading">فایلی در این پوشه وجود ندارد.</div>';return}box.innerHTML="";entries.forEach(e=>{const b=document.createElement("button");b.className="fileItem";b.innerHTML=`<span class="fileIcon">${e.dir?"📁":"📄"}</span><span class="fileName">${esc(e.name)}</span><span class="fileKind">${e.dir?"پوشه":"فایل"}</span>`;b.onclick=()=>e.dir?(filePath=e.path,renderFiles()):showFile(e.path,e.data);box.appendChild(b)})}
-function fileParent(){if(filePath!=="/"){filePath=pathParent(filePath);renderFiles()}}
-function showFile(path,obj){document.getElementById("viewerTitle").textContent=path;document.getElementById("viewerText").textContent=String(obj?.body??"");document.getElementById("fileViewer").style.display="block"}
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-async function loadFlows(){busy(true,"در حال بارگذاری ورک‌فلوها...");try{const d=await json(`/repos/${C.owner}/${C.repo}/actions/runs?per_page=20`);document.getElementById("flowsList").innerHTML=(d.workflow_runs||[]).map(x=>`<div class="panel"><b>${x.name}</b><div class="sub">${x.status} ${x.conclusion||""}</div></div>`).join("")}catch(e){toast(e.message,"err")}finally{busy(false)}}
-function logout(){localStorage.removeItem(AUTH);localStorage.removeItem(DT);location.href="https://herculepanel.github.io/"}
-(async()=>{const a=getAuth();document.getElementById("loading").style.display="block";if(!a?.loggedIn){location.href="https://herculepanel.github.io/vault/";return}admin=!!a.admin;token=localStorage.getItem(DT)||"";if(!token){toast("توکن داشبورد پیدا نشد","err");location.href="https://herculepanel.github.io/vault/";return}document.getElementById("role").textContent=admin?"مدیر":"کاربر";if(admin){document.getElementById("gistTab").style.display="inline-block";document.getElementById("flowTab").style.display="inline-block"}try{await json(`/repos/${C.owner}/${C.repo}`);document.getElementById("loading").style.display="none";document.getElementById("app").style.display="block";await refreshDashboard()}catch(e){toast("checking login data... ناموفق: "+e.message,"err")}})();
+
+const C={
+  owner:"HerculePanel",
+  repo:"Dashboard",
+  workflow:"main.yml",
+  gist:"cb2aaaece7a231ec707429d41e1457f4",
+  file:"servers.json",
+  branch:"main"
+};
+
+const AUTH="hpanel_auth";
+const DT="hpanel_dashboard_token";
+
+let token="";
+let admin=false;
+let data=null;
+let pending=null;
+
+function getAuth(){
+  try{
+    return JSON.parse(
+      localStorage.getItem(AUTH)||"null"
+    );
+  }catch{
+    return null;
+  }
+}
+
+function busy(on,text="در حال انجام..."){
+  document.getElementById("busyText").textContent=text;
+
+  document
+    .getElementById("busy")
+    .classList
+    .toggle("hidden",!on);
+}
+
+function toast(t,c=""){
+
+  const x=document.createElement("div");
+
+  x.className="toast "+c;
+  x.textContent=t;
+
+  document.body.appendChild(x);
+
+  setTimeout(()=>{
+    x.classList.add("hide");
+
+    setTimeout(()=>{
+      x.remove();
+    },550);
+
+  },3000);
+}
+
+function api(path,opt={}){
+
+  return fetch(
+    "https://api.github.com"+path,
+    {
+      ...opt,
+
+      headers:{
+        "Accept":"application/vnd.github+json",
+        "X-GitHub-Api-Version":"2022-11-28",
+        "Authorization":"Bearer "+token,
+        ...(opt.headers||{})
+      }
+    }
+  );
+}
+
+async function json(path,opt={}){
+
+  const r=await api(path,opt);
+
+  const d=await r
+    .json()
+    .catch(()=>null);
+
+  if(!r.ok)
+    throw Error(
+      d?.message||
+      "GitHub API "+r.status
+    );
+
+  return d;
+}
+
+async function gist(){
+
+  const d=await json(
+    "/gists/"+C.gist
+  );
+
+  return d.files?.[C.file]?.content||"";
+}
+
+async function refreshDashboard(){
+
+  busy(
+    true,
+    "در حال تازه‌سازی..."
+  );
+
+  try{
+
+    data=JSON.parse(
+      await gist()
+    );
+
+    render();
+
+    toast(
+      "داشبورد تازه شد",
+      "ok"
+    );
+
+  }catch(e){
+
+    toast(
+      e.message,
+      "err"
+    );
+
+  }finally{
+
+    busy(false);
+  }
+}
+
+function esc(s){
+
+  return String(s??"")
+    .replace(
+      /[&<>"']/g,
+      c=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[c])
+    );
+}
+
+function render(){
+
+  const root=
+    document.getElementById(
+      "serverGrid"
+    );
+
+  root.innerHTML="";
+
+  (data?.servers||[])
+    .forEach(s=>{
+
+      const st=
+        String(
+          s.status||"offline"
+        ).toLowerCase();
+
+      const on=st==="online";
+
+      const d=
+        document.createElement("div");
+
+      d.className=
+        "server "+
+        (
+          on
+          ?"on"
+          :st==="starting"
+          ?"starting"
+          :""
+        );
+
+      d.innerHTML=`
+
+        <div class="name">
+          سرور ${esc(s.slot)}
+        </div>
+
+        <div class="sub">
+          ${esc(st)}
+          ${s.map?" · "+esc(s.map):""}
+          ${s.version?" · v"+esc(s.version):""}
+        </div>
+
+        <div class="bits">
+
+          <div class="bit">
+            آدرس<br>
+            ${esc(s.endpoint||"—")}
+          </div>
+
+          <div class="bit">
+            IP<br>
+            ${esc(s.ip||"—")}
+          </div>
+
+          <div class="bit">
+            پورت<br>
+            ${esc(s.port||"—")}
+          </div>
+
+          <div class="bit">
+            وضعیت<br>
+            ${esc(st)}
+          </div>
+
+        </div>
+
+        <div class="row">
+
+          <button
+            class="btn mint"
+            ${st!=="offline"?"disabled":""}
+            onclick="openStart(${Number(s.slot)})"
+          >
+            روشن
+          </button>
+
+          <button
+            class="btn rose"
+            ${st==="offline"?"disabled":""}
+            onclick="stopServer(
+              ${Number(s.slot)},
+              ${s.run_id?Number(s.run_id):"null"}
+            )"
+          >
+            خاموش
+          </button>
+
+          <button
+            class="btn goldbtn"
+            ${!on?"disabled":""}
+            onclick="openFiles(${Number(s.slot)})"
+          >
+            مشاهده فایل‌ها
+          </button>
+
+        </div>
+      `;
+
+      root.appendChild(d);
+    });
+}
+
+function tab(id,b){
+
+  document
+    .querySelectorAll(".view")
+    .forEach(x=>
+      x.classList.remove("on")
+    );
+
+  document
+    .querySelectorAll(".tab")
+    .forEach(x=>
+      x.classList.remove("on")
+    );
+
+  document
+    .getElementById(id)
+    .classList.add("on");
+
+  b.classList.add("on");
+
+  if(id==="gist")
+    loadGistEditor();
+}
+
+async function loadGistEditor(){
+
+  busy(
+    true,
+    "در حال بارگذاری گیست..."
+  );
+
+  try{
+
+    document
+      .getElementById("gistEditor")
+      .value=await gist();
+
+  }finally{
+
+    busy(false);
+  }
+}
+
+async function saveGist(){
+
+  busy(
+    true,
+    "در حال ذخیره گیست..."
+  );
+
+  try{
+
+    JSON.parse(
+      document
+        .getElementById("gistEditor")
+        .value
+    );
+
+    await json(
+      "/gists/"+C.gist,
+      {
+        method:"PATCH",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+          files:{
+            [C.file]:{
+              content:
+                document
+                  .getElementById(
+                    "gistEditor"
+                  ).value
+            }
+          }
+        })
+      }
+    );
+
+    toast(
+      "گیست ذخیره شد",
+      "ok"
+    );
+
+    refreshDashboard();
+
+  }catch(e){
+
+    toast(
+      e.message,
+      "err"
+    );
+
+  }finally{
+
+    busy(false);
+  }
+}
+
+/* -------------------------
+   CUSTOM DROPDOWNS
+------------------------- */
+
+function toggleDrop(id){
+
+  const el=
+    document.getElementById(id);
+
+  document
+    .querySelectorAll(".drop.open")
+    .forEach(x=>{
+      if(x!==el)
+        x.classList.remove("open");
+    });
+
+  el.classList.toggle("open");
+}
+
+function closeDrops(){
+
+  document
+    .querySelectorAll(".drop.open")
+    .forEach(x=>
+      x.classList.remove("open")
+    );
+}
+
+function chooseDrop(
+  dropId,
+  inputId,
+  value,
+  text
+){
+
+  document
+    .getElementById(inputId)
+    .value=value;
+
+  document
+    .getElementById(dropId)
+    .querySelector(".dropBtn span")
+    .textContent=text;
+
+  document
+    .getElementById(dropId)
+    .classList.remove("open");
+
+  if(inputId==="map"){
+
+    document
+      .getElementById("customBox")
+      .style.display=
+        value==="Custom"
+        ?"block"
+        :"none";
+  }
+}
+
+document.addEventListener(
+  "click",
+  e=>{
+    if(!e.target.closest(".drop"))
+      closeDrops();
+  }
+);
+
+/* -------------------------
+   START SERVER
+------------------------- */
+
+function openStart(slot){
+
+  pending=slot;
+
+  document
+    .getElementById("version")
+    .value="";
+
+  document
+    .getElementById("map")
+    .value="";
+
+  document
+    .getElementById("versionText")
+    .textContent=
+      "انتخاب نسخه";
+
+  document
+    .getElementById("mapText")
+    .textContent=
+      "انتخاب نقشه";
+
+  document
+    .getElementById("customBox")
+    .style.display="none";
+
+  document
+    .getElementById("versionDrop")
+    .classList.remove("open");
+
+  document
+    .getElementById("mapDrop")
+    .classList.remove("open");
+
+  document
+    .getElementById("startModal")
+    .classList.remove("hidden");
+}
+
+function closeModal(){
+
+  const m=
+    document.getElementById(
+      "startModal"
+    );
+
+  if(m.classList.contains("hidden"))
+    return;
+
+  m.classList.add("closing");
+
+  setTimeout(()=>{
+
+    m.classList.add("hidden");
+    m.classList.remove("closing");
+
+  },500);
+}
+
+async function startServer(){
+
+  const slot=pending;
+
+  const map=
+    document
+      .getElementById("map")
+      .value;
+
+  const version=
+    document
+      .getElementById("version")
+      .value;
+
+  const code=
+    document
+      .getElementById("adminCode")
+      .value
+      .trim();
+
+  if(!version)
+    return toast(
+      "نسخه را انتخاب کن",
+      "err"
+    );
+
+  if(!map)
+    return toast(
+      "نقشه را انتخاب کن",
+      "err"
+    );
+
+  if(!/^\d+$/.test(code))
+    return toast(
+      "کد ادمین باید عدد باشد",
+      "err"
+    );
+
+  let name="";
+  let body="";
+
+  if(map==="Custom"){
+
+    name=
+      document
+        .getElementById("customName")
+        .value
+        .trim();
+
+    body=
+      document
+        .getElementById("customBody")
+        .value;
+
+    if(!name||!body.trim())
+      return toast(
+        "نقشه سفارشی کامل نیست",
+        "err"
+      );
+  }
+
+  busy(
+    true,
+    "در حال ارسال درخواست..."
+  );
+
+  try{
+
+    if(map==="Custom"){
+
+      await json(
+        "/gists/"+C.gist,
+        {
+          method:"PATCH",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:JSON.stringify({
+            files:{
+              ["custom-map-"+slot+".txt"]:{
+                content:body
+              }
+            }
+          })
+        }
+      );
+    }
+
+    await json(
+      `/repos/${C.owner}/${C.repo}/actions/workflows/${encodeURIComponent(C.workflow)}/dispatches`,
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+          ref:C.branch,
+
+          inputs:{
+            mode:"start",
+            slot:String(slot),
+            map,
+            admin_code:code,
+            custom_map_name:name,
+            version
+          }
+
+        })
+      }
+    );
+
+    toast(
+      "درخواست روشن شدن ارسال شد",
+      "ok"
+    );
+
+    closeModal();
+
+    setTimeout(
+      refreshDashboard,
+      2500
+    );
+
+  }catch(e){
+
+    toast(
+      e.message,
+      "err"
+    );
+
+  }finally{
+
+    busy(false);
+  }
+}
+
+async function stopServer(slot,run){
+
+  if(!run)
+    return toast(
+      "شناسه اجرا پیدا نشد",
+      "err"
+    );
+
+  if(!confirm(
+    "سرور خاموش شود؟"
+  ))
+    return;
+
+  busy(
+    true,
+    "در حال خاموش کردن سرور..."
+  );
+
+  try{
+
+    const r=
+      await api(
+        `/repos/${C.owner}/${C.repo}/actions/runs/${run}/cancel`,
+        {
+          method:"POST"
+        }
+      );
+
+    if(!r.ok&&r.status!==409)
+      throw Error(
+        "خاموش نشد"
+      );
+
+    toast(
+      "درخواست خاموشی ارسال شد",
+      "ok"
+    );
+
+    setTimeout(
+      refreshDashboard,
+      2500
+    );
+
+  }catch(e){
+
+    toast(
+      e.message,
+      "err"
+    );
+
+  }finally{
+
+    busy(false);
+  }
+}
+
+/* -------------------------
+   FILE MANAGER
+------------------------- */
+
+let fileSlot=null;
+let fileSnapshot=null;
+let filePath="/";
+let fileData={};
+
+function normPath(p){
+
+  p=String(p||"/")
+    .replace(/\\/g,"/");
+
+  if(!p.startsWith("/"))
+    p="/"+p;
+
+  const out=[];
+
+  for(
+    const part of p.split("/")
+  ){
+
+    if(!part||part===".")
+      continue;
+
+    if(part===".."){
+
+      if(out.length)
+        out.pop();
+
+    }else{
+
+      out.push(part);
+    }
+  }
+
+  return "/"+out.join("/");
+}
+
+function pathParent(p){
+
+  p=normPath(p);
+
+  if(p==="/")
+    return "/";
+
+  const a=
+    p.split("/")
+     .filter(Boolean);
+
+  a.pop();
+
+  return "/"+a.join("/");
+}
+
+function fileOpen(slot){
+
+  fileSlot=Number(slot);
+
+  filePath="/";
+
+  fileSnapshot=null;
+  fileData={};
+
+  document
+    .getElementById("fileTitle")
+    .textContent=
+      "فایل‌های Runner · سرور "+
+      fileSlot;
+
+  document
+    .getElementById("fileViewer")
+    .style.display="none";
+
+  document
+    .getElementById("fileModal")
+    .classList
+    .remove("hidden");
+
+  refreshFiles();
+}
+
+function closeFileModal(){
+
+  const m=
+    document.getElementById(
+      "fileModal"
+    );
+
+  if(
+    m.classList.contains(
+      "hidden"
+    )
+  )
+    return;
+
+  m.classList.add("closing");
+
+  setTimeout(()=>{
+
+    m.classList.add("hidden");
+    m.classList.remove("closing");
+
+  },500);
+}
+
+async function openFiles(slot){
+
+  const server=
+    (data?.servers||[])
+      .find(
+        x=>
+          Number(x.slot)===
+          Number(slot)
+      );
+
+  if(
+    !server||
+    String(
+      server.status||""
+    ).toLowerCase()!=="online"
+  ){
+
+    toast(
+      "سرور باید روشن باشد",
+      "err"
+    );
+
+    return;
+  }
+
+  fileOpen(slot);
+}
+
+async function refreshFiles(){
+
+  if(!fileSlot)
+    return;
+
+  const list=
+    document.getElementById(
+      "fileList"
+    );
+
+  list.innerHTML=
+    `
+    <div class="loading">
+      در حال دریافت فایل‌های Runner...
+      <span class="spin"></span>
+    </div>
+    `;
+
+  document
+    .getElementById("fileViewer")
+    .style.display="none";
+
+  try{
+
+    const g=
+      await json(
+        "/gists/"+C.gist
+      );
+
+    const name=
+      "runtime-"+fileSlot+".json";
+
+    const runtime=
+      g.files?.[name];
+
+    if(!runtime)
+      throw Error(
+        "Snapshot سرور پیدا نشد"
+      );
+
+    let content=
+      typeof runtime.content==="string"
+      ?runtime.content
+      :null;
+
+    /*
+      If GitHub marks the Gist file as
+      truncated, use raw_url.
+    */
+
+    if(
+      runtime.truncated&&
+      runtime.raw_url
+    ){
+
+      const r=
+        await fetch(
+          runtime.raw_url
+        );
+
+      if(r.ok)
+        content=
+          await r.text();
+    }
+
+    if(!content)
+      throw Error(
+        "Snapshot خالی است"
+      );
+
+    fileSnapshot=
+      JSON.parse(content);
+
+    fileData=
+      fileSnapshot.files||{};
+
+    filePath="/";
+
+    renderFiles();
+
+  }catch(e){
+
+    list.innerHTML=
+      `
+      <div class="loading err">
+        ${esc(e.message)}
+      </div>
+      `;
+  }
+}
+
+function renderFiles(){
+
+  const all=
+    fileData||{};
+
+  const base=
+    normPath(filePath);
+
+  const entries=[];
+  const seen=new Set();
+
+  /*
+    The runtime snapshot stores absolute paths.
+    We create virtual folders from those paths so
+    files can still be reached even if their parent
+    directories were not separately included.
+  */
+
+  for(
+    const raw of Object.keys(all)
+  ){
+
+    const full=
+      normPath(raw);
+
+    if(full===base)
+      continue;
+
+    if(
+      base!=="/" &&
+      !full.startsWith(base+"/")
+    )
+      continue;
+
+    const rel=
+      base==="/"
+      ?full.slice(1)
+      :full.slice(base.length+1);
+
+    if(!rel)
+      continue;
+
+    const parts=
+      rel.split("/");
+
+    const first=
+      parts[0];
+
+    if(parts.length>1){
+
+      const dirPath=
+        normPath(
+          base+"/"+first
+        );
+
+      const key=
+        "dir:"+dirPath;
+
+      if(!seen.has(key)){
+
+        seen.add(key);
+
+        entries.push({
+          type:"dir",
+          name:first,
+          path:dirPath
+        });
+      }
+
+    }else{
+
+      const obj=
+        all[raw];
+
+      const key=
+        "file:"+full;
+
+      if(!seen.has(key)){
+
+        seen.add(key);
+
+        entries.push({
+          type:"file",
+          name:first,
+          path:full,
+          data:obj
+        });
+      }
+    }
+  }
+
+  entries.sort(
+    (a,b)=>{
+
+      if(a.type!==b.type)
+        return a.type==="dir"
+          ?-1
+          :1;
+
+      return a.name.localeCompare(
+        b.name,
+        undefined,
+        {
+          numeric:true,
+          sensitivity:"base"
+        }
+      );
+    }
+  );
+
+  const box=
+    document.getElementById(
+      "fileList"
+    );
+
+  box.innerHTML="";
+
+  /*
+    ".." is intentionally INSIDE
+    the same container as files/folders.
+  */
+
+  if(base!=="/"){
+
+    const up=
+      document.createElement(
+        "button"
+      );
+
+    up.type="button";
+
+    up.className="fileItem";
+
+    up.innerHTML=`
+      <span class="fileIcon">
+        ↩
+      </span>
+
+      <span class="fileName">
+        ..
+      </span>
+
+      <span class="fileKind">
+        پوشه قبل
+      </span>
+    `;
+
+    up.onclick=()=>{
+
+      filePath=
+        pathParent(
+          filePath
+        );
+
+      renderFiles();
+    };
+
+    box.appendChild(up);
+  }
+
+  if(!entries.length){
+
+    const empty=
+      document.createElement(
+        "div"
+      );
+
+    empty.className=
+      "loading";
+
+    empty.textContent=
+      base==="/"
+      ?"هیچ فایل یا پوشه‌ای در Snapshot پیدا نشد."
+      :"این پوشه خالی است.";
+
+    box.appendChild(empty);
+
+    document
+      .getElementById("filePath")
+      .textContent=base;
+
+    return;
+  }
+
+  for(
+    const e of entries
+  ){
+
+    const b=
+      document.createElement(
+        "button"
+      );
+
+    b.type="button";
+
+    b.className="fileItem";
+
+    b.innerHTML=`
+
+      <span class="fileIcon">
+        ${e.type==="dir"?"📁":"📄"}
+      </span>
+
+      <span class="fileName">
+        ${esc(e.name)}
+      </span>
+
+      <span class="fileKind">
+        ${e.type==="dir"?"پوشه":"فایل"}
+      </span>
+
+    `;
+
+    b.onclick=()=>{
+
+      if(e.type==="dir"){
+
+        filePath=e.path;
+
+        renderFiles();
+
+      }else{
+
+        showFile(
+          e.path,
+          e.data
+        );
+      }
+    };
+
+    box.appendChild(b);
+  }
+
+  document
+    .getElementById("filePath")
+    .textContent=base;
+}
+
+function showFile(path,obj){
+
+  document
+    .getElementById("viewerTitle")
+    .textContent=path;
+
+  let body="";
+
+  if(obj){
+
+    if(
+      typeof obj.body==="string"
+    ){
+
+      body=obj.body;
+
+    }else if(
+      typeof obj.content==="string"
+    ){
+
+      body=obj.content;
+
+    }else{
+
+      body=
+        JSON.stringify(
+          obj,
+          null,
+          2
+        );
+    }
+  }
+
+  document
+    .getElementById("viewerText")
+    .textContent=body;
+
+  document
+    .getElementById("fileViewer")
+    .style.display="block";
+}
+
+/* -------------------------
+   WORKFLOWS
+------------------------- */
+
+async function loadFlows(){
+
+  busy(
+    true,
+    "در حال بارگذاری ورک‌فلوها..."
+  );
+
+  try{
+
+    const d=
+      await json(
+        `/repos/${C.owner}/${C.repo}/actions/runs?per_page=20`
+      );
+
+    document
+      .getElementById("flowsList")
+      .innerHTML=
+        (d.workflow_runs||[])
+          .map(
+            x=>`
+
+              <div class="panel">
+
+                <b>
+                  ${esc(x.name)}
+                </b>
+
+                <div class="sub">
+                  ${esc(x.status)}
+                  ${x.conclusion
+                    ?" "+esc(x.conclusion)
+                    :""
+                  }
+                </div>
+
+              </div>
+
+            `
+          )
+          .join("");
+
+  }catch(e){
+
+    toast(
+      e.message,
+      "err"
+    );
+
+  }finally{
+
+    busy(false);
+  }
+}
+
+/* -------------------------
+   LOGOUT / INITIALIZATION
+------------------------- */
+
+function logout(){
+
+  localStorage.removeItem(
+    AUTH
+  );
+
+  localStorage.removeItem(
+    DT
+  );
+
+  location.href=
+    "https://herculepanel.github.io/";
+}
+
+(async()=>{
+
+  const a=getAuth();
+
+  document
+    .getElementById("loading")
+    .style.display="block";
+
+  if(!a?.loggedIn){
+
+    location.href=
+      "https://herculepanel.github.io/vault/";
+
+    return;
+  }
+
+  admin=!!a.admin;
+
+  token=
+    localStorage.getItem(DT)||"";
+
+  if(!token){
+
+    toast(
+      "توکن داشبورد پیدا نشد",
+      "err"
+    );
+
+    location.href=
+      "https://herculepanel.github.io/vault/";
+
+    return;
+  }
+
+  document
+    .getElementById("role")
+    .textContent=
+      admin
+      ?"مدیر"
+      :"کاربر";
+
+  if(admin){
+
+    document
+      .getElementById("gistTab")
+      .style.display=
+        "inline-block";
+
+    document
+      .getElementById("flowTab")
+      .style.display=
+        "inline-block";
+  }
+
+  try{
+
+    await json(
+      `/repos/${C.owner}/${C.repo}`
+    );
+
+    document
+      .getElementById("loading")
+      .style.display="none";
+
+    document
+      .getElementById("app")
+      .style.display="block";
+
+    await refreshDashboard();
+
+  }catch(e){
+
+    toast(
+      "checking login data... ناموفق: "+
+      e.message,
+      "err"
+    );
+  }
+
+})();
+
 </script>
-</body></html>
+
+</body>
+ </html>
