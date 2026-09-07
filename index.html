@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HerculePanel Dashboard v1.3</title>
+
+<title>HPanel Dashboard v1.3</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -173,6 +174,19 @@ body{
   word-break:break-word
 }
 
+.countdown{
+  color:var(--gold);
+  font-size:18px;
+  direction:ltr;
+  text-align:center;
+  letter-spacing:1px;
+  margin-top:4px
+}
+
+.countdown.expired{
+  color:var(--rose)
+}
+
 .tabbar{
   display:flex;
   gap:8px;
@@ -243,7 +257,6 @@ textarea{
 }
 
 .modalbox{
-  animation:boxIn .6s cubic-bezier(.22,1,.36,1);
   width:min(560px,calc(100% - 30px));
   padding:20px;
   border-radius:20px;
@@ -253,7 +266,8 @@ textarea{
   -webkit-backdrop-filter:blur(22px);
   box-shadow:
     0 28px 80px rgba(0,0,0,.55),
-    inset 0 1px 0 rgba(255,255,255,.08)
+    inset 0 1px 0 rgba(255,255,255,.08);
+  animation:boxIn .6s cubic-bezier(.22,1,.36,1)
 }
 
 .modal.closing .modalbox{
@@ -565,22 +579,41 @@ button:disabled{
 <div class="wrap">
 
   <div class="header">
+
     <div>
+
       <div class="brand">
-        <span class="gold">H</span>ercule
-        <span class="gold">P</span>anel
+        <span class="gold">H</span>Panel
         <span class="gold">D</span>ashboard
         <span class="gold">v1.3</span>
       </div>
 
       <span id="role" class="badge"></span>
+
     </div>
 
     <div class="actions">
-      <button class="btn rose" onclick="logout()">خروج</button>
-      <a class="btn home" href="https://herculepanel.github.io/">منوی اصلی</a>
-      <button class="btn ghost" onclick="refreshDashboard()">تازه‌سازی</button>
+
+      <button class="btn rose" onclick="logout()">
+        خروج
+      </button>
+
+      <a
+        class="btn home"
+        href="https://herculepanel.github.io/"
+      >
+        منوی اصلی
+      </a>
+
+      <button
+        class="btn ghost"
+        onclick="refreshDashboard()"
+      >
+        تازه‌سازی
+      </button>
+
     </div>
+
   </div>
 
   <div id="loading" class="panel loading">
@@ -590,58 +623,135 @@ button:disabled{
 
   <div id="busy" class="busy hidden">
     <span class="spin"></span>
-    <span id="busyText">در حال انجام...</span>
+    <span id="busyText">
+      در حال انجام...
+    </span>
   </div>
 
   <div id="app" style="display:none">
 
     <div class="tabbar">
-      <button class="tab on" onclick="tab('servers',this)">سرورها</button>
-      <button id="gistTab" class="tab" style="display:none" onclick="tab('gist',this)">گیست</button>
-      <button id="flowTab" class="tab" style="display:none" onclick="tab('flows',this)">ورک‌فلوها</button>
+
+      <button
+        class="tab on"
+        onclick="tab('servers',this)"
+      >
+        سرورها
+      </button>
+
+      <button
+        id="gistTab"
+        class="tab"
+        style="display:none"
+        onclick="tab('gist',this)"
+      >
+        گیست
+      </button>
+
+      <button
+        id="flowTab"
+        class="tab"
+        style="display:none"
+        onclick="tab('flows',this)"
+      >
+        ورک‌فلوها
+      </button>
+
     </div>
 
-    <section id="servers" class="view on">
-      <div id="serverGrid" class="grid"></div>
+    <section
+      id="servers"
+      class="view on"
+    >
+      <div
+        id="serverGrid"
+        class="grid"
+      ></div>
     </section>
 
-    <section id="gist" class="view">
+    <section
+      id="gist"
+      class="view"
+    >
+
       <div class="panel">
-        <h2>servers.json</h2>
-        <textarea id="gistEditor"></textarea>
-        <button class="btn goldbtn" onclick="saveGist()">ذخیره گیست</button>
+
+        <h2>
+          servers.json
+        </h2>
+
+        <textarea
+          id="gistEditor"
+        ></textarea>
+
+        <button
+          class="btn goldbtn"
+          onclick="saveGist()"
+        >
+          ذخیره گیست
+        </button>
+
       </div>
+
     </section>
 
-    <section id="flows" class="view">
+    <section
+      id="flows"
+      class="view"
+    >
+
       <div class="panel">
-        <button class="btn ghost" onclick="loadFlows()">بارگذاری ورک‌فلوها</button>
+
+        <button
+          class="btn ghost"
+          onclick="loadFlows()"
+        >
+          بارگذاری ورک‌فلوها
+        </button>
+
         <div id="flowsList"></div>
+
       </div>
+
     </section>
 
   </div>
+
 </div>
 
-<!-- Start server modal -->
 
-<div id="startModal" class="modal hidden">
+<!-- START SERVER MODAL -->
+
+<div
+  id="startModal"
+  class="modal hidden"
+>
 
   <div class="modalbox">
 
-    <h2>شروع سرور</h2>
+    <h2>
+      شروع سرور
+    </h2>
 
     <div class="field">
-      <label>نسخه</label>
 
-      <div class="drop" id="versionDrop">
+      <label>
+        نسخه
+      </label>
+
+      <div
+        class="drop"
+        id="versionDrop"
+      >
 
         <button
           type="button"
           class="dropBtn"
           onclick="toggleDrop('versionDrop')"
         >
-          <span id="versionText">انتخاب نسخه</span>
+          <span id="versionText">
+            انتخاب نسخه
+          </span>
         </button>
 
         <div class="dropMenu">
@@ -649,7 +759,12 @@ button:disabled{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop('versionDrop','version','1.9.7','1.9.7')"
+            onclick="chooseDrop(
+              'versionDrop',
+              'version',
+              '1.9.7',
+              '1.9.7'
+            )"
           >
             1.9.7
           </button>
@@ -657,160 +772,322 @@ button:disabled{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop('versionDrop','version','1.9.6','1.9.6')"
+            onclick="chooseDrop(
+              'versionDrop',
+              'version',
+              '1.9.6',
+              '1.9.6'
+            )"
           >
             1.9.6
           </button>
 
         </div>
+
       </div>
 
-      <input type="hidden" id="version" value="">
+      <input
+        type="hidden"
+        id="version"
+        value=""
+      >
+
     </div>
 
-    <div class="field">
-      <label>نقشه</label>
 
-      <div class="drop" id="mapDrop">
+    <div class="field">
+
+      <label>
+        نقشه
+      </label>
+
+      <div
+        class="drop"
+        id="mapDrop"
+      >
 
         <button
           type="button"
           class="dropBtn"
           onclick="toggleDrop('mapDrop')"
         >
-          <span id="mapText">انتخاب نقشه</span>
+          <span id="mapText">
+            انتخاب نقشه
+          </span>
         </button>
 
         <div class="dropMenu">
 
-          <button type="button" class="dropItem"
-            onclick="chooseDrop('mapDrop','map','City','City')">
+          <button
+            type="button"
+            class="dropItem"
+            onclick="chooseDrop(
+              'mapDrop',
+              'map',
+              'City',
+              'City'
+            )"
+          >
             City
           </button>
 
-          <button type="button" class="dropItem"
-            onclick="chooseDrop('mapDrop','map','Garage','Garage')">
+          <button
+            type="button"
+            class="dropItem"
+            onclick="chooseDrop(
+              'mapDrop',
+              'map',
+              'Garage',
+              'Garage'
+            )"
+          >
             Garage
           </button>
 
-          <button type="button" class="dropItem"
-            onclick="chooseDrop('mapDrop','map','RagdollParty','RagdollParty')">
+          <button
+            type="button"
+            class="dropItem"
+            onclick="chooseDrop(
+              'mapDrop',
+              'map',
+              'RagdollParty',
+              'RagdollParty'
+            )"
+          >
             RagdollParty
           </button>
 
-          <button type="button" class="dropItem"
-            onclick="chooseDrop('mapDrop','map','TrainFacility','TrainFacility')">
+          <button
+            type="button"
+            class="dropItem"
+            onclick="chooseDrop(
+              'mapDrop',
+              'map',
+              'TrainFacility',
+              'TrainFacility'
+            )"
+          >
             TrainFacility
           </button>
 
-          <button type="button" class="dropItem"
-            onclick="chooseDrop('mapDrop','map','ZombieSurvival','ZombieSurvival')">
+          <button
+            type="button"
+            class="dropItem"
+            onclick="chooseDrop(
+              'mapDrop',
+              'map',
+              'ZombieSurvival',
+              'ZombieSurvival'
+            )"
+          >
             ZombieSurvival
           </button>
 
-          <button type="button" class="dropItem"
-            onclick="chooseDrop('mapDrop','map','NewTerrainRamps','NewTerrainRamps')">
+          <button
+            type="button"
+            class="dropItem"
+            onclick="chooseDrop(
+              'mapDrop',
+              'map',
+              'NewTerrainRamps',
+              'NewTerrainRamps'
+            )"
+          >
             NewTerrainRamps
           </button>
 
-          <button type="button" class="dropItem"
-            onclick="chooseDrop('mapDrop','map','Island','Island')">
+          <button
+            type="button"
+            class="dropItem"
+            onclick="chooseDrop(
+              'mapDrop',
+              'map',
+              'Island',
+              'Island'
+            )"
+          >
             Island
           </button>
 
-          <button type="button" class="dropItem"
-            onclick="chooseDrop('mapDrop','map','CarSoccer','CarSoccer')">
+          <button
+            type="button"
+            class="dropItem"
+            onclick="chooseDrop(
+              'mapDrop',
+              'map',
+              'CarSoccer',
+              'CarSoccer'
+            )"
+          >
             CarSoccer
           </button>
 
-          <button type="button"
+          <button
+            type="button"
             class="dropItem custom"
-            onclick="chooseDrop('mapDrop','map','Custom','سفارشی')">
+            onclick="chooseDrop(
+              'mapDrop',
+              'map',
+              'Custom',
+              'سفارشی'
+            )"
+          >
             سفارشی
           </button>
 
         </div>
+
       </div>
 
-      <input type="hidden" id="map" value="">
+      <input
+        type="hidden"
+        id="map"
+        value=""
+      >
+
     </div>
+
 
     <div class="field">
-      <label>کد ادمین سرور</label>
-      <input id="adminCode" value="12345">
-    </div>
 
-    <div class="field" id="customBox" style="display:none">
+      <label>
+        کد ادمین سرور
+      </label>
 
-      <label>نام فایل نقشه</label>
-      <input id="customName" placeholder="Prime.txt">
-
-      <label>محتوای نقشه</label>
-      <textarea id="customBody"></textarea>
+      <input
+        id="adminCode"
+        value="12345"
+      >
 
     </div>
 
-    <button class="btn mint" onclick="startServer()">
+
+    <div
+      class="field"
+      id="customBox"
+      style="display:none"
+    >
+
+      <label>
+        نام فایل نقشه
+      </label>
+
+      <input
+        id="customName"
+        placeholder="Prime.txt"
+      >
+
+      <label>
+        محتوای نقشه
+      </label>
+
+      <textarea
+        id="customBody"
+      ></textarea>
+
+    </div>
+
+
+    <button
+      class="btn mint"
+      onclick="startServer()"
+    >
       روشن کردن سرور
     </button>
 
-    <button class="btn ghost" onclick="closeModal()">
+    <button
+      class="btn ghost"
+      onclick="closeModal()"
+    >
       لغو
     </button>
 
   </div>
+
 </div>
 
-<!-- File manager modal -->
 
-<div id="fileModal" class="modal hidden">
+<!-- FILE MANAGER -->
+
+<div
+  id="fileModal"
+  class="modal hidden"
+>
 
   <div class="modalbox">
 
     <div class="header">
 
       <div>
-        <h2 id="fileTitle">فایل‌های Runner</h2>
 
-        <div id="filePath" class="sub filePath">
+        <h2 id="fileTitle">
+          فایل‌های Runner
+        </h2>
+
+        <div
+          id="filePath"
+          class="sub filePath"
+        >
           /
         </div>
+
       </div>
 
-      <button class="btn ghost" onclick="closeFileModal()">
+      <button
+        class="btn ghost"
+        onclick="closeFileModal()"
+      >
         بستن
       </button>
 
     </div>
 
-    <!-- IMPORTANT:
-         The ".." button is rendered INSIDE #fileList.
-    -->
 
     <div
       id="fileBrowser"
       class="panel"
-      style="margin-top:13px;max-height:50vh;overflow:auto;padding:10px"
+      style="
+        margin-top:13px;
+        max-height:50vh;
+        overflow:auto;
+        padding:10px
+      "
     >
+
       <div id="fileList"></div>
+
     </div>
+
 
     <div
       id="fileViewer"
       class="panel"
-      style="display:none;margin-top:10px"
+      style="
+        display:none;
+        margin-top:10px
+      "
     >
 
       <div
         class="row"
-        style="justify-content:space-between;align-items:center"
+        style="
+          justify-content:space-between;
+          align-items:center
+        "
       >
 
-        <b id="viewerTitle" class="gold"></b>
+        <b
+          id="viewerTitle"
+          class="gold"
+        ></b>
 
         <button
           class="btn ghost"
-          onclick="document.getElementById('fileViewer').style.display='none'"
+          onclick="
+            document.getElementById(
+              'fileViewer'
+            ).style.display='none'
+          "
         >
           بستن فایل
         </button>
@@ -833,16 +1110,25 @@ button:disabled{
 
     </div>
 
-    <div class="row" style="margin-top:10px">
 
-      <button class="btn ghost" onclick="refreshFiles()">
+    <div
+      class="row"
+      style="margin-top:10px"
+    >
+
+      <button
+        class="btn ghost"
+        onclick="refreshFiles()"
+      >
         ↻ تازه‌سازی
       </button>
 
     </div>
 
   </div>
+
 </div>
+
 
 <script>
 
@@ -858,40 +1144,85 @@ const C={
 const AUTH="hpanel_auth";
 const DT="hpanel_dashboard_token";
 
+/*
+  Your workflow keeps the runner alive for:
+
+  5 hours + 45 minutes
+  = 5*60*60 + 45*60
+  = 20700 seconds
+*/
+
+const SERVER_LIFETIME_MS=
+  (5*60*60+45*60)*1000;
+
 let token="";
 let admin=false;
 let data=null;
 let pending=null;
 
+let countdownTimer=null;
+
+
+/* AUTH */
+
 function getAuth(){
+
   try{
+
     return JSON.parse(
       localStorage.getItem(AUTH)||"null"
     );
+
   }catch{
+
     return null;
+
   }
+
 }
 
-function busy(on,text="در حال انجام..."){
-  document.getElementById("busyText").textContent=text;
+
+/* BUSY */
+
+function busy(
+  on,
+  text="در حال انجام..."
+){
+
+  document
+    .getElementById("busyText")
+    .textContent=text;
 
   document
     .getElementById("busy")
     .classList
-    .toggle("hidden",!on);
+    .toggle(
+      "hidden",
+      !on
+    );
+
 }
 
-function toast(t,c=""){
 
-  const x=document.createElement("div");
+/* TOAST */
 
-  x.className="toast "+c;
+function toast(
+  t,
+  c=""
+){
+
+  const x=
+    document.createElement("div");
+
+  x.className=
+    "toast "+c;
+
   x.textContent=t;
 
   document.body.appendChild(x);
 
   setTimeout(()=>{
+
     x.classList.add("hide");
 
     setTimeout(()=>{
@@ -899,9 +1230,16 @@ function toast(t,c=""){
     },550);
 
   },3000);
+
 }
 
-function api(path,opt={}){
+
+/* GITHUB API */
+
+function api(
+  path,
+  opt={}
+){
 
   return fetch(
     "https://api.github.com"+path,
@@ -909,40 +1247,230 @@ function api(path,opt={}){
       ...opt,
 
       headers:{
-        "Accept":"application/vnd.github+json",
-        "X-GitHub-Api-Version":"2022-11-28",
-        "Authorization":"Bearer "+token,
+        "Accept":
+          "application/vnd.github+json",
+
+        "X-GitHub-Api-Version":
+          "2022-11-28",
+
+        "Authorization":
+          "Bearer "+token,
+
         ...(opt.headers||{})
       }
     }
   );
+
 }
 
-async function json(path,opt={}){
 
-  const r=await api(path,opt);
+async function json(
+  path,
+  opt={}
+){
 
-  const d=await r
-    .json()
-    .catch(()=>null);
+  const r=
+    await api(path,opt);
 
-  if(!r.ok)
+  const d=
+    await r
+      .json()
+      .catch(()=>null);
+
+  if(!r.ok){
+
     throw Error(
       d?.message||
       "GitHub API "+r.status
     );
 
+  }
+
   return d;
+
 }
+
 
 async function gist(){
 
-  const d=await json(
-    "/gists/"+C.gist
+  const d=
+    await json(
+      "/gists/"+C.gist
+    );
+
+  return (
+    d.files?.[C.file]?.content||
+    ""
   );
 
-  return d.files?.[C.file]?.content||"";
 }
+
+
+/* ESCAPE HTML */
+
+function esc(s){
+
+  return String(
+    s??""
+  ).replace(
+    /[&<>"']/g,
+    c=>({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
+    }[c])
+  );
+
+}
+
+
+/* -------------------------
+   COUNTDOWN
+------------------------- */
+
+/*
+  Returns the remaining lifetime
+  based on started_at from servers.json.
+*/
+
+function getRemainingMs(
+  startedAt
+){
+
+  if(!startedAt)
+    return 0;
+
+  const start=
+    Date.parse(startedAt);
+
+  if(!Number.isFinite(start))
+    return 0;
+
+  const end=
+    start+
+    SERVER_LIFETIME_MS;
+
+  return Math.max(
+    0,
+    end-Date.now()
+  );
+
+}
+
+
+function formatCountdown(
+  ms
+){
+
+  if(ms<=0)
+    return "00:00:00";
+
+  let total=
+    Math.floor(ms/1000);
+
+  const hours=
+    Math.floor(
+      total/3600
+    );
+
+  total%=3600;
+
+  const minutes=
+    Math.floor(
+      total/60
+    );
+
+  const seconds=
+    total%60;
+
+  return (
+    String(hours).padStart(2,"0")+
+    ":"+
+    String(minutes).padStart(2,"0")+
+    ":"+
+    String(seconds).padStart(2,"0")
+  );
+
+}
+
+
+function updateCountdowns(){
+
+  document
+    .querySelectorAll(
+      "[data-countdown-slot]"
+    )
+    .forEach(el=>{
+
+      const slot=
+        Number(
+          el.dataset.countdownSlot
+        );
+
+      const server=
+        (data?.servers||[])
+          .find(
+            s=>
+              Number(s.slot)===slot
+          );
+
+      if(
+        !server||
+        String(
+          server.status||""
+        ).toLowerCase()!=="online"||
+        !server.started_at
+      ){
+
+        el.textContent="—";
+        el.classList.remove("expired");
+
+        return;
+      }
+
+      const remaining=
+        getRemainingMs(
+          server.started_at
+        );
+
+      el.textContent=
+        formatCountdown(
+          remaining
+        );
+
+      el.classList.toggle(
+        "expired",
+        remaining<=0
+      );
+
+    });
+
+}
+
+
+function startCountdownTimer(){
+
+  if(countdownTimer)
+    clearInterval(
+      countdownTimer
+    );
+
+  updateCountdowns();
+
+  countdownTimer=
+    setInterval(
+      updateCountdowns,
+      1000
+    );
+
+}
+
+
+/* -------------------------
+   DASHBOARD
+------------------------- */
 
 async function refreshDashboard(){
 
@@ -953,9 +1481,10 @@ async function refreshDashboard(){
 
   try{
 
-    data=JSON.parse(
-      await gist()
-    );
+    data=
+      JSON.parse(
+        await gist()
+      );
 
     render();
 
@@ -974,23 +1503,11 @@ async function refreshDashboard(){
   }finally{
 
     busy(false);
+
   }
+
 }
 
-function esc(s){
-
-  return String(s??"")
-    .replace(
-      /[&<>"']/g,
-      c=>({
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#39;"
-      }[c])
-    );
-}
 
 function render(){
 
@@ -1001,113 +1518,190 @@ function render(){
 
   root.innerHTML="";
 
-  (data?.servers||[])
-    .forEach(s=>{
+  (
+    data?.servers||[]
+  ).forEach(s=>{
 
-      const st=
-        String(
-          s.status||"offline"
-        ).toLowerCase();
+    const st=
+      String(
+        s.status||"offline"
+      ).toLowerCase();
 
-      const on=st==="online";
+    const on=
+      st==="online";
 
-      const d=
-        document.createElement("div");
+    const d=
+      document.createElement(
+        "div"
+      );
 
-      d.className=
-        "server "+
-        (
-          on
-          ?"on"
-          :st==="starting"
-          ?"starting"
+    d.className=
+      "server "+
+      (
+        on
+        ?"on"
+        :st==="starting"
+        ?"starting"
+        :""
+      );
+
+    d.innerHTML=`
+
+      <div class="name">
+        سرور ${esc(s.slot)}
+      </div>
+
+      <div class="sub">
+
+        ${esc(st)}
+
+        ${s.map
+          ?" · "+esc(s.map)
           :""
-        );
+        }
 
-      d.innerHTML=`
+        ${s.version
+          ?" · v"+esc(s.version)
+          :""
+        }
 
-        <div class="name">
-          سرور ${esc(s.slot)}
+      </div>
+
+
+      <div class="bits">
+
+        <div class="bit">
+          آدرس<br>
+          ${esc(s.endpoint||"—")}
         </div>
 
-        <div class="sub">
+        <div class="bit">
+          IP<br>
+          ${esc(s.ip||"—")}
+        </div>
+
+        <div class="bit">
+          پورت<br>
+          ${esc(s.port||"—")}
+        </div>
+
+        <div class="bit">
+          وضعیت<br>
           ${esc(st)}
-          ${s.map?" · "+esc(s.map):""}
-          ${s.version?" · v"+esc(s.version):""}
         </div>
 
-        <div class="bits">
+        <div
+          class="bit"
+          style="grid-column:1/-1"
+        >
 
-          <div class="bit">
-            آدرس<br>
-            ${esc(s.endpoint||"—")}
-          </div>
+          زمان باقی‌مانده
 
-          <div class="bit">
-            IP<br>
-            ${esc(s.ip||"—")}
-          </div>
-
-          <div class="bit">
-            پورت<br>
-            ${esc(s.port||"—")}
-          </div>
-
-          <div class="bit">
-            وضعیت<br>
-            ${esc(st)}
+          <div
+            class="countdown"
+            data-countdown-slot="${Number(s.slot)}"
+          >
+            ${
+              on&&s.started_at
+              ?formatCountdown(
+                  getRemainingMs(
+                    s.started_at
+                  )
+                )
+              :"—"
+            }
           </div>
 
         </div>
 
-        <div class="row">
+      </div>
 
-          <button
-            class="btn mint"
-            ${st!=="offline"?"disabled":""}
-            onclick="openStart(${Number(s.slot)})"
-          >
-            روشن
-          </button>
 
-          <button
-            class="btn rose"
-            ${st==="offline"?"disabled":""}
-            onclick="stopServer(
-              ${Number(s.slot)},
-              ${s.run_id?Number(s.run_id):"null"}
-            )"
-          >
-            خاموش
-          </button>
+      <div class="row">
 
-          <button
-            class="btn goldbtn"
-            ${!on?"disabled":""}
-            onclick="openFiles(${Number(s.slot)})"
-          >
-            مشاهده فایل‌ها
-          </button>
+        <button
+          class="btn mint"
+          ${
+            st!=="offline"
+            ?"disabled"
+            :""
+          }
+          onclick="openStart(
+            ${Number(s.slot)}
+          )"
+        >
+          روشن
+        </button>
 
-        </div>
-      `;
 
-      root.appendChild(d);
-    });
+        <button
+          class="btn rose"
+          ${
+            st==="offline"
+            ?"disabled"
+            :""
+          }
+          onclick="stopServer(
+            ${Number(s.slot)},
+            ${
+              s.run_id
+              ?Number(s.run_id)
+              :"null"
+            }
+          )"
+        >
+          خاموش
+        </button>
+
+
+        <button
+          class="btn goldbtn"
+          ${
+            !on
+            ?"disabled"
+            :""
+          }
+          onclick="openFiles(
+            ${Number(s.slot)}
+          )"
+        >
+          مشاهده فایل‌ها
+        </button>
+
+      </div>
+
+    `;
+
+    root.appendChild(d);
+
+  });
+
+  updateCountdowns();
+
 }
 
-function tab(id,b){
+
+/* -------------------------
+   TABS
+------------------------- */
+
+function tab(
+  id,
+  b
+){
 
   document
     .querySelectorAll(".view")
-    .forEach(x=>
-      x.classList.remove("on")
+    .forEach(
+      x=>
+        x.classList.remove("on")
     );
 
   document
     .querySelectorAll(".tab")
-    .forEach(x=>
-      x.classList.remove("on")
+    .forEach(
+      x=>
+        x.classList.remove("on")
     );
 
   document
@@ -1118,7 +1712,11 @@ function tab(id,b){
 
   if(id==="gist")
     loadGistEditor();
+
 }
+
+
+/* GIST EDITOR */
 
 async function loadGistEditor(){
 
@@ -1130,14 +1728,20 @@ async function loadGistEditor(){
   try{
 
     document
-      .getElementById("gistEditor")
-      .value=await gist();
+      .getElementById(
+        "gistEditor"
+      )
+      .value=
+        await gist();
 
   }finally{
 
     busy(false);
+
   }
+
 }
+
 
 async function saveGist(){
 
@@ -1148,11 +1752,14 @@ async function saveGist(){
 
   try{
 
-    JSON.parse(
+    const value=
       document
-        .getElementById("gistEditor")
-        .value
-    );
+        .getElementById(
+          "gistEditor"
+        )
+        .value;
+
+    JSON.parse(value);
 
     await json(
       "/gists/"+C.gist,
@@ -1167,11 +1774,7 @@ async function saveGist(){
         body:JSON.stringify({
           files:{
             [C.file]:{
-              content:
-                document
-                  .getElementById(
-                    "gistEditor"
-                  ).value
+              content:value
             }
           }
         })
@@ -1183,7 +1786,7 @@ async function saveGist(){
       "ok"
     );
 
-    refreshDashboard();
+    await refreshDashboard();
 
   }catch(e){
 
@@ -1195,8 +1798,11 @@ async function saveGist(){
   }finally{
 
     busy(false);
+
   }
+
 }
+
 
 /* -------------------------
    CUSTOM DROPDOWNS
@@ -1208,23 +1814,40 @@ function toggleDrop(id){
     document.getElementById(id);
 
   document
-    .querySelectorAll(".drop.open")
+    .querySelectorAll(
+      ".drop.open"
+    )
     .forEach(x=>{
+
       if(x!==el)
-        x.classList.remove("open");
+        x.classList.remove(
+          "open"
+        );
+
     });
 
-  el.classList.toggle("open");
+  el.classList.toggle(
+    "open"
+  );
+
 }
+
 
 function closeDrops(){
 
   document
-    .querySelectorAll(".drop.open")
-    .forEach(x=>
-      x.classList.remove("open")
+    .querySelectorAll(
+      ".drop.open"
+    )
+    .forEach(
+      x=>
+        x.classList.remove(
+          "open"
+        )
     );
+
 }
+
 
 function chooseDrop(
   dropId,
@@ -1234,36 +1857,61 @@ function chooseDrop(
 ){
 
   document
-    .getElementById(inputId)
+    .getElementById(
+      inputId
+    )
     .value=value;
 
   document
-    .getElementById(dropId)
-    .querySelector(".dropBtn span")
+    .getElementById(
+      dropId
+    )
+    .querySelector(
+      ".dropBtn span"
+    )
     .textContent=text;
 
   document
-    .getElementById(dropId)
-    .classList.remove("open");
+    .getElementById(
+      dropId
+    )
+    .classList.remove(
+      "open"
+    );
 
   if(inputId==="map"){
 
     document
-      .getElementById("customBox")
+      .getElementById(
+        "customBox"
+      )
       .style.display=
         value==="Custom"
         ?"block"
         :"none";
+
   }
+
 }
+
 
 document.addEventListener(
   "click",
   e=>{
-    if(!e.target.closest(".drop"))
+
+    if(
+      !e.target.closest(
+        ".drop"
+      )
+    ){
+
       closeDrops();
+
+    }
+
   }
 );
+
 
 /* -------------------------
    START SERVER
@@ -1274,39 +1922,61 @@ function openStart(slot){
   pending=slot;
 
   document
-    .getElementById("version")
+    .getElementById(
+      "version"
+    )
     .value="";
 
   document
-    .getElementById("map")
+    .getElementById(
+      "map"
+    )
     .value="";
 
   document
-    .getElementById("versionText")
+    .getElementById(
+      "versionText"
+    )
     .textContent=
       "انتخاب نسخه";
 
   document
-    .getElementById("mapText")
+    .getElementById(
+      "mapText"
+    )
     .textContent=
       "انتخاب نقشه";
 
   document
-    .getElementById("customBox")
-    .style.display="none";
+    .getElementById(
+      "customBox"
+    )
+    .style.display=
+      "none";
 
   document
-    .getElementById("versionDrop")
-    .classList.remove("open");
+    .getElementById(
+      "versionDrop"
+    )
+    .classList
+    .remove("open");
 
   document
-    .getElementById("mapDrop")
-    .classList.remove("open");
+    .getElementById(
+      "mapDrop"
+    )
+    .classList
+    .remove("open");
 
   document
-    .getElementById("startModal")
-    .classList.remove("hidden");
+    .getElementById(
+      "startModal"
+    )
+    .classList
+    .remove("hidden");
+
 }
+
 
 function closeModal(){
 
@@ -1315,18 +1985,31 @@ function closeModal(){
       "startModal"
     );
 
-  if(m.classList.contains("hidden"))
+  if(
+    m.classList.contains(
+      "hidden"
+    )
+  )
     return;
 
-  m.classList.add("closing");
+  m.classList.add(
+    "closing"
+  );
 
   setTimeout(()=>{
 
-    m.classList.add("hidden");
-    m.classList.remove("closing");
+    m.classList.add(
+      "hidden"
+    );
+
+    m.classList.remove(
+      "closing"
+    );
 
   },500);
+
 }
+
 
 async function startServer(){
 
@@ -1334,17 +2017,23 @@ async function startServer(){
 
   const map=
     document
-      .getElementById("map")
+      .getElementById(
+        "map"
+      )
       .value;
 
   const version=
     document
-      .getElementById("version")
+      .getElementById(
+        "version"
+      )
       .value;
 
   const code=
     document
-      .getElementById("adminCode")
+      .getElementById(
+        "adminCode"
+      )
       .value
       .trim();
 
@@ -1373,20 +2062,31 @@ async function startServer(){
 
     name=
       document
-        .getElementById("customName")
+        .getElementById(
+          "customName"
+        )
         .value
         .trim();
 
     body=
       document
-        .getElementById("customBody")
+        .getElementById(
+          "customBody"
+        )
         .value;
 
-    if(!name||!body.trim())
+    if(
+      !name||
+      !body.trim()
+    ){
+
       return toast(
         "نقشه سفارشی کامل نیست",
         "err"
       );
+
+    }
+
   }
 
   busy(
@@ -1410,13 +2110,18 @@ async function startServer(){
 
           body:JSON.stringify({
             files:{
-              ["custom-map-"+slot+".txt"]:{
+              [
+                "custom-map-"+
+                slot+
+                ".txt"
+              ]:{
                 content:body
               }
             }
           })
         }
       );
+
     }
 
     await json(
@@ -1468,10 +2173,20 @@ async function startServer(){
   }finally{
 
     busy(false);
+
   }
+
 }
 
-async function stopServer(slot,run){
+
+/* -------------------------
+   STOP SERVER
+------------------------- */
+
+async function stopServer(
+  slot,
+  run
+){
 
   if(!run)
     return toast(
@@ -1479,9 +2194,11 @@ async function stopServer(slot,run){
       "err"
     );
 
-  if(!confirm(
-    "سرور خاموش شود؟"
-  ))
+  if(
+    !confirm(
+      "سرور خاموش شود؟"
+    )
+  )
     return;
 
   busy(
@@ -1499,10 +2216,16 @@ async function stopServer(slot,run){
         }
       );
 
-    if(!r.ok&&r.status!==409)
+    if(
+      !r.ok&&
+      r.status!==409
+    ){
+
       throw Error(
         "خاموش نشد"
       );
+
+    }
 
     toast(
       "درخواست خاموشی ارسال شد",
@@ -1524,8 +2247,11 @@ async function stopServer(slot,run){
   }finally{
 
     busy(false);
+
   }
+
 }
+
 
 /* -------------------------
    FILE MANAGER
@@ -1536,12 +2262,19 @@ let fileSnapshot=null;
 let filePath="/";
 let fileData={};
 
+
 function normPath(p){
 
-  p=String(p||"/")
-    .replace(/\\/g,"/");
+  p=
+    String(p||"/")
+      .replace(
+        /\\/g,
+        "/"
+      );
 
-  if(!p.startsWith("/"))
+  if(
+    !p.startsWith("/")
+  )
     p="/"+p;
 
   const out=[];
@@ -1550,10 +2283,15 @@ function normPath(p){
     const part of p.split("/")
   ){
 
-    if(!part||part===".")
+    if(
+      !part||
+      part=="."
+    )
       continue;
 
-    if(part===".."){
+    if(
+      part===".."
+    ){
 
       if(out.length)
         out.pop();
@@ -1561,31 +2299,42 @@ function normPath(p){
     }else{
 
       out.push(part);
+
     }
+
   }
 
-  return "/"+out.join("/");
+  return "/"+
+    out.join("/");
+
 }
+
 
 function pathParent(p){
 
-  p=normPath(p);
+  p=
+    normPath(p);
 
   if(p==="/")
     return "/";
 
   const a=
-    p.split("/")
-     .filter(Boolean);
+    p
+      .split("/")
+      .filter(Boolean);
 
   a.pop();
 
-  return "/"+a.join("/");
+  return "/"+
+    a.join("/");
+
 }
+
 
 function fileOpen(slot){
 
-  fileSlot=Number(slot);
+  fileSlot=
+    Number(slot);
 
   filePath="/";
 
@@ -1593,22 +2342,31 @@ function fileOpen(slot){
   fileData={};
 
   document
-    .getElementById("fileTitle")
+    .getElementById(
+      "fileTitle"
+    )
     .textContent=
       "فایل‌های Runner · سرور "+
       fileSlot;
 
   document
-    .getElementById("fileViewer")
-    .style.display="none";
+    .getElementById(
+      "fileViewer"
+    )
+    .style.display=
+      "none";
 
   document
-    .getElementById("fileModal")
+    .getElementById(
+      "fileModal"
+    )
     .classList
     .remove("hidden");
 
   refreshFiles();
+
 }
+
 
 function closeFileModal(){
 
@@ -1624,15 +2382,24 @@ function closeFileModal(){
   )
     return;
 
-  m.classList.add("closing");
+  m.classList.add(
+    "closing"
+  );
 
   setTimeout(()=>{
 
-    m.classList.add("hidden");
-    m.classList.remove("closing");
+    m.classList.add(
+      "hidden"
+    );
+
+    m.classList.remove(
+      "closing"
+    );
 
   },500);
+
 }
+
 
 async function openFiles(slot){
 
@@ -1657,10 +2424,13 @@ async function openFiles(slot){
     );
 
     return;
+
   }
 
   fileOpen(slot);
+
 }
+
 
 async function refreshFiles(){
 
@@ -1674,15 +2444,18 @@ async function refreshFiles(){
 
   list.innerHTML=
     `
-    <div class="loading">
-      در حال دریافت فایل‌های Runner...
-      <span class="spin"></span>
-    </div>
+      <div class="loading">
+        در حال دریافت فایل‌های Runner...
+        <span class="spin"></span>
+      </div>
     `;
 
   document
-    .getElementById("fileViewer")
-    .style.display="none";
+    .getElementById(
+      "fileViewer"
+    )
+    .style.display=
+      "none";
 
   try{
 
@@ -1692,7 +2465,9 @@ async function refreshFiles(){
       );
 
     const name=
-      "runtime-"+fileSlot+".json";
+      "runtime-"+
+      fileSlot+
+      ".json";
 
     const runtime=
       g.files?.[name];
@@ -1703,14 +2478,10 @@ async function refreshFiles(){
       );
 
     let content=
-      typeof runtime.content==="string"
+      typeof runtime.content===
+      "string"
       ?runtime.content
       :null;
-
-    /*
-      If GitHub marks the Gist file as
-      truncated, use raw_url.
-    */
 
     if(
       runtime.truncated&&
@@ -1725,6 +2496,7 @@ async function refreshFiles(){
       if(r.ok)
         content=
           await r.text();
+
     }
 
     if(!content)
@@ -1746,12 +2518,15 @@ async function refreshFiles(){
 
     list.innerHTML=
       `
-      <div class="loading err">
-        ${esc(e.message)}
-      </div>
+        <div class="loading err">
+          ${esc(e.message)}
+        </div>
       `;
+
   }
+
 }
+
 
 function renderFiles(){
 
@@ -1759,16 +2534,17 @@ function renderFiles(){
     fileData||{};
 
   const base=
-    normPath(filePath);
+    normPath(
+      filePath
+    );
 
   const entries=[];
-  const seen=new Set();
+  const seen=
+    new Set();
 
   /*
-    The runtime snapshot stores absolute paths.
-    We create virtual folders from those paths so
-    files can still be reached even if their parent
-    directories were not separately included.
+    Build a virtual directory tree from
+    every absolute path stored by the runner.
   */
 
   for(
@@ -1778,19 +2554,25 @@ function renderFiles(){
     const full=
       normPath(raw);
 
-    if(full===base)
+    if(
+      full===base
+    )
       continue;
 
     if(
-      base!=="/" &&
-      !full.startsWith(base+"/")
+      base!=="/"&&
+      !full.startsWith(
+        base+"/"
+      )
     )
       continue;
 
     const rel=
       base==="/"
       ?full.slice(1)
-      :full.slice(base.length+1);
+      :full.slice(
+          base.length+1
+        );
 
     if(!rel)
       continue;
@@ -1801,17 +2583,24 @@ function renderFiles(){
     const first=
       parts[0];
 
-    if(parts.length>1){
+    if(
+      parts.length>1
+    ){
 
       const dirPath=
         normPath(
-          base+"/"+first
+          base+
+          "/"+
+          first
         );
 
       const key=
-        "dir:"+dirPath;
+        "dir:"+
+        dirPath;
 
-      if(!seen.has(key)){
+      if(
+        !seen.has(key)
+      ){
 
         seen.add(key);
 
@@ -1820,6 +2609,7 @@ function renderFiles(){
           name:first,
           path:dirPath
         });
+
       }
 
     }else{
@@ -1828,9 +2618,12 @@ function renderFiles(){
         all[raw];
 
       const key=
-        "file:"+full;
+        "file:"+
+        full;
 
-      if(!seen.has(key)){
+      if(
+        !seen.has(key)
+      ){
 
         seen.add(key);
 
@@ -1840,14 +2633,20 @@ function renderFiles(){
           path:full,
           data:obj
         });
+
       }
+
     }
+
   }
+
 
   entries.sort(
     (a,b)=>{
 
-      if(a.type!==b.type)
+      if(
+        a.type!==b.type
+      )
         return a.type==="dir"
           ?-1
           :1;
@@ -1860,8 +2659,10 @@ function renderFiles(){
           sensitivity:"base"
         }
       );
+
     }
   );
+
 
   const box=
     document.getElementById(
@@ -1870,12 +2671,15 @@ function renderFiles(){
 
   box.innerHTML="";
 
+
   /*
-    ".." is intentionally INSIDE
-    the same container as files/folders.
+    ".." is inside the SAME
+    file/folder container.
   */
 
-  if(base!=="/"){
+  if(
+    base!=="/"
+  ){
 
     const up=
       document.createElement(
@@ -1884,21 +2688,23 @@ function renderFiles(){
 
     up.type="button";
 
-    up.className="fileItem";
+    up.className=
+      "fileItem";
 
-    up.innerHTML=`
-      <span class="fileIcon">
-        ↩
-      </span>
+    up.innerHTML=
+      `
+        <span class="fileIcon">
+          ↩
+        </span>
 
-      <span class="fileName">
-        ..
-      </span>
+        <span class="fileName">
+          ..
+        </span>
 
-      <span class="fileKind">
-        پوشه قبل
-      </span>
-    `;
+        <span class="fileKind">
+          پوشه قبل
+        </span>
+      `;
 
     up.onclick=()=>{
 
@@ -1908,12 +2714,17 @@ function renderFiles(){
         );
 
       renderFiles();
+
     };
 
     box.appendChild(up);
+
   }
 
-  if(!entries.length){
+
+  if(
+    !entries.length
+  ){
 
     const empty=
       document.createElement(
@@ -1928,14 +2739,21 @@ function renderFiles(){
       ?"هیچ فایل یا پوشه‌ای در Snapshot پیدا نشد."
       :"این پوشه خالی است.";
 
-    box.appendChild(empty);
+    box.appendChild(
+      empty
+    );
 
     document
-      .getElementById("filePath")
-      .textContent=base;
+      .getElementById(
+        "filePath"
+      )
+      .textContent=
+        base;
 
     return;
+
   }
+
 
   for(
     const e of entries
@@ -1948,29 +2766,40 @@ function renderFiles(){
 
     b.type="button";
 
-    b.className="fileItem";
+    b.className=
+      "fileItem";
 
-    b.innerHTML=`
+    b.innerHTML=
+      `
+        <span class="fileIcon">
+          ${
+            e.type==="dir"
+            ?"📁"
+            :"📄"
+          }
+        </span>
 
-      <span class="fileIcon">
-        ${e.type==="dir"?"📁":"📄"}
-      </span>
+        <span class="fileName">
+          ${esc(e.name)}
+        </span>
 
-      <span class="fileName">
-        ${esc(e.name)}
-      </span>
-
-      <span class="fileKind">
-        ${e.type==="dir"?"پوشه":"فایل"}
-      </span>
-
-    `;
+        <span class="fileKind">
+          ${
+            e.type==="dir"
+            ?"پوشه"
+            :"فایل"
+          }
+        </span>
+      `;
 
     b.onclick=()=>{
 
-      if(e.type==="dir"){
+      if(
+        e.type==="dir"
+      ){
 
-        filePath=e.path;
+        filePath=
+          e.path;
 
         renderFiles();
 
@@ -1980,38 +2809,57 @@ function renderFiles(){
           e.path,
           e.data
         );
+
       }
+
     };
 
     box.appendChild(b);
+
   }
 
+
   document
-    .getElementById("filePath")
-    .textContent=base;
+    .getElementById(
+      "filePath"
+    )
+    .textContent=
+      base;
+
 }
 
-function showFile(path,obj){
+
+function showFile(
+  path,
+  obj
+){
 
   document
-    .getElementById("viewerTitle")
-    .textContent=path;
+    .getElementById(
+      "viewerTitle"
+    )
+    .textContent=
+      path;
 
   let body="";
 
   if(obj){
 
     if(
-      typeof obj.body==="string"
+      typeof obj.body===
+      "string"
     ){
 
-      body=obj.body;
+      body=
+        obj.body;
 
     }else if(
-      typeof obj.content==="string"
+      typeof obj.content===
+      "string"
     ){
 
-      body=obj.content;
+      body=
+        obj.content;
 
     }else{
 
@@ -2021,17 +2869,27 @@ function showFile(path,obj){
           null,
           2
         );
+
     }
+
   }
 
   document
-    .getElementById("viewerText")
-    .textContent=body;
+    .getElementById(
+      "viewerText"
+    )
+    .textContent=
+      body;
 
   document
-    .getElementById("fileViewer")
-    .style.display="block";
+    .getElementById(
+      "fileViewer"
+    )
+    .style.display=
+      "block";
+
 }
+
 
 /* -------------------------
    WORKFLOWS
@@ -2052,12 +2910,16 @@ async function loadFlows(){
       );
 
     document
-      .getElementById("flowsList")
+      .getElementById(
+        "flowsList"
+      )
       .innerHTML=
-        (d.workflow_runs||[])
-          .map(
-            x=>`
-
+        (
+          d.workflow_runs||[]
+        )
+        .map(
+          x=>
+            `
               <div class="panel">
 
                 <b>
@@ -2065,18 +2927,23 @@ async function loadFlows(){
                 </b>
 
                 <div class="sub">
+
                   ${esc(x.status)}
-                  ${x.conclusion
-                    ?" "+esc(x.conclusion)
+
+                  ${
+                    x.conclusion
+                    ?" "+esc(
+                        x.conclusion
+                      )
                     :""
                   }
+
                 </div>
 
               </div>
-
             `
-          )
-          .join("");
+        )
+        .join("");
 
   }catch(e){
 
@@ -2088,11 +2955,14 @@ async function loadFlows(){
   }finally{
 
     busy(false);
+
   }
+
 }
 
+
 /* -------------------------
-   LOGOUT / INITIALIZATION
+   LOGOUT
 ------------------------- */
 
 function logout(){
@@ -2107,15 +2977,26 @@ function logout(){
 
   location.href=
     "https://herculepanel.github.io/";
+
 }
+
+
+/* -------------------------
+   INITIALIZATION
+------------------------- */
 
 (async()=>{
 
-  const a=getAuth();
+  const a=
+    getAuth();
 
   document
-    .getElementById("loading")
-    .style.display="block";
+    .getElementById(
+      "loading"
+    )
+    .style.display=
+      "block";
+
 
   if(!a?.loggedIn){
 
@@ -2123,12 +3004,18 @@ function logout(){
       "https://herculepanel.github.io/vault/";
 
     return;
+
   }
 
-  admin=!!a.admin;
+
+  admin=
+    !!a.admin;
 
   token=
-    localStorage.getItem(DT)||"";
+    localStorage.getItem(
+      DT
+    )||"";
+
 
   if(!token){
 
@@ -2141,27 +3028,38 @@ function logout(){
       "https://herculepanel.github.io/vault/";
 
     return;
+
   }
 
+
   document
-    .getElementById("role")
+    .getElementById(
+      "role"
+    )
     .textContent=
       admin
       ?"مدیر"
       :"کاربر";
 
+
   if(admin){
 
     document
-      .getElementById("gistTab")
+      .getElementById(
+        "gistTab"
+      )
       .style.display=
         "inline-block";
 
     document
-      .getElementById("flowTab")
+      .getElementById(
+        "flowTab"
+      )
       .style.display=
         "inline-block";
+
   }
+
 
   try{
 
@@ -2170,14 +3068,50 @@ function logout(){
     );
 
     document
-      .getElementById("loading")
-      .style.display="none";
+      .getElementById(
+        "loading"
+      )
+      .style.display=
+        "none";
 
     document
-      .getElementById("app")
-      .style.display="block";
+      .getElementById(
+        "app"
+      )
+      .style.display=
+        "block";
 
     await refreshDashboard();
+
+    /*
+      Start the countdown AFTER the
+      initial servers.json has loaded.
+    */
+
+    startCountdownTimer();
+
+    /*
+      Refresh the Gist every 30 seconds
+      so newly-started/stopped servers
+      appear without manually refreshing.
+    */
+
+    setInterval(
+      async()=>{
+        try{
+
+          data=
+            JSON.parse(
+              await gist()
+            );
+
+          render();
+
+        }catch{}
+
+      },
+      30000
+    );
 
   }catch(e){
 
@@ -2186,6 +3120,7 @@ function logout(){
       e.message,
       "err"
     );
+
   }
 
 })();
@@ -2193,4 +3128,4 @@ function logout(){
 </script>
 
 </body>
- </html>
+  </html>
