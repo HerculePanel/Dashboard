@@ -6,9 +6,16 @@
 
 <title>HPanel Dashboard v1.3</title>
 
+<!-- Lalezar -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+
+<!-- Bootstrap Icons -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+>
 
 <style>
 :root{
@@ -19,6 +26,7 @@
   --gold:#ffb43a;
   --mint:#3ee39a;
   --rose:#ff7180;
+  --blue:#78a7ff;
   --ink:#140f0a
 }
 
@@ -32,9 +40,27 @@ body{
   font-family:Lalezar,Tahoma;
   color:var(--text);
   background:
-    radial-gradient(circle at 12% 0%,rgba(255,180,58,.23),transparent 32%),
-    radial-gradient(circle at 88% 30%,rgba(62,227,154,.11),transparent 30%),
-    linear-gradient(180deg,#120e0b,#070605)
+    radial-gradient(
+      circle at 12% 0%,
+      rgba(255,180,58,.23),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 88% 30%,
+      rgba(62,227,154,.11),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      #120e0b,
+      #070605
+    )
+}
+
+button,
+input,
+textarea{
+  font-family:Lalezar,Tahoma
 }
 
 .wrap{
@@ -52,7 +78,16 @@ body{
 }
 
 .brand{
-  font-size:32px
+  font-size:32px;
+  display:flex;
+  align-items:center;
+  gap:3px
+}
+
+.brand i{
+  font-size:27px;
+  margin-left:5px;
+  color:var(--gold)
 }
 
 .gold{
@@ -60,11 +95,14 @@ body{
 }
 
 .badge{
-  display:inline-block;
-  padding:5px 10px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 11px;
   border-radius:999px;
   background:rgba(62,227,154,.15);
-  color:var(--mint)
+  color:var(--mint);
+  margin-top:5px
 }
 
 .actions,
@@ -80,26 +118,50 @@ body{
   border-radius:15px;
   padding:9px 13px;
   font:15px Lalezar;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
   box-shadow:0 5px 0 rgba(0,0,0,.3)
 }
 
+.btn i{
+  font-size:16px
+}
+
 .mint{
-  background:linear-gradient(180deg,#6af3b8,#17c77a);
+  background:linear-gradient(
+    180deg,
+    #6af3b8,
+    #17c77a
+  );
   color:#042016
 }
 
 .goldbtn{
-  background:linear-gradient(180deg,#ffd27a,#ff9d1f);
+  background:linear-gradient(
+    180deg,
+    #ffd27a,
+    #ff9d1f
+  );
   color:var(--ink)
 }
 
 .rose{
-  background:linear-gradient(180deg,#ff8a97,#e23b4d);
+  background:linear-gradient(
+    180deg,
+    #ff8a97,
+    #e23b4d
+  );
   color:#fff
 }
 
 .home{
-  background:linear-gradient(180deg,#8ab0ff,#4d7dff);
+  background:linear-gradient(
+    180deg,
+    #8ab0ff,
+    #4d7dff
+  );
   color:#061018;
   text-decoration:none
 }
@@ -133,12 +195,33 @@ body{
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:
+    repeat(2,minmax(0,1fr));
   gap:14px
 }
 
+.server{
+  position:relative;
+  overflow:hidden
+}
+
+.server::before{
+  content:"";
+  position:absolute;
+  width:140px;
+  height:140px;
+  border-radius:50%;
+  background:rgba(255,180,58,.05);
+  filter:blur(25px);
+  top:-70px;
+  left:-70px;
+  pointer-events:none
+}
+
 .server.on{
-  border-color:rgba(62,227,154,.5);
+  border-color:
+    rgba(62,227,154,.5);
+
   background:
     linear-gradient(
       160deg,
@@ -148,7 +231,44 @@ body{
 }
 
 .server.starting{
-  border-color:rgba(255,180,58,.5)
+  border-color:
+    rgba(255,180,58,.5)
+}
+
+.serverHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px
+}
+
+.serverName{
+  display:flex;
+  align-items:center;
+  gap:8px
+}
+
+.serverName i{
+  color:var(--gold);
+  font-size:20px
+}
+
+.statusIcon{
+  display:inline-flex;
+  align-items:center;
+  gap:5px
+}
+
+.statusIcon.online{
+  color:var(--mint)
+}
+
+.statusIcon.offline{
+  color:var(--muted)
+}
+
+.statusIcon.starting{
+  color:var(--gold)
 }
 
 .name{
@@ -162,7 +282,8 @@ body{
 
 .bits{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:
+    1fr 1fr;
   gap:8px;
   margin:12px 0
 }
@@ -172,6 +293,18 @@ body{
   border-radius:12px;
   background:rgba(0,0,0,.28);
   word-break:break-word
+}
+
+.bitLabel{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  color:var(--muted);
+  margin-bottom:3px
+}
+
+.bitLabel i{
+  color:var(--gold)
 }
 
 .countdown{
@@ -201,7 +334,14 @@ body{
   background:rgba(255,255,255,.04);
   color:var(--muted);
   cursor:pointer;
-  font:14px Lalezar
+  font:14px Lalezar;
+  display:inline-flex;
+  align-items:center;
+  gap:7px
+}
+
+.tab i{
+  font-size:15px
 }
 
 .tab.on{
@@ -245,11 +385,14 @@ textarea{
   justify-content:center;
   z-index:10;
   opacity:1;
-  animation:modalIn .55s cubic-bezier(.22,1,.36,1)
+  animation:modalIn .55s
+    cubic-bezier(.22,1,.36,1)
 }
 
 .modal.closing{
-  animation:modalOut .5s cubic-bezier(.55,0,.78,.18) forwards
+  animation:modalOut .5s
+    cubic-bezier(.55,0,.78,.18)
+    forwards
 }
 
 .modal.hidden{
@@ -267,11 +410,14 @@ textarea{
   box-shadow:
     0 28px 80px rgba(0,0,0,.55),
     inset 0 1px 0 rgba(255,255,255,.08);
-  animation:boxIn .6s cubic-bezier(.22,1,.36,1)
+  animation:boxIn .6s
+    cubic-bezier(.22,1,.36,1)
 }
 
 .modal.closing .modalbox{
-  animation:boxOut .45s cubic-bezier(.55,0,.78,.18) forwards
+  animation:boxOut .45s
+    cubic-bezier(.55,0,.78,.18)
+    forwards
 }
 
 @keyframes modalIn{
@@ -287,8 +433,11 @@ textarea{
 @keyframes boxIn{
   from{
     opacity:0;
-    transform:translateY(18px) scale(.96)
+    transform:
+      translateY(18px)
+      scale(.96)
   }
+
   to{
     opacity:1;
     transform:none
@@ -298,25 +447,19 @@ textarea{
 @keyframes boxOut{
   to{
     opacity:0;
-    transform:translateY(16px) scale(.96)
+    transform:
+      translateY(16px)
+      scale(.96)
   }
-}
-
-.field{
-  margin:10px 0
-}
-
-.field label{
-  display:block;
-  color:var(--gold);
-  margin-bottom:5px
 }
 
 .toast{
   position:fixed;
   bottom:20px;
   left:50%;
-  transform:translate(-50%,22px) scale(.96);
+  transform:
+    translate(-50%,22px)
+    scale(.96);
   padding:12px 18px;
   border-radius:14px;
   background:rgba(23,18,13,.68);
@@ -328,24 +471,35 @@ textarea{
     inset 0 1px 0 rgba(255,255,255,.08);
   z-index:20;
   opacity:0;
-  animation:toastIn .55s cubic-bezier(.22,1,.36,1) forwards
+  animation:toastIn .55s
+    cubic-bezier(.22,1,.36,1)
+    forwards;
+  display:flex;
+  align-items:center;
+  gap:7px
 }
 
 .toast.hide{
-  animation:toastOut .55s cubic-bezier(.55,0,.78,.18) forwards
+  animation:toastOut .55s
+    cubic-bezier(.55,0,.78,.18)
+    forwards
 }
 
 @keyframes toastIn{
   to{
     opacity:1;
-    transform:translate(-50%,0) scale(1)
+    transform:
+      translate(-50%,0)
+      scale(1)
   }
 }
 
 @keyframes toastOut{
   to{
     opacity:0;
-    transform:translate(-50%,18px) scale(.94)
+    transform:
+      translate(-50%,18px)
+      scale(.94)
   }
 }
 
@@ -396,7 +550,7 @@ textarea{
   display:none
 }
 
-/* Custom dropdown */
+/* DROPDOWN */
 
 .drop{
   position:relative;
@@ -420,10 +574,14 @@ textarea{
 }
 
 .dropBtn::after{
-  content:"⌄";
+  content:"";
+  font-family:
+    "bootstrap-icons";
+  content:"\f282";
   color:var(--gold);
-  font-size:18px;
-  transition:transform .35s ease
+  font-size:16px;
+  transition:
+    transform .35s ease
 }
 
 .drop.open .dropBtn::after{
@@ -442,10 +600,13 @@ textarea{
   background:rgba(22,17,12,.94);
   backdrop-filter:blur(18px);
   -webkit-backdrop-filter:blur(18px);
-  box-shadow:0 20px 50px rgba(0,0,0,.45);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.45);
   opacity:0;
   visibility:hidden;
-  transform:translateY(-8px) scale(.98);
+  transform:
+    translateY(-8px)
+    scale(.98);
   transition:
     opacity .35s ease,
     transform .35s ease,
@@ -467,12 +628,15 @@ textarea{
   border-radius:9px;
   font:14px Lalezar;
   text-align:right;
-  cursor:pointer
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:7px
 }
 
 .dropItem:hover{
-  background:rgba(255,180,58,.13);
-  transform:none
+  background:
+    rgba(255,180,58,.13)
 }
 
 .dropItem.custom{
@@ -480,17 +644,20 @@ textarea{
   font-weight:bold
 }
 
-/* File manager */
+/* FILE MANAGER */
 
 .fileItem{
   width:100%;
   display:grid;
-  grid-template-columns:auto 1fr auto;
+  grid-template-columns:
+    auto 1fr auto;
   align-items:center;
   gap:10px;
   text-align:right;
-  border:1px solid rgba(255,186,92,.13);
-  background:rgba(255,255,255,.035);
+  border:1px solid
+    rgba(255,186,92,.13);
+  background:
+    rgba(255,255,255,.035);
   color:var(--text);
   border-radius:12px;
   padding:10px 12px;
@@ -500,15 +667,24 @@ textarea{
 }
 
 .fileItem:hover{
-  background:rgba(255,180,58,.10);
+  background:
+    rgba(255,180,58,.10);
   border-color:var(--line);
   transform:translateY(-2px)
 }
 
 .fileIcon{
-  font-family:Tahoma;
   font-size:18px;
-  direction:ltr
+  direction:ltr;
+  color:var(--gold)
+}
+
+.fileIcon.folder{
+  color:var(--gold)
+}
+
+.fileIcon.file{
+  color:var(--muted)
 }
 
 .fileName{
@@ -521,7 +697,10 @@ textarea{
 
 .fileKind{
   color:var(--muted);
-  font-size:12px
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  gap:4px
 }
 
 .filePath{
@@ -538,13 +717,14 @@ button,
 a,
 input,
 textarea,
-select,
 .panel,
 .server,
 .tab,
-.modalbox{
+.modalbox,
+.fileItem{
   transition:
-    transform .5s cubic-bezier(.22,1,.36,1),
+    transform .5s
+      cubic-bezier(.22,1,.36,1),
     opacity .5s ease,
     border-color .5s ease,
     box-shadow .5s ease,
@@ -562,7 +742,26 @@ button:disabled{
   cursor:not-allowed
 }
 
+.sectionTitle{
+  display:flex;
+  align-items:center;
+  gap:8px
+}
+
+.sectionTitle i{
+  color:var(--gold)
+}
+
+.serverActions{
+  margin-top:10px
+}
+
+.serverActions .btn{
+  flex:1
+}
+
 @media(max-width:850px){
+
   .grid{
     grid-template-columns:1fr
   }
@@ -570,6 +769,28 @@ button:disabled{
   .bits{
     grid-template-columns:1fr
   }
+
+  .serverActions .btn{
+    flex:initial
+  }
+
+}
+
+@media(max-width:500px){
+
+  .brand{
+    font-size:27px
+  }
+
+  .actions{
+    width:100%
+  }
+
+  .actions .btn,
+  .actions a{
+    flex:1
+  }
+
 }
 </style>
 </head>
@@ -578,37 +799,55 @@ button:disabled{
 
 <div class="wrap">
 
+  <!-- HEADER -->
+
   <div class="header">
 
     <div>
 
       <div class="brand">
+
+        <i class="bi bi-speedometer2"></i>
+
         <span class="gold">H</span>Panel
         <span class="gold">D</span>ashboard
         <span class="gold">v1.3</span>
+
       </div>
 
-      <span id="role" class="badge"></span>
+      <span id="role" class="badge">
+        <i class="bi bi-shield-check"></i>
+        در حال بررسی...
+      </span>
 
     </div>
 
+
     <div class="actions">
 
-      <button class="btn rose" onclick="logout()">
+      <button
+        class="btn rose"
+        onclick="logout()"
+      >
+        <i class="bi bi-box-arrow-right"></i>
         خروج
       </button>
+
 
       <a
         class="btn home"
         href="https://herculepanel.github.io/"
       >
+        <i class="bi bi-house-fill"></i>
         منوی اصلی
       </a>
+
 
       <button
         class="btn ghost"
         onclick="refreshDashboard()"
       >
+        <i class="bi bi-arrow-clockwise"></i>
         تازه‌سازی
       </button>
 
@@ -616,19 +855,34 @@ button:disabled{
 
   </div>
 
-  <div id="loading" class="panel loading">
+
+  <div
+    id="loading"
+    class="panel loading"
+  >
+    <i class="bi bi-shield-lock"></i>
     checking login data...
     <span class="spin"></span>
   </div>
 
-  <div id="busy" class="busy hidden">
+
+  <div
+    id="busy"
+    class="busy hidden"
+  >
     <span class="spin"></span>
     <span id="busyText">
       در حال انجام...
     </span>
   </div>
 
-  <div id="app" style="display:none">
+
+  <div
+    id="app"
+    style="display:none"
+  >
+
+    <!-- TABS -->
 
     <div class="tabbar">
 
@@ -636,8 +890,10 @@ button:disabled{
         class="tab on"
         onclick="tab('servers',this)"
       >
+        <i class="bi bi-hdd-stack"></i>
         سرورها
       </button>
+
 
       <button
         id="gistTab"
@@ -645,8 +901,10 @@ button:disabled{
         style="display:none"
         onclick="tab('gist',this)"
       >
+        <i class="bi bi-file-code"></i>
         گیست
       </button>
+
 
       <button
         id="flowTab"
@@ -654,20 +912,29 @@ button:disabled{
         style="display:none"
         onclick="tab('flows',this)"
       >
+        <i class="bi bi-diagram-3"></i>
         ورک‌فلوها
       </button>
 
     </div>
 
+
+    <!-- SERVERS -->
+
     <section
       id="servers"
       class="view on"
     >
+
       <div
         id="serverGrid"
         class="grid"
       ></div>
+
     </section>
+
+
+    <!-- GIST -->
 
     <section
       id="gist"
@@ -676,7 +943,8 @@ button:disabled{
 
       <div class="panel">
 
-        <h2>
+        <h2 class="sectionTitle">
+          <i class="bi bi-file-earmark-code"></i>
           servers.json
         </h2>
 
@@ -684,16 +952,21 @@ button:disabled{
           id="gistEditor"
         ></textarea>
 
+
         <button
           class="btn goldbtn"
           onclick="saveGist()"
         >
+          <i class="bi bi-save"></i>
           ذخیره گیست
         </button>
 
       </div>
 
     </section>
+
+
+    <!-- WORKFLOWS -->
 
     <section
       id="flows"
@@ -706,8 +979,10 @@ button:disabled{
           class="btn ghost"
           onclick="loadFlows()"
         >
+          <i class="bi bi-arrow-clockwise"></i>
           بارگذاری ورک‌فلوها
         </button>
+
 
         <div id="flowsList"></div>
 
@@ -729,15 +1004,19 @@ button:disabled{
 
   <div class="modalbox">
 
-    <h2>
+    <h2 class="sectionTitle">
+      <i class="bi bi-play-circle"></i>
       شروع سرور
     </h2>
+
 
     <div class="field">
 
       <label>
+        <i class="bi bi-box"></i>
         نسخه
       </label>
+
 
       <div
         class="drop"
@@ -754,6 +1033,7 @@ button:disabled{
           </span>
         </button>
 
+
         <div class="dropMenu">
 
           <button
@@ -766,8 +1046,10 @@ button:disabled{
               '1.9.7'
             )"
           >
+            <i class="bi bi-box-seam"></i>
             1.9.7
           </button>
+
 
           <button
             type="button"
@@ -779,12 +1061,14 @@ button:disabled{
               '1.9.6'
             )"
           >
+            <i class="bi bi-box-seam"></i>
             1.9.6
           </button>
 
         </div>
 
       </div>
+
 
       <input
         type="hidden"
@@ -798,8 +1082,10 @@ button:disabled{
     <div class="field">
 
       <label>
+        <i class="bi bi-map"></i>
         نقشه
       </label>
+
 
       <div
         class="drop"
@@ -816,6 +1102,7 @@ button:disabled{
           </span>
         </button>
 
+
         <div class="dropMenu">
 
           <button
@@ -828,8 +1115,10 @@ button:disabled{
               'City'
             )"
           >
+            <i class="bi bi-geo-alt"></i>
             City
           </button>
+
 
           <button
             type="button"
@@ -841,8 +1130,10 @@ button:disabled{
               'Garage'
             )"
           >
+            <i class="bi bi-house"></i>
             Garage
           </button>
+
 
           <button
             type="button"
@@ -854,8 +1145,10 @@ button:disabled{
               'RagdollParty'
             )"
           >
+            <i class="bi bi-people"></i>
             RagdollParty
           </button>
+
 
           <button
             type="button"
@@ -867,8 +1160,10 @@ button:disabled{
               'TrainFacility'
             )"
           >
+            <i class="bi bi-train-front"></i>
             TrainFacility
           </button>
+
 
           <button
             type="button"
@@ -880,8 +1175,10 @@ button:disabled{
               'ZombieSurvival'
             )"
           >
+            <i class="bi bi-bug"></i>
             ZombieSurvival
           </button>
+
 
           <button
             type="button"
@@ -893,8 +1190,10 @@ button:disabled{
               'NewTerrainRamps'
             )"
           >
+            <i class="bi bi-signpost-split"></i>
             NewTerrainRamps
           </button>
+
 
           <button
             type="button"
@@ -906,8 +1205,10 @@ button:disabled{
               'Island'
             )"
           >
+            <i class="bi bi-water"></i>
             Island
           </button>
+
 
           <button
             type="button"
@@ -919,8 +1220,10 @@ button:disabled{
               'CarSoccer'
             )"
           >
+            <i class="bi bi-car-front"></i>
             CarSoccer
           </button>
+
 
           <button
             type="button"
@@ -932,12 +1235,14 @@ button:disabled{
               'سفارشی'
             )"
           >
+            <i class="bi bi-stars"></i>
             سفارشی
           </button>
 
         </div>
 
       </div>
+
 
       <input
         type="hidden"
@@ -951,6 +1256,7 @@ button:disabled{
     <div class="field">
 
       <label>
+        <i class="bi bi-shield-lock"></i>
         کد ادمین سرور
       </label>
 
@@ -969,6 +1275,7 @@ button:disabled{
     >
 
       <label>
+        <i class="bi bi-file-earmark"></i>
         نام فایل نقشه
       </label>
 
@@ -977,7 +1284,9 @@ button:disabled{
         placeholder="Prime.txt"
       >
 
+
       <label>
+        <i class="bi bi-code-square"></i>
         محتوای نقشه
       </label>
 
@@ -992,13 +1301,16 @@ button:disabled{
       class="btn mint"
       onclick="startServer()"
     >
+      <i class="bi bi-play-fill"></i>
       روشن کردن سرور
     </button>
+
 
     <button
       class="btn ghost"
       onclick="closeModal()"
     >
+      <i class="bi bi-x-lg"></i>
       لغو
     </button>
 
@@ -1020,9 +1332,14 @@ button:disabled{
 
       <div>
 
-        <h2 id="fileTitle">
+        <h2
+          id="fileTitle"
+          class="sectionTitle"
+        >
+          <i class="bi bi-folder2-open"></i>
           فایل‌های Runner
         </h2>
+
 
         <div
           id="filePath"
@@ -1033,10 +1350,12 @@ button:disabled{
 
       </div>
 
+
       <button
         class="btn ghost"
         onclick="closeFileModal()"
       >
+        <i class="bi bi-x-lg"></i>
         بستن
       </button>
 
@@ -1081,6 +1400,7 @@ button:disabled{
           class="gold"
         ></b>
 
+
         <button
           class="btn ghost"
           onclick="
@@ -1089,10 +1409,12 @@ button:disabled{
             ).style.display='none'
           "
         >
+          <i class="bi bi-x-lg"></i>
           بستن فایل
         </button>
 
       </div>
+
 
       <pre
         id="viewerText"
@@ -1120,7 +1442,8 @@ button:disabled{
         class="btn ghost"
         onclick="refreshFiles()"
       >
-        ↻ تازه‌سازی
+        <i class="bi bi-arrow-clockwise"></i>
+        تازه‌سازی
       </button>
 
     </div>
@@ -1144,14 +1467,6 @@ const C={
 const AUTH="hpanel_auth";
 const DT="hpanel_dashboard_token";
 
-/*
-  Your workflow keeps the runner alive for:
-
-  5 hours + 45 minutes
-  = 5*60*60 + 45*60
-  = 20700 seconds
-*/
-
 const SERVER_LIFETIME_MS=
   (5*60*60+45*60)*1000;
 
@@ -1159,7 +1474,6 @@ let token="";
 let admin=false;
 let data=null;
 let pending=null;
-
 let countdownTimer=null;
 
 
@@ -1217,7 +1531,15 @@ function toast(
   x.className=
     "toast "+c;
 
-  x.textContent=t;
+  const icon=
+    c==="err"
+    ?"bi-exclamation-triangle-fill"
+    :"bi-check-circle-fill";
+
+  x.innerHTML=`
+    <i class="bi ${icon}"></i>
+    <span>${esc(t)}</span>
+  `;
 
   document.body.appendChild(x);
 
@@ -1234,7 +1556,7 @@ function toast(
 }
 
 
-/* GITHUB API */
+/* GITHUB */
 
 function api(
   path,
@@ -1306,7 +1628,7 @@ async function gist(){
 }
 
 
-/* ESCAPE HTML */
+/* ESCAPE */
 
 function esc(s){
 
@@ -1326,14 +1648,7 @@ function esc(s){
 }
 
 
-/* -------------------------
-   COUNTDOWN
-------------------------- */
-
-/*
-  Returns the remaining lifetime
-  based on started_at from servers.json.
-*/
+/* COUNTDOWN */
 
 function getRemainingMs(
   startedAt
@@ -1371,16 +1686,12 @@ function formatCountdown(
     Math.floor(ms/1000);
 
   const hours=
-    Math.floor(
-      total/3600
-    );
+    Math.floor(total/3600);
 
   total%=3600;
 
   const minutes=
-    Math.floor(
-      total/60
-    );
+    Math.floor(total/60);
 
   const seconds=
     total%60;
@@ -1425,9 +1736,13 @@ function updateCountdowns(){
       ){
 
         el.textContent="—";
-        el.classList.remove("expired");
+
+        el.classList.remove(
+          "expired"
+        );
 
         return;
+
       }
 
       const remaining=
@@ -1468,9 +1783,7 @@ function startCountdownTimer(){
 }
 
 
-/* -------------------------
-   DASHBOARD
-------------------------- */
+/* DASHBOARD */
 
 async function refreshDashboard(){
 
@@ -1518,6 +1831,7 @@ function render(){
 
   root.innerHTML="";
 
+
   (
     data?.servers||[]
   ).forEach(s=>{
@@ -1529,6 +1843,14 @@ function render(){
 
     const on=
       st==="online";
+
+    const statusIcon=
+      on
+      ?"bi-circle-fill"
+      :st==="starting"
+      ?"bi-hourglass-split"
+      :"bi-circle";
+
 
     const d=
       document.createElement(
@@ -1545,23 +1867,50 @@ function render(){
         :""
       );
 
+
     d.innerHTML=`
 
-      <div class="name">
-        سرور ${esc(s.slot)}
+      <div class="serverHead">
+
+        <div class="serverName">
+
+          <i class="bi bi-hdd-rack"></i>
+
+          <div class="name">
+            سرور ${esc(s.slot)}
+          </div>
+
+        </div>
+
+
+        <div
+          class="statusIcon ${esc(st)}"
+        >
+
+          <i
+            class="bi ${statusIcon}"
+          ></i>
+
+          ${esc(st)}
+
+        </div>
+
       </div>
+
 
       <div class="sub">
 
-        ${esc(st)}
-
-        ${s.map
-          ?" · "+esc(s.map)
+        ${
+          s.map
+          ?`<i class="bi bi-map"></i>
+             ${esc(s.map)}`
           :""
         }
 
-        ${s.version
-          ?" · v"+esc(s.version)
+        ${
+          s.version
+          ?` · <i class="bi bi-box"></i>
+             v${esc(s.version)}`
           :""
         }
 
@@ -1570,37 +1919,71 @@ function render(){
 
       <div class="bits">
 
+
         <div class="bit">
-          آدرس<br>
+
+          <div class="bitLabel">
+            <i class="bi bi-link-45deg"></i>
+            آدرس
+          </div>
+
           ${esc(s.endpoint||"—")}
+
         </div>
 
+
         <div class="bit">
-          IP<br>
+
+          <div class="bitLabel">
+            <i class="bi bi-router"></i>
+            IP
+          </div>
+
           ${esc(s.ip||"—")}
+
         </div>
 
+
         <div class="bit">
-          پورت<br>
+
+          <div class="bitLabel">
+            <i class="bi bi-ethernet"></i>
+            پورت
+          </div>
+
           ${esc(s.port||"—")}
+
         </div>
 
+
         <div class="bit">
-          وضعیت<br>
+
+          <div class="bitLabel">
+            <i class="bi bi-activity"></i>
+            وضعیت
+          </div>
+
           ${esc(st)}
+
         </div>
+
 
         <div
           class="bit"
           style="grid-column:1/-1"
         >
 
-          زمان باقی‌مانده
+          <div class="bitLabel">
+            <i class="bi bi-stopwatch"></i>
+            زمان باقی‌مانده
+          </div>
+
 
           <div
             class="countdown"
             data-countdown-slot="${Number(s.slot)}"
           >
+
             ${
               on&&s.started_at
               ?formatCountdown(
@@ -1610,6 +1993,7 @@ function render(){
                 )
               :"—"
             }
+
           </div>
 
         </div>
@@ -1617,7 +2001,8 @@ function render(){
       </div>
 
 
-      <div class="row">
+      <div class="row serverActions">
+
 
         <button
           class="btn mint"
@@ -1630,7 +2015,10 @@ function render(){
             ${Number(s.slot)}
           )"
         >
+
+          <i class="bi bi-play-fill"></i>
           روشن
+
         </button>
 
 
@@ -1650,7 +2038,10 @@ function render(){
             }
           )"
         >
+
+          <i class="bi bi-stop-fill"></i>
           خاموش
+
         </button>
 
 
@@ -1665,7 +2056,10 @@ function render(){
             ${Number(s.slot)}
           )"
         >
+
+          <i class="bi bi-folder2-open"></i>
           مشاهده فایل‌ها
+
         </button>
 
       </div>
@@ -1676,14 +2070,13 @@ function render(){
 
   });
 
+
   updateCountdowns();
 
 }
 
 
-/* -------------------------
-   TABS
-------------------------- */
+/* TABS */
 
 function tab(
   id,
@@ -1804,9 +2197,7 @@ async function saveGist(){
 }
 
 
-/* -------------------------
-   CUSTOM DROPDOWNS
-------------------------- */
+/* DROPDOWNS */
 
 function toggleDrop(id){
 
@@ -1862,6 +2253,7 @@ function chooseDrop(
     )
     .value=value;
 
+
   document
     .getElementById(
       dropId
@@ -1871,13 +2263,14 @@ function chooseDrop(
     )
     .textContent=text;
 
+
   document
     .getElementById(
       dropId
     )
-    .classList.remove(
-      "open"
-    );
+    .classList
+    .remove("open");
+
 
   if(inputId==="map"){
 
@@ -1913,67 +2306,46 @@ document.addEventListener(
 );
 
 
-/* -------------------------
-   START SERVER
-------------------------- */
+/* START */
 
 function openStart(slot){
 
   pending=slot;
 
   document
-    .getElementById(
-      "version"
-    )
+    .getElementById("version")
     .value="";
 
   document
-    .getElementById(
-      "map"
-    )
+    .getElementById("map")
     .value="";
 
   document
-    .getElementById(
-      "versionText"
-    )
+    .getElementById("versionText")
     .textContent=
       "انتخاب نسخه";
 
   document
-    .getElementById(
-      "mapText"
-    )
+    .getElementById("mapText")
     .textContent=
       "انتخاب نقشه";
 
   document
-    .getElementById(
-      "customBox"
-    )
+    .getElementById("customBox")
     .style.display=
       "none";
 
   document
-    .getElementById(
-      "versionDrop"
-    )
-    .classList
-    .remove("open");
+    .getElementById("versionDrop")
+    .classList.remove("open");
 
   document
-    .getElementById(
-      "mapDrop"
-    )
-    .classList
-    .remove("open");
+    .getElementById("mapDrop")
+    .classList.remove("open");
 
   document
-    .getElementById(
-      "startModal"
-    )
-    .classList
-    .remove("hidden");
+    .getElementById("startModal")
+    .classList.remove("hidden");
 
 }
 
@@ -2017,63 +2389,68 @@ async function startServer(){
 
   const map=
     document
-      .getElementById(
-        "map"
-      )
+      .getElementById("map")
       .value;
 
   const version=
     document
-      .getElementById(
-        "version"
-      )
+      .getElementById("version")
       .value;
 
   const code=
     document
-      .getElementById(
-        "adminCode"
-      )
+      .getElementById("adminCode")
       .value
       .trim();
 
-  if(!version)
+
+  if(!version){
+
     return toast(
       "نسخه را انتخاب کن",
       "err"
     );
 
-  if(!map)
+  }
+
+
+  if(!map){
+
     return toast(
       "نقشه را انتخاب کن",
       "err"
     );
 
-  if(!/^\d+$/.test(code))
+  }
+
+
+  if(!/^\d+$/.test(code)){
+
     return toast(
       "کد ادمین باید عدد باشد",
       "err"
     );
 
+  }
+
+
   let name="";
   let body="";
+
 
   if(map==="Custom"){
 
     name=
       document
-        .getElementById(
-          "customName"
-        )
+        .getElementById("customName")
         .value
         .trim();
 
     body=
       document
-        .getElementById(
-          "customBody"
-        )
+        .getElementById("customBody")
         .value;
+
 
     if(
       !name||
@@ -2089,10 +2466,12 @@ async function startServer(){
 
   }
 
+
   busy(
     true,
     "در حال ارسال درخواست..."
   );
+
 
   try{
 
@@ -2124,6 +2503,7 @@ async function startServer(){
 
     }
 
+
     await json(
       `/repos/${C.owner}/${C.repo}/actions/workflows/${encodeURIComponent(C.workflow)}/dispatches`,
       {
@@ -2151,17 +2531,21 @@ async function startServer(){
       }
     );
 
+
     toast(
       "درخواست روشن شدن ارسال شد",
       "ok"
     );
 
+
     closeModal();
+
 
     setTimeout(
       refreshDashboard,
       2500
     );
+
 
   }catch(e){
 
@@ -2179,20 +2563,22 @@ async function startServer(){
 }
 
 
-/* -------------------------
-   STOP SERVER
-------------------------- */
+/* STOP */
 
 async function stopServer(
   slot,
   run
 ){
 
-  if(!run)
+  if(!run){
+
     return toast(
       "شناسه اجرا پیدا نشد",
       "err"
     );
+
+  }
+
 
   if(
     !confirm(
@@ -2201,10 +2587,12 @@ async function stopServer(
   )
     return;
 
+
   busy(
     true,
     "در حال خاموش کردن سرور..."
   );
+
 
   try{
 
@@ -2215,6 +2603,7 @@ async function stopServer(
           method:"POST"
         }
       );
+
 
     if(
       !r.ok&&
@@ -2227,15 +2616,18 @@ async function stopServer(
 
     }
 
+
     toast(
       "درخواست خاموشی ارسال شد",
       "ok"
     );
 
+
     setTimeout(
       refreshDashboard,
       2500
     );
+
 
   }catch(e){
 
@@ -2253,82 +2645,12 @@ async function stopServer(
 }
 
 
-/* -------------------------
-   FILE MANAGER
-------------------------- */
+/* FILE MANAGER */
 
 let fileSlot=null;
 let fileSnapshot=null;
 let filePath="/";
 let fileData={};
-
-
-function normPath(p){
-
-  p=
-    String(p||"/")
-      .replace(
-        /\\/g,
-        "/"
-      );
-
-  if(
-    !p.startsWith("/")
-  )
-    p="/"+p;
-
-  const out=[];
-
-  for(
-    const part of p.split("/")
-  ){
-
-    if(
-      !part||
-      part=="."
-    )
-      continue;
-
-    if(
-      part===".."
-    ){
-
-      if(out.length)
-        out.pop();
-
-    }else{
-
-      out.push(part);
-
-    }
-
-  }
-
-  return "/"+
-    out.join("/");
-
-}
-
-
-function pathParent(p){
-
-  p=
-    normPath(p);
-
-  if(p==="/")
-    return "/";
-
-  const a=
-    p
-      .split("/")
-      .filter(Boolean);
-
-  a.pop();
-
-  return "/"+
-    a.join("/");
-
-}
 
 
 function fileOpen(slot){
@@ -2341,13 +2663,17 @@ function fileOpen(slot){
   fileSnapshot=null;
   fileData={};
 
+
   document
     .getElementById(
       "fileTitle"
     )
-    .textContent=
-      "فایل‌های Runner · سرور "+
-      fileSlot;
+    .innerHTML=`
+      <i class="bi bi-folder2-open"></i>
+      فایل‌های Runner · سرور
+      ${esc(fileSlot)}
+    `;
+
 
   document
     .getElementById(
@@ -2356,12 +2682,14 @@ function fileOpen(slot){
     .style.display=
       "none";
 
+
   document
     .getElementById(
       "fileModal"
     )
     .classList
     .remove("hidden");
+
 
   refreshFiles();
 
@@ -2375,6 +2703,7 @@ function closeFileModal(){
       "fileModal"
     );
 
+
   if(
     m.classList.contains(
       "hidden"
@@ -2382,9 +2711,11 @@ function closeFileModal(){
   )
     return;
 
+
   m.classList.add(
     "closing"
   );
+
 
   setTimeout(()=>{
 
@@ -2411,6 +2742,7 @@ async function openFiles(slot){
           Number(slot)
       );
 
+
   if(
     !server||
     String(
@@ -2427,6 +2759,7 @@ async function openFiles(slot){
 
   }
 
+
   fileOpen(slot);
 
 }
@@ -2437,18 +2770,24 @@ async function refreshFiles(){
   if(!fileSlot)
     return;
 
+
   const list=
     document.getElementById(
       "fileList"
     );
 
-  list.innerHTML=
-    `
-      <div class="loading">
-        در حال دریافت فایل‌های Runner...
-        <span class="spin"></span>
-      </div>
-    `;
+
+  list.innerHTML=`
+    <div class="loading">
+
+      <i class="bi bi-cloud-download"></i>
+      در حال دریافت فایل‌های Runner...
+
+      <span class="spin"></span>
+
+    </div>
+  `;
+
 
   document
     .getElementById(
@@ -2457,6 +2796,7 @@ async function refreshFiles(){
     .style.display=
       "none";
 
+
   try{
 
     const g=
@@ -2464,24 +2804,29 @@ async function refreshFiles(){
         "/gists/"+C.gist
       );
 
+
     const name=
       "runtime-"+
       fileSlot+
       ".json";
 
+
     const runtime=
       g.files?.[name];
+
 
     if(!runtime)
       throw Error(
         "Snapshot سرور پیدا نشد"
       );
 
+
     let content=
       typeof runtime.content===
       "string"
       ?runtime.content
       :null;
+
 
     if(
       runtime.truncated&&
@@ -2493,37 +2838,123 @@ async function refreshFiles(){
           runtime.raw_url
         );
 
+
       if(r.ok)
         content=
           await r.text();
 
     }
 
+
     if(!content)
       throw Error(
         "Snapshot خالی است"
       );
 
+
     fileSnapshot=
       JSON.parse(content);
+
 
     fileData=
       fileSnapshot.files||{};
 
+
     filePath="/";
+
 
     renderFiles();
 
+
   }catch(e){
 
-    list.innerHTML=
-      `
-        <div class="loading err">
-          ${esc(e.message)}
-        </div>
-      `;
+    list.innerHTML=`
+      <div class="loading err">
+
+        <i class="bi bi-exclamation-triangle"></i>
+        ${esc(e.message)}
+
+      </div>
+    `;
 
   }
+
+}
+
+
+function normPath(p){
+
+  p=
+    String(p||"/")
+      .replace(
+        /\\/g,
+        "/"
+      );
+
+
+  if(
+    !p.startsWith("/")
+  )
+    p="/"+p;
+
+
+  const out=[];
+
+
+  for(
+    const part of p.split("/")
+  ){
+
+    if(
+      !part||
+      part=="."
+    )
+      continue;
+
+
+    if(
+      part===".."
+    ){
+
+      if(out.length)
+        out.pop();
+
+    }else{
+
+      out.push(part);
+
+    }
+
+  }
+
+
+  return "/"+
+    out.join("/");
+
+}
+
+
+function pathParent(p){
+
+  p=
+    normPath(p);
+
+
+  if(p==="/")
+    return "/";
+
+
+  const a=
+    p
+      .split("/")
+      .filter(Boolean);
+
+
+  a.pop();
+
+
+  return "/"+
+    a.join("/");
 
 }
 
@@ -2533,19 +2964,17 @@ function renderFiles(){
   const all=
     fileData||{};
 
+
   const base=
     normPath(
       filePath
     );
 
+
   const entries=[];
   const seen=
     new Set();
 
-  /*
-    Build a virtual directory tree from
-    every absolute path stored by the runner.
-  */
 
   for(
     const raw of Object.keys(all)
@@ -2554,10 +2983,12 @@ function renderFiles(){
     const full=
       normPath(raw);
 
+
     if(
       full===base
     )
       continue;
+
 
     if(
       base!=="/"&&
@@ -2567,6 +2998,7 @@ function renderFiles(){
     )
       continue;
 
+
     const rel=
       base==="/"
       ?full.slice(1)
@@ -2574,14 +3006,18 @@ function renderFiles(){
           base.length+1
         );
 
+
     if(!rel)
       continue;
+
 
     const parts=
       rel.split("/");
 
+
     const first=
       parts[0];
+
 
     if(
       parts.length>1
@@ -2594,15 +3030,18 @@ function renderFiles(){
           first
         );
 
+
       const key=
         "dir:"+
         dirPath;
+
 
       if(
         !seen.has(key)
       ){
 
         seen.add(key);
+
 
         entries.push({
           type:"dir",
@@ -2612,20 +3051,24 @@ function renderFiles(){
 
       }
 
+
     }else{
 
       const obj=
         all[raw];
 
+
       const key=
         "file:"+
         full;
+
 
       if(
         !seen.has(key)
       ){
 
         seen.add(key);
+
 
         entries.push({
           type:"file",
@@ -2651,6 +3094,7 @@ function renderFiles(){
           ?-1
           :1;
 
+
       return a.name.localeCompare(
         b.name,
         undefined,
@@ -2669,12 +3113,14 @@ function renderFiles(){
       "fileList"
     );
 
+
   box.innerHTML="";
 
 
   /*
-    ".." is inside the SAME
-    file/folder container.
+    Parent button is INSIDE
+    the exact same container
+    as the folders/files.
   */
 
   if(
@@ -2686,25 +3132,30 @@ function renderFiles(){
         "button"
       );
 
+
     up.type="button";
 
     up.className=
       "fileItem";
 
-    up.innerHTML=
-      `
-        <span class="fileIcon">
-          ↩
-        </span>
 
-        <span class="fileName">
-          ..
-        </span>
+    up.innerHTML=`
 
-        <span class="fileKind">
-          پوشه قبل
-        </span>
-      `;
+      <span class="fileIcon">
+        <i class="bi bi-arrow-up"></i>
+      </span>
+
+      <span class="fileName">
+        ..
+      </span>
+
+      <span class="fileKind">
+        <i class="bi bi-folder-symlink"></i>
+        پوشه قبل
+      </span>
+
+    `;
+
 
     up.onclick=()=>{
 
@@ -2716,6 +3167,7 @@ function renderFiles(){
       renderFiles();
 
     };
+
 
     box.appendChild(up);
 
@@ -2731,17 +3183,25 @@ function renderFiles(){
         "div"
       );
 
+
     empty.className=
       "loading";
 
-    empty.textContent=
-      base==="/"
-      ?"هیچ فایل یا پوشه‌ای در Snapshot پیدا نشد."
-      :"این پوشه خالی است.";
+
+    empty.innerHTML=`
+      <i class="bi bi-folder2"></i>
+      ${
+        base==="/"
+        ?"هیچ فایل یا پوشه‌ای در Snapshot پیدا نشد."
+        :"این پوشه خالی است."
+      }
+    `;
+
 
     box.appendChild(
       empty
     );
+
 
     document
       .getElementById(
@@ -2749,6 +3209,7 @@ function renderFiles(){
       )
       .textContent=
         base;
+
 
     return;
 
@@ -2764,33 +3225,68 @@ function renderFiles(){
         "button"
       );
 
+
     b.type="button";
 
     b.className=
       "fileItem";
 
-    b.innerHTML=
-      `
-        <span class="fileIcon">
+
+    b.innerHTML=`
+
+      <span
+        class="
+          fileIcon
           ${
             e.type==="dir"
-            ?"📁"
-            :"📄"
+            ?"folder"
+            :"file"
           }
-        </span>
+        "
+      >
 
-        <span class="fileName">
-          ${esc(e.name)}
-        </span>
+        <i
+          class="
+            bi
+            ${
+              e.type==="dir"
+              ?"bi-folder-fill"
+              :"bi-file-earmark-text"
+            }
+          "
+        ></i>
 
-        <span class="fileKind">
-          ${
-            e.type==="dir"
-            ?"پوشه"
-            :"فایل"
-          }
-        </span>
-      `;
+      </span>
+
+
+      <span class="fileName">
+        ${esc(e.name)}
+      </span>
+
+
+      <span class="fileKind">
+
+        <i
+          class="
+            bi
+            ${
+              e.type==="dir"
+              ?"bi-folder"
+              :"bi-file-earmark"
+            }
+          "
+        ></i>
+
+        ${
+          e.type==="dir"
+          ?"پوشه"
+          :"فایل"
+        }
+
+      </span>
+
+    `;
+
 
     b.onclick=()=>{
 
@@ -2813,6 +3309,7 @@ function renderFiles(){
       }
 
     };
+
 
     box.appendChild(b);
 
@@ -2838,10 +3335,14 @@ function showFile(
     .getElementById(
       "viewerTitle"
     )
-    .textContent=
-      path;
+    .innerHTML=`
+      <i class="bi bi-file-earmark-text"></i>
+      ${esc(path)}
+    `;
+
 
   let body="";
+
 
   if(obj){
 
@@ -2874,12 +3375,14 @@ function showFile(
 
   }
 
+
   document
     .getElementById(
       "viewerText"
     )
     .textContent=
       body;
+
 
   document
     .getElementById(
@@ -2891,9 +3394,7 @@ function showFile(
 }
 
 
-/* -------------------------
-   WORKFLOWS
-------------------------- */
+/* WORKFLOWS */
 
 async function loadFlows(){
 
@@ -2902,12 +3403,14 @@ async function loadFlows(){
     "در حال بارگذاری ورک‌فلوها..."
   );
 
+
   try{
 
     const d=
       await json(
         `/repos/${C.owner}/${C.repo}/actions/runs?per_page=20`
       );
+
 
     document
       .getElementById(
@@ -2922,19 +3425,26 @@ async function loadFlows(){
             `
               <div class="panel">
 
-                <b>
-                  ${esc(x.name)}
-                </b>
+                <div class="sectionTitle">
+
+                  <i class="bi bi-gear"></i>
+
+                  <b>
+                    ${esc(x.name)}
+                  </b>
+
+                </div>
 
                 <div class="sub">
+
+                  <i class="bi bi-activity"></i>
 
                   ${esc(x.status)}
 
                   ${
                     x.conclusion
-                    ?" "+esc(
-                        x.conclusion
-                      )
+                    ?" · "+
+                      esc(x.conclusion)
                     :""
                   }
 
@@ -2945,12 +3455,14 @@ async function loadFlows(){
         )
         .join("");
 
+
   }catch(e){
 
     toast(
       e.message,
       "err"
     );
+
 
   }finally{
 
@@ -2961,9 +3473,7 @@ async function loadFlows(){
 }
 
 
-/* -------------------------
-   LOGOUT
-------------------------- */
+/* LOGOUT */
 
 function logout(){
 
@@ -2981,14 +3491,13 @@ function logout(){
 }
 
 
-/* -------------------------
-   INITIALIZATION
-------------------------- */
+/* INIT */
 
 (async()=>{
 
   const a=
     getAuth();
+
 
   document
     .getElementById(
@@ -3011,6 +3520,7 @@ function logout(){
   admin=
     !!a.admin;
 
+
   token=
     localStorage.getItem(
       DT
@@ -3024,6 +3534,7 @@ function logout(){
       "err"
     );
 
+
     location.href=
       "https://herculepanel.github.io/vault/";
 
@@ -3036,10 +3547,16 @@ function logout(){
     .getElementById(
       "role"
     )
-    .textContent=
+    .innerHTML=
       admin
-      ?"مدیر"
-      :"کاربر";
+      ?`
+        <i class="bi bi-shield-fill-check"></i>
+        مدیر
+      `
+      :`
+        <i class="bi bi-person-check"></i>
+        کاربر
+      `;
 
 
   if(admin){
@@ -3049,14 +3566,15 @@ function logout(){
         "gistTab"
       )
       .style.display=
-        "inline-block";
+        "inline-flex";
+
 
     document
       .getElementById(
         "flowTab"
       )
       .style.display=
-        "inline-block";
+        "inline-flex";
 
   }
 
@@ -3067,12 +3585,14 @@ function logout(){
       `/repos/${C.owner}/${C.repo}`
     );
 
+
     document
       .getElementById(
         "loading"
       )
       .style.display=
         "none";
+
 
     document
       .getElementById(
@@ -3081,23 +3601,16 @@ function logout(){
       .style.display=
         "block";
 
+
     await refreshDashboard();
 
-    /*
-      Start the countdown AFTER the
-      initial servers.json has loaded.
-    */
 
     startCountdownTimer();
 
-    /*
-      Refresh the Gist every 30 seconds
-      so newly-started/stopped servers
-      appear without manually refreshing.
-    */
 
     setInterval(
       async()=>{
+
         try{
 
           data=
@@ -3113,10 +3626,11 @@ function logout(){
       30000
     );
 
+
   }catch(e){
 
     toast(
-      "checking login data... ناموفق: "+
+      "بررسی ورود ناموفق بود: "+
       e.message,
       "err"
     );
