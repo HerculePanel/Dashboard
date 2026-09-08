@@ -78,6 +78,39 @@ a{
 
 
 /* =========================
+   INTRO ANIMATION
+========================= */
+
+body.intro .wrap{
+  opacity:0;
+  transform:translateY(18px) scale(.985);
+}
+
+body.intro.intro-show .wrap{
+  animation:
+    pageIntro .75s
+    cubic-bezier(.22,1,.36,1)
+    forwards;
+}
+
+@keyframes pageIntro{
+  0%{
+    opacity:0;
+    transform:translateY(18px) scale(.985);
+  }
+
+  60%{
+    opacity:1;
+  }
+
+  100%{
+    opacity:1;
+    transform:none;
+  }
+}
+
+
+/* =========================
    MAIN LAYOUT
 ========================= */
 
@@ -99,13 +132,6 @@ a{
 /* =========================
    BRAND
 ========================= */
-
-/*
-   IMPORTANT:
-   dir="ltr" prevents the browser's RTL
-   bidirectional algorithm from scrambling
-   "HPanel Dashboard v1.3".
-*/
 
 .brand{
   direction:ltr;
@@ -924,9 +950,11 @@ textarea{
 .dropBtn{
   width:100%;
 
-  padding:10px 13px;
+  height:36px;
 
-  border-radius:11px;
+  padding:7px 11px;
+
+  border-radius:10px;
 
   border:1px solid var(--line);
 
@@ -935,7 +963,7 @@ textarea{
 
   color:#fff;
 
-  font:14px Lalezar,Tahoma,sans-serif;
+  font:13px Lalezar,Tahoma,sans-serif;
 
   outline:none;
 
@@ -958,7 +986,7 @@ textarea{
 
   color:var(--gold);
 
-  font-size:16px;
+  font-size:15px;
 
   transition:
     transform .35s;
@@ -979,11 +1007,23 @@ textarea{
   left:0;
   right:0;
 
-  padding:6px;
+  padding:5px;
+
+  max-height:150px;
+
+  overflow-y:auto;
+  overflow-x:hidden;
+
+  overscroll-behavior:contain;
+
+  scrollbar-width:thin;
+  scrollbar-color:
+    var(--gold)
+    rgba(255,255,255,.05);
 
   border:1px solid var(--line);
 
-  border-radius:13px;
+  border-radius:12px;
 
   background:
     rgba(22,17,12,.96);
@@ -1008,6 +1048,24 @@ textarea{
     visibility .3s;
 }
 
+.dropMenu::-webkit-scrollbar{
+  width:5px;
+}
+
+.dropMenu::-webkit-scrollbar-track{
+  background:
+    rgba(255,255,255,.04);
+
+  border-radius:999px;
+}
+
+.dropMenu::-webkit-scrollbar-thumb{
+  background:
+    var(--gold);
+
+  border-radius:999px;
+}
+
 .drop.open .dropMenu{
   opacity:1;
   visibility:visible;
@@ -1024,11 +1082,13 @@ textarea{
 
   color:var(--text);
 
-  padding:9px 11px;
+  padding:7px 10px;
 
-  border-radius:9px;
+  min-height:30px;
 
-  font:14px Lalezar,Tahoma,sans-serif;
+  border-radius:8px;
+
+  font:13px Lalezar,Tahoma,sans-serif;
 
   text-align:right;
 
@@ -1190,6 +1250,90 @@ textarea{
 
 
 /* =========================
+   VAULT FOOTER
+========================= */
+
+.footer{
+  width:min(1160px,calc(100% - 30px));
+
+  margin:18px auto 0;
+
+  padding:14px 16px;
+
+  border:1px solid var(--line);
+
+  border-radius:16px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.055),
+      rgba(255,180,58,.035),
+      rgba(255,255,255,.018)
+    );
+
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+
+  box-shadow:
+    inset 0 1px 0
+    rgba(255,255,255,.06),
+    0 14px 35px
+    rgba(0,0,0,.16);
+
+  text-align:center;
+
+  color:var(--muted);
+
+  font-size:12px;
+
+  line-height:1.8;
+}
+
+.footer-brand{
+  color:var(--text);
+
+  font-size:15px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  flex-wrap:wrap;
+
+  gap:7px;
+}
+
+.footer-link{
+  color:var(--gold);
+
+  text-decoration:none;
+
+  transition:
+    opacity .25s;
+}
+
+.footer-link:hover{
+  opacity:.75;
+}
+
+.footer-dot{
+  width:4px;
+  height:4px;
+
+  display:inline-block;
+
+  border-radius:50%;
+
+  background:var(--gold);
+
+  opacity:.7;
+}
+
+
+/* =========================
    MOBILE
 ========================= */
 
@@ -1233,13 +1377,27 @@ textarea{
     flex:1;
   }
 
+  .footer{
+    width:calc(100% - 20px);
+
+    margin-top:12px;
+
+    padding:11px 12px;
+
+    font-size:11px;
+  }
+
+  .footer-brand{
+    font-size:14px;
+  }
+
 }
 
 </style>
 </head>
 
 
-<body>
+<body class="intro">
 
 <div class="wrap">
 
@@ -1251,18 +1409,12 @@ textarea{
 
     <div>
 
-      <!--
-        dir="ltr" is the important fix here.
-        This will ALWAYS render:
-        HPanel Dashboard v1.3
-      -->
-
       <div
         class="brand"
         dir="ltr"
       >
         <span class="gold">H</span><span class="gold">P</span>anel
-        <span>&nbsp;Dashboard&nbsp;</span>
+        <span>&nbsp;<span class="gold">D</span>ashboard&nbsp;</span>
         <span class="gold">v1.3</span>
       </div>
 
@@ -1459,6 +1611,54 @@ textarea{
 
 
 <!-- =========================
+     VAULT FOOTER
+========================== -->
+
+<footer class="footer">
+
+  <div class="footer-brand">
+
+    <span>
+      <span class="gold">H</span>Panel Dashboard
+    </span>
+
+    <span class="footer-dot"></span>
+
+    <span>
+      نسخه 1.3
+    </span>
+
+  </div>
+
+
+  <div>
+    ساخته شده با
+    <span class="gold">♥</span>
+    برای اکوسیستم HPanel
+  </div>
+
+
+  <div>
+
+    <a
+      class="footer-link"
+      href="https://herculepanel.github.io/"
+    >
+      HerculePanel
+    </a>
+
+    <span class="footer-dot"></span>
+
+    <span>
+      Secure • Glassy • Lightweight
+    </span>
+
+  </div>
+
+</footer>
+
+
+<!-- =========================
      START SERVER MODAL
 ========================== -->
 
@@ -1506,12 +1706,7 @@ textarea{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop(
-              'versionDrop',
-              'version',
-              '1.9.7',
-              '1.9.7'
-            )"
+            onclick="chooseDrop('versionDrop','version','1.9.7','1.9.7')"
           >
             <i class="bi bi-box-seam"></i>
             1.9.7
@@ -1521,12 +1716,7 @@ textarea{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop(
-              'versionDrop',
-              'version',
-              '1.9.6',
-              '1.9.6'
-            )"
+            onclick="chooseDrop('versionDrop','version','1.9.6','1.9.6')"
           >
             <i class="bi bi-box-seam"></i>
             1.9.6
@@ -1576,12 +1766,7 @@ textarea{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop(
-              'mapDrop',
-              'map',
-              'City',
-              'City'
-            )"
+            onclick="chooseDrop('mapDrop','map','City','City')"
           >
             <i class="bi bi-geo-alt"></i>
             City
@@ -1591,12 +1776,7 @@ textarea{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop(
-              'mapDrop',
-              'map',
-              'Garage',
-              'Garage'
-            )"
+            onclick="chooseDrop('mapDrop','map','Garage','Garage')"
           >
             <i class="bi bi-house"></i>
             Garage
@@ -1606,12 +1786,7 @@ textarea{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop(
-              'mapDrop',
-              'map',
-              'RagdollParty',
-              'RagdollParty'
-            )"
+            onclick="chooseDrop('mapDrop','map','RagdollParty','RagdollParty')"
           >
             <i class="bi bi-people"></i>
             RagdollParty
@@ -1621,12 +1796,7 @@ textarea{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop(
-              'mapDrop',
-              'map',
-              'TrainFacility',
-              'TrainFacility'
-            )"
+            onclick="chooseDrop('mapDrop','map','TrainFacility','TrainFacility')"
           >
             <i class="bi bi-train-front"></i>
             TrainFacility
@@ -1636,12 +1806,7 @@ textarea{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop(
-              'mapDrop',
-              'map',
-              'ZombieSurvival',
-              'ZombieSurvival'
-            )"
+            onclick="chooseDrop('mapDrop','map','ZombieSurvival','ZombieSurvival')"
           >
             <i class="bi bi-bug"></i>
             ZombieSurvival
@@ -1651,12 +1816,7 @@ textarea{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop(
-              'mapDrop',
-              'map',
-              'NewTerrainRamps',
-              'NewTerrainRamps'
-            )"
+            onclick="chooseDrop('mapDrop','map','NewTerrainRamps','NewTerrainRamps')"
           >
             <i class="bi bi-signpost-split"></i>
             NewTerrainRamps
@@ -1666,12 +1826,7 @@ textarea{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop(
-              'mapDrop',
-              'map',
-              'Island',
-              'Island'
-            )"
+            onclick="chooseDrop('mapDrop','map','Island','Island')"
           >
             <i class="bi bi-water"></i>
             Island
@@ -1681,12 +1836,7 @@ textarea{
           <button
             type="button"
             class="dropItem"
-            onclick="chooseDrop(
-              'mapDrop',
-              'map',
-              'CarSoccer',
-              'CarSoccer'
-            )"
+            onclick="chooseDrop('mapDrop','map','CarSoccer','CarSoccer')"
           >
             <i class="bi bi-car-front"></i>
             CarSoccer
@@ -1696,12 +1846,7 @@ textarea{
           <button
             type="button"
             class="dropItem custom"
-            onclick="chooseDrop(
-              'mapDrop',
-              'map',
-              'Custom',
-              'سفارشی'
-            )"
+            onclick="chooseDrop('mapDrop','map','Custom','سفارشی')"
           >
             <i class="bi bi-stars"></i>
             سفارشی
@@ -1977,6 +2122,19 @@ textarea{
 
 
 <script>
+
+
+/* =========================================================
+   INTRO ANIMATION
+========================================================= */
+
+requestAnimationFrame(()=>{
+
+  document.body.classList.add(
+    "intro-show"
+  );
+
+});
 
 
 /* =========================================================
@@ -3561,6 +3719,7 @@ async function startServer(){
           }
 
         })
+
       }
     );
 
@@ -4257,11 +4416,6 @@ function renderFiles(){
 
   box.innerHTML="";
 
-
-  /*
-    .. remains INSIDE the same
-    file list container.
-  */
 
   if(base!=="/"){
 
