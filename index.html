@@ -71,16 +71,22 @@ a{
    INTRO ANIMATION
 ========================= */
 
-body.intro .wrap{
+body.intro .wrap,
+body.intro .footer{
   opacity:0;
   transform:translateY(18px) scale(.985);
 }
 
-body.intro.intro-show .wrap{
+body.intro.intro-show .wrap,
+body.intro.intro-show .footer{
   animation:
     pageIntro .75s
     cubic-bezier(.22,1,.36,1)
     forwards;
+}
+
+body.intro.intro-show .footer{
+  animation-delay:.08s;
 }
 
 @keyframes pageIntro{
@@ -1597,9 +1603,6 @@ textarea{
 
   </div>
 
-</div>
-
-
 <!-- =========================
      VAULT FOOTER
 ========================== -->
@@ -1646,6 +1649,10 @@ textarea{
   </div>
 
 </footer>
+
+
+
+</div>
 
 
 <!-- =========================
@@ -1906,6 +1913,7 @@ textarea{
     <div class="row">
 
       <button
+        id="startBtn"
         class="btn mint"
         onclick="startServer()"
       >
@@ -1915,6 +1923,7 @@ textarea{
 
 
       <button
+        id="cancelStartBtn"
         class="btn ghost"
         onclick="closeModal()"
       >
@@ -2160,6 +2169,8 @@ let token="";
 let admin=false;
 let data=null;
 let pending=null;
+let startBusy=false;
+let stopBusy=false;
 
 let countdownTimer=null;
 
@@ -2241,6 +2252,114 @@ function busy(
 
 }
 
+
+
+function setStartBusy(on){
+
+  startBusy=!!on;
+
+  const btn=
+    document.getElementById(
+      "startBtn"
+    );
+
+  const cancel=
+    document.getElementById(
+      "cancelStartBtn"
+    );
+
+  if(btn){
+
+    btn.disabled=!!on;
+
+    btn.innerHTML=
+      on
+      ?`<span class="spin"></span> در حال ارسال...`
+      :`<i class="bi bi-play-fill"></i> روشن کردن سرور`;
+
+  }
+
+  if(cancel)
+    cancel.disabled=!!on;
+
+}
+
+
+async function markSlotStatus(
+  slot,
+  status,
+  extra={}
+){
+
+  const raw=
+    await gist();
+
+  const obj=
+    JSON.parse(
+      raw||"{}"
+    );
+
+  if(
+    !Array.isArray(
+      obj.servers
+    )
+  )
+    obj.servers=[];
+
+  let server=
+    obj.servers.find(
+      s=>
+        Number(s.slot)===
+        Number(slot)
+    );
+
+  if(!server){
+
+    server={
+      slot:Number(slot)
+    };
+
+    obj.servers.push(
+      server
+    );
+
+  }
+
+  Object.assign(
+    server,
+    extra,
+    {
+      status
+    }
+  );
+
+  await json(
+    "/gists/"+C.gist,
+    {
+      method:"PATCH",
+      headers:{
+        "Content-Type":
+          "application/json"
+      },
+      body:JSON.stringify({
+        files:{
+          [C.file]:{
+            content:
+              JSON.stringify(
+                obj,
+                null,
+                2
+              )
+          }
+        }
+      })
+    }
+  );
+
+  data=obj;
+  render();
+
+}
 
 /* =========================================================
    CUSTOM TOAST
@@ -3104,7 +3223,8 @@ function render(){
                   s.run_id
                   ?Number(s.run_id)
                   :"null"
-                }
+                },
+                this
               )
             "
           >
@@ -3648,6 +3768,11 @@ async function startServer(){
   }
 
 
+  if(startBusy)
+    return;
+
+  setStartBusy(true);
+
   busy(
     true,
     "در حال ارسال درخواست..."
@@ -3714,6 +3839,29 @@ async function startServer(){
     );
 
 
+    try{
+
+      await markSlotStatus(
+        slot,
+        "starting",
+        {
+          map,
+          version,
+          endpoint:"—",
+          ip:"—",
+          port:"—"
+        }
+      );
+
+    }catch(err){
+
+      console.log(
+        err
+      );
+
+    }
+
+
     toast(
       "درخواست روشن شدن ارسال شد",
       "ok"
@@ -3739,6 +3887,8 @@ async function startServer(){
 
   }finally{
 
+    setStartBusy(false);
+
     busy(false);
 
   }
@@ -3752,8 +3902,12 @@ async function startServer(){
 
 async function stopServer(
   slot,
-  run
+  run,
+  btn
 ){
+
+  if(stopBusy)
+    return;
 
   if(!run){
 
@@ -3776,6 +3930,17 @@ async function stopServer(
 
   if(!confirmed)
     return;
+
+  stopBusy=true;
+
+  if(btn){
+
+    btn.disabled=true;
+
+    btn.innerHTML=
+      `<span class="spin"></span> در حال خاموشی...`;
+
+  }
 
 
   busy(
@@ -3828,6 +3993,17 @@ async function stopServer(
 
 
   }finally{
+
+    stopBusy=false;
+
+    if(btn){
+
+      btn.disabled=false;
+
+      btn.innerHTML=
+        `<i class="bi bi-stop-fill"></i> خاموش`;
+
+    }
 
     busy(false);
 
